@@ -1,0 +1,83 @@
+# ============================================================
+# .htaccess – SEO-Optimized Configuration
+# ============================================================
+
+Options -Indexes
+
+# -------------------------------------------------------
+# 1. Redirect 404 errors to homepage
+# -------------------------------------------------------
+ErrorDocument 404 /
+
+# -------------------------------------------------------
+# 2. Enable Rewrite Engine
+# -------------------------------------------------------
+RewriteEngine On
+
+# Force HTTPS (uncomment when SSL is active)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Force www → non-www (canonical – pick one and keep it)
+# RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+# RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+# -------------------------------------------------------
+# 3. Redirect all 404s via RewriteRule (belt + suspenders)
+#    Catches anything not matched by a real file/directory
+# -------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ / [R=302,L]
+
+# Note: Use R=301 (permanent) once you're sure the redirect
+# is correct. Start with R=302 (temporary) during testing.
+
+# -------------------------------------------------------
+# 4. Remove .html extension from URLs (clean URLs)
+# -------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
+
+# -------------------------------------------------------
+# 5. Browser Caching (Core Web Vitals – LCP boost)
+# -------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html                 "access plus 1 hour"
+    ExpiresByType text/css                  "access plus 1 month"
+    ExpiresByType application/javascript    "access plus 1 month"
+    ExpiresByType image/jpeg                "access plus 1 year"
+    ExpiresByType image/png                 "access plus 1 year"
+    ExpiresByType image/webp                "access plus 1 year"
+    ExpiresByType image/svg+xml             "access plus 1 year"
+    ExpiresByType font/woff2                "access plus 1 year"
+    ExpiresByType application/font-woff     "access plus 1 year"
+</IfModule>
+
+# -------------------------------------------------------
+# 6. GZIP Compression (page speed / Core Web Vitals)
+# -------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml font/woff2
+</IfModule>
+
+# -------------------------------------------------------
+# 7. Security headers (E-E-A-T trust signals)
+# -------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# -------------------------------------------------------
+# 8. Block common bad bots (crawl budget protection)
+# -------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_USER_AGENT} (AhrefsBot|MJ12bot|DotBot|SemrushBot) [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
