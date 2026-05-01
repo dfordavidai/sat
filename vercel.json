@@ -1,9 +1,6 @@
 {
-  "redirects": [
-    {
-      "source": "/(.+)",
-      "destination": "/",
-      "permanent": true
-    }
+  "redirects": [],
+  "rewrites": [
+    { "source": "/link/:code", "destination": "/redirect_page.html" }
   ]
 }
