@@ -1,12 +1,10 @@
 {
   "redirects": [
-    { "source": "/(.+)", "destination": "/", "permanent": true }
-  ]
-}
-
-
-{
-  "redirects": [
+    {
+      "source": "/(.+)",
+      "destination": "/",
+      "permanent": true
+    },
     {
       "source": "/(.*)",
       "destination": "https://latestupdates.infinityfreeapp.com/threads/top-tv-series-in-may-2026.194/",
