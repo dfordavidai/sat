@@ -1522,8 +1522,8 @@ async function addLinks(){
     retry_count:0, added_at:now, tag: tag||null
   }));
   await sbPost('lc_links', newLinks);
-  // Register the same code on all 4 domains in ic_short_links
-  const shortLinkRows = newLinks.flatMap(l => SHORT_BASES.map(base => ({code:l.code, target:l.original})));
+  // One row per code — code is PRIMARY KEY shared across all 4 domains
+  const shortLinkRows = newLinks.map(l => ({ code: l.code, target: l.original }));
   await sbPost('ic_short_links', shortLinkRows);
   if(!links[activeProj]) links[activeProj]=[];
   links[activeProj].push(...newLinks);
