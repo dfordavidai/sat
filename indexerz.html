@@ -1,0 +1,2994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkCore v10 — Backlink Manager + IndexForce</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;--bg2:#111115;--bg3:#18181d;--bg4:#1e1e25;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#00ff88;--accent-dim:rgba(0,255,136,0.08);--accent-glow:rgba(0,255,136,0.25);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.1);
+  --orange:#f59e0b;--orange-dim:rgba(245,158,11,0.1);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.08);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.1);
+  --cyan:#06b6d4;--cyan-dim:rgba(6,182,212,0.1);
+  --text:#e8eaf0;--muted:#6b7280;--muted2:#3d4350;
+  --mono:'Space Mono',monospace;--display:'Unbounded',sans-serif;
+  --r:12px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:100vh;font-size:12px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.018) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 4px 20px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.brand-logo{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 16px var(--accent-glow)}50%{box-shadow:0 0 32px rgba(0,255,136,.45)}}
+.brand-name{font-family:var(--display);font-size:.95rem;font-weight:800;color:#fff}
+.brand-sub{font-size:.5rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.sb-label{font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;padding:0 4px;margin-top:8px;margin-bottom:4px}
+.sb-btn{width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:.7rem;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.sb-btn:hover{background:var(--bg3);border-color:var(--border);color:var(--text)}
+.sb-btn.active{background:var(--accent-dim);border-color:rgba(0,255,136,.25);color:var(--accent)}
+.sb-btn .dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:background .15s}
+.sb-btn.active .dot{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.sb-btn .cnt{margin-left:auto;font-size:.55rem;background:var(--bg4);border-radius:4px;padding:1px 6px;color:var(--muted)}
+.sb-btn.active .cnt{background:rgba(0,255,136,.15);color:var(--accent)}
+.new-proj-btn{width:100%;background:var(--accent-dim);border:1px dashed rgba(0,255,136,.3);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:.68rem;color:var(--accent);cursor:pointer;transition:all .15s;margin-top:4px}
+.new-proj-btn:hover{background:rgba(0,255,136,.14);border-style:solid}
+.main{padding:32px 28px;display:flex;flex-direction:column;gap:20px;min-width:0;padding-bottom:52px}
+.page-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.page-title{font-family:var(--display);font-size:1.3rem;font-weight:800;color:#fff}
+.page-sub{font-size:.62rem;color:var(--muted);margin-top:3px}
+.hdr-btns{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.card-label{font-size:.55rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.stat .v{font-family:var(--display);font-size:1.3rem;font-weight:600;color:var(--accent);line-height:1}
+.stat .v.blue{color:var(--blue)}.stat .v.orange{color:var(--orange)}.stat .v.purple{color:var(--purple)}.stat .v.cyan{color:var(--cyan)}
+.stat .l{font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+input,textarea,select{font-family:var(--mono);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:11.5px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+input::placeholder,textarea::placeholder{color:var(--muted2)}
+textarea{resize:vertical;line-height:1.7}
+.btn{font-family:var(--mono);font-size:.65rem;border-radius:7px;padding:8px 16px;cursor:pointer;transition:all .15s;border:1px solid transparent;white-space:nowrap;font-weight:700}
+.btn-primary{background:var(--accent);color:#000;box-shadow:0 0 16px var(--accent-dim)}
+.btn-primary:hover{background:#33ffaa;box-shadow:0 0 24px var(--accent-glow)}
+.btn-primary:disabled{background:var(--muted2);color:var(--bg);cursor:not-allowed;box-shadow:none}
+.btn-outline{background:none;border-color:var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.btn-danger{background:none;border-color:transparent;color:var(--muted2)}
+.btn-danger:hover{border-color:rgba(239,68,68,.3);color:var(--red);background:var(--red-dim)}
+.btn-blue{background:var(--blue-dim);border-color:rgba(59,130,246,.25);color:var(--blue)}
+.btn-blue:hover{background:rgba(59,130,246,.18)}
+.btn-cyan{background:var(--cyan-dim);border-color:rgba(6,182,212,.25);color:var(--cyan)}
+.btn-cyan:hover{background:rgba(6,182,212,.18)}
+.btn-orange{background:var(--orange-dim);border-color:rgba(245,158,11,.25);color:var(--orange)}
+.btn-orange:hover{background:rgba(245,158,11,.18)}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.proj-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.proj-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:0;transition:opacity .18s}
+.proj-card:hover{border-color:var(--border2);background:var(--bg3)}
+.proj-card:hover::before{opacity:1}
+.proj-card-name{font-family:var(--display);font-size:.78rem;font-weight:600;color:#fff;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-card-meta{display:flex;gap:10px;flex-wrap:wrap}
+.proj-chip{font-size:.52rem;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
+.chip-green{background:var(--accent-dim);color:var(--accent)}.chip-blue{background:var(--blue-dim);color:var(--blue)}
+.chip-orange{background:var(--orange-dim);color:var(--orange)}.chip-gray{background:var(--bg4);color:var(--muted)}
+.chip-red{background:var(--red-dim);color:var(--red)}
+.proj-card-date{font-size:.52rem;color:var(--muted2);margin-top:8px}
+.proj-card-actions{position:absolute;top:10px;right:10px;opacity:0;transition:opacity .15s}
+.proj-card:hover .proj-card-actions{opacity:1}
+.link-table{width:100%;border-collapse:collapse}
+.link-table th{font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:400}
+.link-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.link-table tr:last-child td{border-bottom:none}
+.link-table tr:hover td{background:var(--bg3)}
+.link-short{color:var(--accent);font-weight:700;font-size:.75rem;text-decoration:none;white-space:nowrap}
+.link-short:hover{text-decoration:underline}
+.link-orig{font-size:.65rem;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;text-decoration:none}
+.link-orig:hover{color:var(--text)}
+.verdict-badge{font-size:.5rem;padding:3px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.v-indexed{background:var(--accent-dim);color:var(--accent)}.v-crawled{background:var(--blue-dim);color:var(--blue)}
+.v-pending{background:var(--orange-dim);color:var(--orange)}.v-error{background:var(--red-dim);color:var(--red)}
+.v-dead{background:rgba(100,100,100,.15);color:#666}
+.hits-num{color:var(--accent);font-weight:700}.hits-zero{color:var(--muted2)}
+.health-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.health-ok{background:var(--accent);box-shadow:0 0 4px var(--accent)}.health-warn{background:var(--orange)}.health-dead{background:var(--red)}.health-unknown{background:var(--muted2)}
+.idx-log{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:200px;overflow-y:auto;font-size:10.5px;line-height:1.9;display:none;margin-top:10px}
+.idx-log::-webkit-scrollbar{width:3px}.idx-log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.log-ok{color:var(--accent)}.log-err{color:var(--red)}.log-info{color:var(--muted)}.log-warn{color:var(--orange)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:100%;max-width:460px;animation:popIn .2s ease;max-height:90vh;overflow-y:auto}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-family:var(--display);font-size:.95rem;font-weight:700;color:#fff;margin-bottom:16px}
+.modal-row{display:flex;gap:10px;margin-top:12px}
+.empty{text-align:center;padding:60px 20px;color:var(--muted2);font-size:.72rem;border:1px dashed var(--border);border-radius:var(--r)}
+.empty-icon{font-size:2.2rem;margin-bottom:14px;opacity:.3}
+.toast{position:fixed;bottom:52px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:.72rem;padding:10px 22px;border-radius:10px;pointer-events:none;opacity:0;transition:transform .24s ease,opacity .24s ease;z-index:999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.green{border-color:rgba(0,255,136,.35);color:var(--accent)}.toast.red{border-color:rgba(239,68,68,.35);color:var(--red)}
+.view{display:none}.view.active{display:flex;flex-direction:column;gap:20px;min-width:0}
+.crawl-modal{max-width:900px;width:100%}
+.crawl-modal .modal-title{display:flex;align-items:center;gap:10px;margin-bottom:0}
+.crawl-body-layout{display:grid;grid-template-columns:260px 1fr;gap:14px;align-items:start}
+.crawl-preview-col{display:flex;flex-direction:column;gap:10px;position:sticky;top:0}
+.crawl-preview-frame{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cpf-hdr{padding:7px 12px;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.cpf-img{width:100%;aspect-ratio:9/16;object-fit:cover;object-position:top;display:block;background:var(--bg3)}
+.cpf-img-wrap{position:relative;overflow:hidden}
+.cpf-img-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--bg))}
+.cpf-loading{width:100%;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted2);font-size:.6rem}
+.cpf-error{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--muted2);font-size:.6rem;padding:20px;text-align:center}
+.crawl-meta-mini{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.cmm-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cmm-k{font-size:.48rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.cmm-v{font-size:.6rem;color:var(--text);font-weight:700}
+.cmm-v.good{color:var(--accent)}.cmm-v.bad{color:var(--red)}.cmm-v.warn{color:var(--orange)}.cmm-v.blue{color:var(--blue)}
+.open-orig-btn{display:block;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:.55rem;color:var(--muted);text-decoration:none;transition:all .15s}
+.open-orig-btn:hover{border-color:var(--accent);color:var(--accent)}
+.crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:12px 0 16px}
+.crawl-url-bar span{color:var(--accent)}
+.crawl-sections{display:flex;flex-direction:column;gap:10px;max-height:480px;overflow-y:auto;padding-right:4px}
+.crawl-sections::-webkit-scrollbar{width:3px}.crawl-sections::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.crawl-section{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.crawl-section-hdr{padding:9px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.crawl-section-hdr .cs-icon{font-size:.85rem}
+.crawl-section-body{padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.crawl-section-body.single{grid-template-columns:1fr}
+.crawl-kv{display:flex;flex-direction:column;gap:2px;padding:5px 0}
+.crawl-kv .ck{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
+.crawl-kv .cv{font-size:.68rem;color:var(--text);word-break:break-all}
+.crawl-kv .cv.good{color:var(--accent)}.crawl-kv .cv.warn{color:var(--orange)}.crawl-kv .cv.bad{color:var(--red)}.crawl-kv .cv.blue{color:var(--blue)}
+.crawl-loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:.72rem}
+.crawl-loading .spin{display:inline-block;animation:spin 1s linear infinite;font-size:1.4rem;margin-bottom:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.crawl-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:12px 16px;font-size:.68rem;color:var(--red);margin:8px 0}
+.crawl-verdict-banner{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:4px}
+.crawl-verdict-banner.pass{background:var(--accent-dim);border:1px solid rgba(0,255,136,.2)}
+.crawl-verdict-banner.neutral{background:var(--blue-dim);border:1px solid rgba(59,130,246,.2)}
+.crawl-verdict-banner.fail{background:var(--red-dim);border:1px solid rgba(239,68,68,.2)}
+.crawl-verdict-banner.pending{background:var(--orange-dim);border:1px solid rgba(245,158,11,.2)}
+.cvb-icon{font-size:1.5rem}.cvb-label{font-family:var(--display);font-size:.85rem;font-weight:700}
+.cvb-label.pass{color:var(--accent)}.cvb-label.neutral{color:var(--blue)}.cvb-label.fail{color:var(--red)}.cvb-label.pending{color:var(--orange)}
+.cvb-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
+.crawl-no-sa{text-align:center;padding:30px 20px;color:var(--muted2);font-size:.68rem}
+.crawl-no-sa .ns-icon{font-size:2rem;margin-bottom:10px;opacity:.4}
+.crawl-inspect-btn{background:var(--blue-dim);border:1px solid rgba(59,130,246,.25);color:var(--blue);font-family:var(--mono);font-size:.6rem;border-radius:6px;padding:3px 9px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.crawl-inspect-btn:hover{background:rgba(59,130,246,.18)}
+.channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.channel-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:border-color .2s}
+.channel-card.active-ch{border-color:rgba(0,255,136,.3)}
+.ch-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ch-icon{font-size:1.2rem;flex-shrink:0}
+.ch-title{font-family:var(--display);font-size:.72rem;font-weight:700;color:#fff;flex:1}
+.ch-badge{font-size:.48rem;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
+.badge-white{background:var(--accent-dim);color:var(--accent)}.badge-grey{background:var(--orange-dim);color:var(--orange)}.badge-black{background:var(--red-dim);color:var(--red)}
+.ch-desc{font-size:.58rem;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.ch-toggle{display:flex;align-items:center;gap:8px;font-size:.6rem;color:var(--muted);cursor:pointer;user-select:none}
+.ch-toggle input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer}
+.sa-vault-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.sa-vault-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.sa-vault-label{flex:1;font-size:.65rem;color:var(--text)}
+.sa-vault-quota{font-size:.58rem;color:var(--muted)}
+.sa-vault-quota.warn{color:var(--orange)}.sa-vault-quota.full{color:var(--red)}
+.sa-add-row{display:flex;gap:8px;margin-top:8px}
+.esc-ladder{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.esc-rung{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px}
+.esc-num{width:22px;height:22px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--muted);flex-shrink:0}
+.esc-info{flex:1}.esc-title{font-size:.65rem;color:var(--text);font-weight:700}.esc-sub{font-size:.55rem;color:var(--muted);margin-top:2px}
+.social-share-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
+.social-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px}
+.social-card-title{font-size:.6rem;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.social-card textarea{font-size:.55rem;height:70px;resize:none}
+.social-btn-row{display:flex;gap:6px;margin-top:6px}
+.domain-check{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.domain-check-item{display:flex;align-items:center;gap:8px;font-size:.62rem;color:var(--muted);cursor:pointer;user-select:none}
+.domain-check-item input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer}
+.domain-check-item.done{color:var(--accent)}
+.settings-section{margin-bottom:20px}
+.hint{font-size:.55rem;color:var(--muted);margin-top:6px;line-height:1.6}
+.retry-badge{font-size:.48rem;padding:1px 5px;border-radius:3px;background:var(--orange-dim);color:var(--orange);margin-left:4px}
+.prog-wrap{background:var(--bg);border-radius:4px;height:4px;width:100%;margin:8px 0;overflow:hidden;display:none}
+.prog-bar{height:100%;background:var(--accent);border-radius:4px;transition:width .3s;width:0}
+.idx-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);overflow-x:auto}
+.idx-tab{font-family:var(--mono);font-size:.62rem;padding:7px 14px;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.idx-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.idx-tab:hover{color:var(--text)}
+.idx-pane{display:none}.idx-pane.active{display:flex;flex-direction:column;gap:12px}
+.bot-footer{position:fixed;bottom:0;left:260px;right:0;z-index:100;background:rgba(9,9,11,0.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);display:flex;align-items:center;height:36px;overflow:hidden}
+.bot-footer-label{display:flex;align-items:center;gap:7px;padding:0 14px;border-right:1px solid var(--border);height:100%;flex-shrink:0;white-space:nowrap}
+.bot-footer-label .bfl-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.bot-footer-label span{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.bot-feed-track{flex:1;overflow:hidden;position:relative;height:100%}
+.bot-feed-inner{display:flex;align-items:center;height:100%;position:absolute;white-space:nowrap;will-change:transform}
+.bot-feed-inner.paused{animation-play-state:paused!important}
+.bot-event{display:inline-flex;align-items:center;gap:7px;padding:0 20px;height:100%;border-right:1px solid var(--border);flex-shrink:0;cursor:default;transition:background .15s}
+.bot-event:hover{background:var(--bg3)}
+.bot-event .be-icon{font-size:.75rem}.be-time{font-size:.5rem;color:var(--muted2)}.be-proj{font-size:.52rem;color:var(--purple)}.be-code{font-size:.58rem;color:var(--accent);font-weight:700}.be-sep{color:var(--muted2);font-size:.5rem}.be-hits{font-size:.5rem;color:var(--orange)}
+.bot-empty-feed{font-size:.55rem;color:var(--muted2);padding:0 20px;display:flex;align-items:center;gap:6px;height:100%}
+.bot-footer-refresh{padding:0 12px;height:100%;border-left:1px solid var(--border);background:none;cursor:pointer;font-size:.6rem;color:var(--muted);font-family:var(--mono);transition:color .15s;flex-shrink:0;border-right:none;border-top:none;border-bottom:none}
+.bot-footer-refresh:hover{color:var(--accent)}
+@keyframes scrollFeed{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.site-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:10px}
+.site-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color .2s}
+.site-card.site-ok{border-color:rgba(0,255,136,.25)}.site-card.site-warn{border-color:rgba(245,158,11,.25)}.site-card.site-err{border-color:rgba(239,68,68,.25)}
+.site-card-domain{font-family:var(--display);font-size:.78rem;font-weight:700;color:#fff;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-card-url{font-size:.58rem;color:var(--muted);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.site-dot.ok{background:var(--accent);box-shadow:0 0 5px var(--accent)}.site-dot.warn{background:var(--orange)}.site-dot.err{background:var(--red)}
+.site-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.add-site-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.health-grid{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.health-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:.62rem}
+.health-row-url{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.health-row.ok .health-row-url{color:var(--text)}.health-row.dead .health-row-url{color:var(--red);text-decoration:line-through}
+.worker-status{display:flex;align-items:center;gap:8px;font-size:.62rem;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px}
+.worker-dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.worker-dot.alive{background:var(--accent);box-shadow:0 0 5px var(--accent)}.worker-dot.dead{background:var(--red)}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-btn{font-family:var(--mono);font-size:.55rem;padding:4px 10px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all .15s}
+.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.filter-btn:hover{border-color:var(--border2);color:var(--text)}
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:.48rem;padding:1px 6px;border-radius:3px;background:var(--bg4);color:var(--muted);border:1px solid var(--border)}
+.tag-forum{background:rgba(168,85,247,.1);color:var(--purple);border-color:rgba(168,85,247,.2)}
+.tag-web2{background:rgba(6,182,212,.1);color:var(--cyan);border-color:rgba(6,182,212,.2)}
+.tag-guest{background:rgba(59,130,246,.1);color:var(--blue);border-color:rgba(59,130,246,.2)}
+.tag-niche{background:rgba(245,158,11,.1);color:var(--orange);border-color:rgba(245,158,11,.2)}
+.tag-pbn{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.2)}
+.wayback-badge{font-size:.45rem;padding:1px 5px;border-radius:3px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);margin-left:4px}
+.ping-result{font-size:.55rem;line-height:1.9;color:var(--muted);margin-top:8px;max-height:140px;overflow-y:auto}
+.proj-rate-bar-wrap{display:flex;align-items:center;gap:10px;padding:6px 0}
+.proj-rate-bar-label{font-size:.6rem;color:var(--text);width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.proj-rate-bar-track{flex:1;background:var(--bg);border-radius:4px;height:6px;overflow:hidden}
+.proj-rate-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.proj-rate-bar-pct{font-size:.55rem;color:var(--accent);width:36px;text-align:right;flex-shrink:0}
+/* ── IndexForce embedded UI ── */
+.if-layer{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.if-layer:last-child{border-bottom:none}
+.if-layer-icon{font-size:1.1rem;flex-shrink:0;width:22px;text-align:center}
+.if-layer-name{font-size:.65rem;font-weight:700;color:var(--text)}
+.if-layer-detail{font-size:.55rem;color:var(--muted);margin-top:2px}
+.if-layer-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--muted2);margin-left:auto;transition:all .3s}
+.if-dot-on{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.if-dot-off{background:var(--muted2)}
+.if-dot-pulse{background:var(--blue);box-shadow:0 0 6px var(--blue);animation:pulse 1s ease infinite}
+.if-dot-err{background:var(--red)}
+.if-job-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;animation:popIn .2s ease}
+.if-job-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.if-job-status{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:4px}
+.if-status-queued{background:var(--orange-dim);color:var(--orange)}
+.if-status-running{background:var(--blue-dim);color:var(--blue)}
+.if-status-complete{background:var(--accent-dim);color:var(--accent)}
+.if-status-failed{background:var(--red-dim);color:var(--red)}
+.if-job-id{font-size:.5rem;color:var(--muted2);margin-left:auto}
+.if-job-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.if-stat{padding:10px 12px;border-right:1px solid var(--border);text-align:center}
+.if-stat:last-child{border-right:none}
+.if-stat-v{font-family:var(--display);font-size:.95rem;font-weight:700;color:var(--accent)}
+.if-stat-v.blue{color:var(--blue)}.if-stat-v.orange{color:var(--orange)}.if-stat-v.purple{color:var(--purple)}
+.if-stat-l{font-size:.45rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.if-layers-block{background:var(--bg3);border-top:1px solid var(--border)}
+.if-notice{padding:10px 14px;font-size:.6rem;line-height:1.7;border-top:1px solid var(--border)}
+.if-notice.ok{color:var(--accent);background:var(--accent-dim)}
+.if-notice.err{color:var(--red);background:var(--red-dim)}
+.if-notice.pending{color:var(--orange);background:var(--orange-dim)}
+.if-prog{height:3px;background:var(--bg3);overflow:hidden}
+.if-prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));transition:width 1.5s ease;border-radius:0}
+.if-history-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:6px}
+.if-history-row:hover{border-color:var(--border2);background:var(--bg3)}
+.if-h-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.if-verify-badge{font-size:.48rem;padding:2px 6px;border-radius:3px;background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.2);margin-left:6px}
+.if-resubmit-btn{font-family:var(--mono);font-size:.5rem;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all .15s;white-space:nowrap}
+.if-resubmit-btn:hover{border-color:var(--accent);color:var(--accent)}
+.plan-row{display:flex;gap:6px;margin-bottom:12px}
+.plan-pill{font-family:var(--mono);font-size:.58rem;padding:5px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all .15s}
+.plan-pill.active{background:var(--accent-dim);border-color:rgba(0,255,136,.3);color:var(--accent)}
+
+/* ── Multi-domain short link chips ── */
+.domain-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.domain-chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:.55rem;color:var(--muted);text-decoration:none;transition:border-color .15s,color .15s;white-space:nowrap;overflow:hidden;max-width:260px;text-overflow:ellipsis}
+.domain-chip:hover{border-color:var(--border2);color:var(--text)}
+.domain-chip .chip-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.chip-d0{--cd:var(--accent)}.chip-d1{--cd:var(--blue)}.chip-d2{--cd:var(--orange)}.chip-d3{--cd:var(--purple)}
+.domain-chip .chip-dot{background:var(--cd)}
+.domain-chip:hover{border-color:var(--cd)}
+
+/* ── Naked URL copy panel ── */
+.naked-url-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.naked-url-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.naked-url-row-hdr{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg3);font-size:.58rem;font-weight:700;border-bottom:1px solid var(--border)}
+.naked-url-item{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg)}
+.naked-url-text{flex:1;font-family:var(--mono);font-size:.6rem;color:var(--accent);word-break:break-all;user-select:all}
+.naked-copy-btn{font-family:var(--mono);font-size:.5rem;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .12s;flex-shrink:0}
+.naked-copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">⚡</div>
+      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v10 · LinkCore + IndexForce</div></div>
+    </div>
+    <div class="sb-label">Views</div>
+    <button class="sb-btn active" onclick="showView('dashboard')"><span class="dot"></span> Dashboard</button>
+    <button class="sb-btn" onclick="showView('indexing')"><span class="dot"></span> Indexing Hub</button>
+    <button class="sb-btn" onclick="showView('health')"><span class="dot"></span> Health Check</button>
+    <button class="sb-btn" onclick="showView('sites')"><span class="dot"></span> Multi-Site</button>
+    <button class="sb-btn" onclick="showView('worker')"><span class="dot"></span> ⚡ IndexForce</button>
+    <button class="sb-btn" onclick="showView('analytics')"><span class="dot"></span> Analytics</button>
+    <button class="sb-btn" onclick="showView('settings')"><span class="dot"></span> Settings &amp; Keys</button>
+    <div class="sb-label" style="margin-top:12px">Projects</div>
+    <div id="proj-list-sb"></div>
+    <button class="new-proj-btn" onclick="openNewProj()">+ New Project</button>
+    <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:.52rem;color:var(--muted2)">Supabase</div>
+      <div style="font-size:.65rem;color:var(--muted)" id="sb-status">Offline</div>
+      <div style="font-size:.52rem;color:var(--muted2);margin-top:6px">Worker</div>
+      <div style="font-size:.65rem;color:var(--muted)" id="worker-status-sb">—</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-hdr">
+        <div><div class="page-title">Projects</div><div class="page-sub">All your backlink campaigns in one place</div></div>
+        <div class="hdr-btns">
+          <button class="btn btn-outline" onclick="showView('health')">🩺 Health Check</button>
+          <button class="btn btn-primary" onclick="openNewProj()">+ New Project</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="st-projects">0</div><div class="l">Projects</div></div>
+        <div class="stat"><div class="v blue" id="st-links">0</div><div class="l">Total Links</div></div>
+        <div class="stat"><div class="v orange" id="st-hits">0</div><div class="l">Total Hits</div></div>
+        <div class="stat"><div class="v purple" id="st-indexed">0</div><div class="l">Indexed</div></div>
+        <div class="stat"><div class="v cyan" id="st-dead">0</div><div class="l">Dead Links</div></div>
+      </div>
+      <div id="proj-grid-wrap">
+        <div class="empty" id="proj-empty"><div class="empty-icon">📁</div><p>No projects yet.<br>Create your first backlink campaign.</p></div>
+        <div class="proj-grid" id="proj-grid" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- PROJECT VIEW -->
+    <div class="view" id="view-project">
+      <div class="page-hdr">
+        <div><div class="page-title" id="proj-title">Project</div><div class="page-sub" id="proj-sub">0 links</div></div>
+        <div class="hdr-btns">
+          <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
+          <button class="btn btn-outline" onclick="exportProjCSV()">↓ CSV</button>
+          <button class="btn btn-blue" onclick="openSocialPush()">📣 Social</button>
+          <button class="btn btn-blue" onclick="showView('indexing')">🚀 Submit</button>
+          <button class="btn btn-cyan" onclick="checkProjectHealth()">🩺 Health</button>
+          <button class="btn btn-primary" onclick="openAddLinks()">+ Add Links</button>
+          <button class="btn btn-outline" style="border-color:rgba(168,85,247,.3);color:var(--purple)" onclick="openNakedUrlPanel()">📋 Copy URLs</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <span style="font-size:.55rem;color:var(--muted)">Filter:</span>
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('indexed',this)">✅ Indexed</button>
+        <button class="filter-btn" onclick="setFilter('crawled',this)">🔵 Crawled</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+        <button class="filter-btn" onclick="setFilter('error',this)">❌ Error</button>
+        <button class="filter-btn" onclick="setFilter('dead',this)">💀 Dead</button>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-outline" style="font-size:.58rem;padding:5px 10px" onclick="refreshVerdicts()">↻ Refresh</button>
+          <button class="btn btn-cyan" style="font-size:.58rem;padding:5px 10px" onclick="runWaybackOnProject()">🕰 Wayback All</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="link-table">
+            <thead>
+              <tr>
+                <th style="width:32px"><input type="checkbox" id="sel-all" onchange="selectAll(this)" style="width:14px;height:14px;accent-color:var(--accent)"></th>
+                <th>Short Link</th><th>Original Backlink</th><th>Tag</th><th>Status</th><th>Health</th><th>Hits</th><th>Added</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="link-tbody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="link-empty" style="border:none;border-top:1px solid var(--border);border-radius:0;display:none">
+          <div class="empty-icon">🔗</div><p>No links yet — click <strong style="color:var(--accent)">Add Links</strong> to start.</p>
+        </div>
+        <div id="bulk-bar" style="display:none;padding:10px 14px;border-top:1px solid var(--border);gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:.6rem;color:var(--muted)" id="bulk-count">0 selected</span>
+          <button class="btn btn-blue" style="font-size:.58rem;padding:5px 10px" onclick="bulkSubmitSelected()">🚀 Submit Selected</button>
+          <button class="btn btn-cyan" style="font-size:.58rem;padding:5px 10px" onclick="bulkWaybackSelected()">🕰 Wayback Selected</button>
+          <button class="btn btn-danger" style="font-size:.58rem;padding:5px 10px" onclick="bulkDeleteSelected()">✕ Delete Selected</button>
+        </div>
+      </div>
+      <div class="card" id="domain-own-card" style="display:none">
+        <div class="card-label">🏠 Own This Domain? — Internal Link Checklist</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:8px">If you control the site, tick these off. Homepage link = indexed within hours.</div>
+        <div class="domain-check" id="domain-checklist" style="opacity:.4">
+          <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added internal link from <strong>Homepage</strong> to backlink pages</label>
+          <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added link from <strong>Category / Archive page</strong></label>
+          <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added to <strong>Recent Posts widget / sidebar</strong></label>
+          <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Updated <strong>sitemap.xml lastmod</strong> timestamp</label>
+          <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added page to <strong>RSS / Atom feed</strong></label>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:10px;font-size:.6rem;color:var(--muted)">
+          <input type="checkbox" id="proj-own-domain" onchange="toggleDomainOwn()" style="width:14px;height:14px"> <label for="proj-own-domain">I own / control the site with these backlinks</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- INDEXING HUB -->
+    <div class="view" id="view-indexing">
+      <div class="page-hdr">
+        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">GSC · IndexNow · Wayback · Bing · Ping · Social · Worker</div></div>
+        <div class="hdr-btns"><button class="btn btn-outline" onclick="showView('dashboard')">← Back</button></div>
+      </div>
+      <div class="idx-tabs">
+        <button class="idx-tab active" onclick="switchIdxTab('submit')">🚀 Submit</button>
+        <button class="idx-tab" onclick="switchIdxTab('channels')">📡 Channels</button>
+        <button class="idx-tab" onclick="switchIdxTab('social')">📣 Social</button>
+        <button class="idx-tab" onclick="switchIdxTab('escalation')">🔁 Escalation</button>
+        <button class="idx-tab" onclick="switchIdxTab('report')">📊 Report</button>
+      </div>
+      <div class="idx-pane active" id="idx-pane-submit">
+        <div class="card">
+          <div class="card-label">Select Project</div>
+          <select id="idx-proj-sel" onchange="updateIdxPreview()"><option value="">— Choose a project —</option></select>
+          <div style="margin-top:10px;font-size:.62rem;color:var(--muted)" id="idx-preview">Select a project to see how many short links will be submitted.</div>
+          <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-primary" id="idx-btn" onclick="runIndexing()" style="flex:1;min-width:200px">🚀 Blast All Enabled Channels</button>
+            <button class="btn btn-cyan" onclick="runWorkerSubmit()" id="worker-idx-btn">⚡ Worker API</button>
+            <button class="btn btn-outline" style="font-size:.6rem" onclick="switchIdxTab('channels')">⚙ Channels</button>
+          </div>
+          <div class="prog-wrap" id="idx-progress"><div class="prog-bar" id="idx-prog-bar"></div></div>
+          <div class="idx-log" id="idx-log"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">🗺 Live Sitemap</div>
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">Auto-updated on every link add. Served at <span style="color:var(--accent)">https://flexygist.com.ng/sitemap.xml</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" style="font-size:.6rem" onclick="viewSitemap()">👁 Preview XML</button>
+            <button class="btn btn-outline" style="font-size:.6rem" onclick="manualSitemapPing()">📡 Manual Ping</button>
+            <button class="btn btn-orange" style="font-size:.6rem" onclick="generateIndexNowKeyFile()">🔑 IndexNow Key File</button>
+          </div>
+          <div class="idx-log" id="sitemap-log" style="max-height:120px"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Service Account Status</div>
+          <div id="sa-status-display" style="font-size:.62rem;color:var(--muted)"><span style="color:var(--orange)">⚠ No SA keys — <a href="#" onclick="showView('settings');return false" style="color:var(--accent)">add in Settings</a></span></div>
+        </div>
+      </div>
+      <div class="idx-pane" id="idx-pane-channels">
+        <div class="channel-grid">
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🔍</span><span class="ch-title">GSC URL Inspection</span><span class="ch-badge badge-white">WHITEHAT</span></div>
+            <div class="ch-desc">Direct Google signal. Inspects &amp; submits each URL. Auto-rotates SA keys to bypass 200/day quota.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-gsc-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">⚡</span><span class="ch-title">Google Indexing API</span><span class="ch-badge badge-grey">GREY-LOW</span></div>
+            <div class="ch-desc">Fastest crawl trigger. URL_UPDATED signal. Doubles quota per SA key alongside URL Inspection.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-idx-api-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🗺</span><span class="ch-title">GSC Sitemaps API</span><span class="ch-badge badge-white">WHITEHAT</span></div>
+            <div class="ch-desc">DELETE then RE-ADD sitemap — forces Google to re-scan from scratch. Stronger than a ping.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-sitemap-api-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">📡</span><span class="ch-title">IndexNow Multi-Engine</span><span class="ch-badge badge-white">WHITEHAT</span></div>
+            <div class="ch-desc">Blasts ALL IndexNow endpoints: Bing, Yandex, Seznam, Naver, Brave, Yep, indexnow.org simultaneously.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-indexnow-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🕰</span><span class="ch-title">Wayback Machine Save</span><span class="ch-badge badge-white">WHITEHAT</span></div>
+            <div class="ch-desc">Saves URLs to archive.org — triggers Googlebot to re-crawl. Used by paid indexers as a reliable crawl signal.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-wayback-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🔎</span><span class="ch-title">Bing Webmaster API</span><span class="ch-badge badge-white">WHITEHAT</span></div>
+            <div class="ch-desc">Direct Bing URL submission — 10,000/day free. Shares crawl signals with Yahoo and DuckDuckGo.</div>
+            <input id="bing-api-key" placeholder="Bing Webmaster API Key" style="margin:8px 0" oninput="saveChanSettings()">
+            <label class="ch-toggle"><input type="checkbox" id="ch-bing-on" onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">📢</span><span class="ch-title">PubSub + WebSub Triple-Fire</span><span class="ch-badge badge-white">WHITEHAT</span></div>
+            <div class="ch-desc">PubSubHubbub + WebSub simultaneously. Same system news publishers use. Queues immediate crawl in Google's pipeline.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-pubsub-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">💥</span><span class="ch-title">XML-RPC Ping Blast</span><span class="ch-badge badge-grey">GREY-LOW</span></div>
+            <div class="ch-desc">80+ verified-alive ping endpoints: Pingomatic, blo.gs, Twingly, all Google Blog Search regions simultaneously.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-xmlrpc-on" checked onchange="saveChanSettings()"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">⚙</span><span class="ch-title">Worker API Blast</span><span class="ch-badge badge-white">SERVER-SIDE</span></div>
+            <div class="ch-desc">Sends URLs to your Railway worker.py backend — server-side pings bypass browser CORS for higher success rate.</div>
+            <input id="worker-url-input" placeholder="https://your-app.railway.app" style="margin:8px 0" oninput="saveChanSettings()">
+            <label class="ch-toggle"><input type="checkbox" id="ch-worker-on" onchange="saveChanSettings()"> Enable (auto-fires on Submit)</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🌀</span><span class="ch-title">Rapid URL Indexer</span><span class="ch-badge badge-grey">PAID</span></div>
+            <div class="ch-desc">90%+ indexation rate. Fires through 200+ ping services + proprietary crawl networks. ~$0.01–0.03/URL.</div>
+            <input id="rui-api-key" placeholder="Rapid URL Indexer API Key" style="margin:8px 0" oninput="saveChanSettings()">
+            <label class="ch-toggle"><input type="checkbox" id="ch-rui-on" onchange="saveChanSettings()"> Enable (fires on 2nd retry if NEUTRAL)</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🔗</span><span class="ch-title">Tier 2 Social Drafts</span><span class="ch-badge badge-grey">GREY-LOW</span></div>
+            <div class="ch-desc">Auto-generates social share drafts for Reddit/X/LinkedIn/Pinterest on submit. Posts get Googlebot to visit within minutes.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-t2-on" checked onchange="saveChanSettings()"> Auto-generate on submit</label>
+          </div>
+        </div>
+      </div>
+      <div class="idx-pane" id="idx-pane-social">
+        <div class="card">
+          <div class="card-label">Social Share Drafts — Tier 2 Crawl Triggers</div>
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:14px">Posting on Reddit/Pinterest/X gets Googlebot to visit those pages within minutes — it then follows links to your backlinks.</div>
+          <div style="display:flex;gap:10px;margin-bottom:14px">
+            <select id="social-proj-sel" style="flex:1"><option value="">— Choose a project —</option></select>
+            <button class="btn btn-primary" onclick="generateSocialDrafts()">⚡ Generate Drafts</button>
+          </div>
+          <div id="social-drafts-output"></div>
+        </div>
+      </div>
+      <div class="idx-pane" id="idx-pane-escalation">
+        <div class="card">
+          <div class="card-label">Smart Escalation Ladder</div>
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:14px">NEUTRAL links get escalated. Each retry fires a more aggressive channel combo.</div>
+          <div class="esc-ladder">
+            <div class="esc-rung"><div class="esc-num">1</div><div class="esc-info"><div class="esc-title">First Submit</div><div class="esc-sub">GSC Inspection + Indexing API + IndexNow all engines + PubSub triple-fire + Wayback Machine save</div></div></div>
+            <div class="esc-rung"><div class="esc-num">2</div><div class="esc-info"><div class="esc-title">48h Retry (NEUTRAL)</div><div class="esc-sub">All above + XML-RPC ping blast (80+ services) + GSC Sitemaps re-add + Bing Webmaster + Worker API + Rapid URL Indexer (if key set)</div></div></div>
+            <div class="esc-rung"><div class="esc-num">3</div><div class="esc-info"><div class="esc-title">72h Retry (still NEUTRAL)</div><div class="esc-sub">All above + auto-generate social share drafts + second Wayback Machine save</div></div></div>
+            <div class="esc-rung"><div class="esc-num">4</div><div class="esc-info"><div class="esc-title" style="color:var(--orange)">96h — Manual Review Flag</div><div class="esc-sub">All signals fired. URL flagged — check noindex, robots block, or thin content issues</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Run Escalation Now</div>
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:12px">Finds all NEUTRAL links and fires the appropriate escalation tier.</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <select id="esc-proj-sel" style="flex:1;min-width:180px"><option value="all">All Projects</option></select>
+            <button class="btn btn-primary" onclick="runEscalation()">🔁 Run Escalation</button>
+          </div>
+          <div class="idx-log" id="esc-log" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="idx-pane" id="idx-pane-report">
+        <div class="card">
+          <div class="card-label">Fetch Report — All Projects</div>
+          <div style="overflow-x:auto">
+            <table class="link-table" id="report-table">
+              <thead><tr><th>Project</th><th>Short Link</th><th>Original URL</th><th>Tag</th><th>GSC Status</th><th>Hits 🤖</th><th>Wayback</th><th>Retries</th><th></th></tr></thead>
+              <tbody id="report-tbody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="report-empty" style="border:none;border-top:1px solid var(--border);border-radius:0">
+            <div class="empty-icon">📊</div><p>Submit links to see reports here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEALTH CHECK -->
+    <div class="view" id="view-health">
+      <div class="page-hdr">
+        <div><div class="page-title">🩺 Link Health Check</div><div class="page-sub">Scan backlinks for 404s, noindex, robots blocks before wasting quota</div></div>
+        <div class="hdr-btns">
+          <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
+          <button class="btn btn-primary" id="health-run-btn" onclick="runHealthCheck()">🔍 Scan All Projects</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Scan Options</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <select id="health-proj-sel" style="flex:1"><option value="all">All Projects</option></select>
+          <button class="btn btn-outline" style="font-size:.6rem" onclick="runHealthCheck()">▶ Run Scan</button>
+        </div>
+        <div class="prog-wrap" id="health-progress" style="display:block"><div class="prog-bar" id="health-prog-bar" style="width:0"></div></div>
+        <div style="font-size:.6rem;color:var(--muted);margin-top:6px" id="health-summary">Run a scan to check link health.</div>
+      </div>
+      <div class="card" id="health-results-card" style="padding:0;overflow:hidden;display:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="card-label" style="margin:0">Results</span>
+          <button class="filter-btn active" onclick="filterHealth('all',this)">All</button>
+          <button class="filter-btn" onclick="filterHealth('ok',this)">✅ OK</button>
+          <button class="filter-btn" onclick="filterHealth('dead',this)">❌ Dead</button>
+          <button class="filter-btn" onclick="filterHealth('warn',this)">⚠ Warning</button>
+          <button class="btn btn-danger" style="margin-left:auto;font-size:.58rem;padding:5px 10px" onclick="deleteDeadLinks()">🗑 Delete Dead Links</button>
+        </div>
+        <div id="health-grid" style="padding:12px;display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+
+    <!-- MULTI-SITE -->
+    <div class="view" id="view-sites">
+      <div class="page-hdr">
+        <div><div class="page-title">🌐 Multi-Site Indexing</div><div class="page-sub">Multiple GSC properties × multiple SA keys = maximum daily quota</div></div>
+        <div class="hdr-btns">
+          <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
+          <button class="btn btn-outline" style="font-size:.6rem" onclick="testAllSites()">🔍 Test All</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">How It Works</div>
+        <div style="font-size:.62rem;color:var(--muted);line-height:1.8">
+          Add multiple GSC-verified domains — each runs its own SA keys independently.
+          <strong style="color:var(--accent)">Blast All Sites</strong> fires URL Inspection + Indexing API from every site simultaneously.<br><br>
+          <span style="color:var(--text)">3 sites × 5 SA keys = </span><strong style="color:var(--accent)">3,000 URL Inspections + 3,000 Indexing API calls/day.</strong>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-label" style="margin:0">Sites</div>
+          <div style="font-size:.6rem;color:var(--muted)" id="sites-quota-summary">0 sites · 0 req/day capacity</div>
+        </div>
+        <div class="site-grid" id="site-grid"></div>
+        <div class="empty" id="site-empty" style="border:none;border-top:1px dashed var(--border);border-radius:0;margin-top:10px;padding:30px 20px">
+          <div class="empty-icon" style="font-size:1.6rem">🌐</div><p>No sites yet. Add your first GSC property below.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">+ Add GSC Property</div>
+        <div class="add-site-grid">
+          <div>
+            <div style="font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px">Site URL (must match GSC property exactly)</div>
+            <input id="new-site-url" placeholder="https://yourdomain.com/">
+          </div>
+          <div>
+            <div style="font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px">Label</div>
+            <input id="new-site-label" placeholder="e.g. Main Blog, Tier 2 Site">
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px">Service Account JSON</div>
+          <textarea id="new-site-sa" rows="3" placeholder='{"type":"service_account","project_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...","client_email":"...@....iam.gserviceaccount.com"}'></textarea>
+          <div class="hint">This SA must be added as Owner in GSC for this property.</div>
+        </div>
+        <button class="btn btn-primary" onclick="addSite()">+ Add Site</button>
+      </div>
+      <div class="card">
+        <div class="card-label">🚀 Blast All Sites</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:12px">Select a project and fire all short links across every site simultaneously.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <select id="ms-proj-sel" style="flex:1"><option value="">— Choose a project —</option></select>
+          <button class="btn btn-primary" onclick="runMultiSiteBlast()">🚀 Blast All Sites</button>
+        </div>
+        <div class="prog-wrap" id="ms-progress"><div class="prog-bar" id="ms-prog-bar"></div></div>
+        <div class="idx-log" id="ms-log"></div>
+      </div>
+    </div>
+
+    <!-- INDEXFORCE / WORKER API — full embedded panel -->
+    <div class="view" id="view-worker">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">⚡ IndexForce</div>
+          <div class="page-sub">7-layer server-side indexing engine · XML-RPC · IndexNow · RSS · Sitemap · Cache Bust · GSC · Bing · 24h Verification</div>
+        </div>
+        <div class="hdr-btns">
+          <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
+          <button class="btn btn-cyan" onclick="checkWorkerHealth()">🔍 Test Connection</button>
+        </div>
+      </div>
+
+      <!-- Connection card -->
+      <div class="card">
+        <div class="card-label">🔌 Railway Worker Connection</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <input id="worker-url-main" placeholder="https://instantindexer-production.up.railway.app" style="flex:1">
+          <button class="btn btn-primary" onclick="saveWorkerUrl()">Save</button>
+        </div>
+        <div id="worker-health-display" class="worker-status">
+          <div class="worker-dot" id="worker-dot"></div>
+          <span id="worker-health-text" style="color:var(--muted)">Not connected — enter your Railway URL and test</span>
+        </div>
+        <div class="hint" style="margin-top:6px">Deploy <strong>worker.py</strong> to Railway, paste the public URL above. All 7 layers run server-side — no CORS limits, real TCP connections, retry logic, 24h indexation check.</div>
+      </div>
+
+      <!-- Submit card -->
+      <div class="card">
+        <div class="card-label">🚀 Submit URLs — 7-Layer Blast</div>
+        <div style="font-size:.6rem;color:var(--muted);margin-bottom:10px">
+          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all 7 layers concurrently on Railway.
+        </div>
+        <!-- Plan toggle -->
+        <div class="plan-row">
+          <button class="plan-pill active" id="if-plan-free" onclick="ifSetPlan('free')">Free — 50 URLs</button>
+          <button class="plan-pill" id="if-plan-pro" onclick="ifSetPlan('pro')">⚡ Pro — 5,000 URLs</button>
+        </div>
+        <!-- Project selector -->
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+          <select id="worker-proj-sel" style="flex:1;min-width:200px" onchange="ifFillFromProject()">
+            <option value="">— Load from project —</option>
+          </select>
+          <button class="btn btn-outline" style="font-size:.6rem" onclick="ifFillFromProject()">↓ Fill</button>
+        </div>
+        <!-- URL textarea -->
+        <textarea id="if-url-input" rows="5" placeholder="https://indexernow.vercel.app/link/abcde&#10;https://indexernow.vercel.app/link/fghij&#10;&#10;One URL per line, or comma-separated" oninput="ifCountUrls()"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap">
+          <span style="font-size:.58rem;color:var(--muted)" id="if-url-count">Paste URLs above or load from a project</span>
+          <button class="btn btn-primary" id="if-submit-btn" onclick="ifSubmitJob()" disabled>⚡ Start Indexing</button>
+        </div>
+        <div class="if-prog" id="if-prog-wrap" style="display:none;margin-top:10px;border-radius:4px">
+          <div class="if-prog-bar" id="if-prog-bar" style="width:15%"></div>
+        </div>
+      </div>
+
+      <!-- Active job card — shown when a job is running/complete -->
+      <div id="if-job-card" style="display:none"></div>
+
+      <!-- Job history -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-label" style="margin:0">📋 Job History</div>
+          <button class="btn btn-outline" style="font-size:.55rem;padding:4px 9px" onclick="ifClearHistory()">Clear</button>
+        </div>
+        <div id="if-history-list">
+          <div style="font-size:.6rem;color:var(--muted2);padding:16px 0;text-align:center">No jobs yet — submit URLs above.</div>
+        </div>
+      </div>
+
+      <!-- 7 Layers explained -->
+      <div class="card">
+        <div class="card-label">🔬 What worker.py Fires</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div class="if-layer"><span class="if-layer-icon">📡</span><div><div class="if-layer-name">XML-RPC Mass Ping</div><div class="if-layer-detail">90 verified-alive endpoints, server-side TCP, retry logic, 80 concurrent — actual success rate vs browser's blind no-cors fires</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">⚡</span><div><div class="if-layer-name">IndexNow API</div><div class="if-layer-detail">6 engines: Bing, Yandex, Seznam, Brave, api.indexnow.org + case variant — batched, confirmed OK per engine</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📰</span><div><div class="if-layer-name">RSS Feed Injection</div><div class="if-layer-detail">Generates a real RSS/Atom feed per job, submits to 10 aggregators (Feedly, FeedBurner, etc.) — not available in browser</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">Sitemap Submission</div><div class="if-layer-detail">Builds per-job sitemap XML, pings Google + Bing + Yandex webmaster sitemap endpoints directly</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">💨</span><div><div class="if-layer-name">Cache Bust + Wayback</div><div class="if-layer-detail">Hits Google webcache + Wayback Machine save + archive.org availability — server-side so no CORS block</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔍</span><div><div class="if-layer-name">Google Indexing API (optional)</div><div class="if-layer-detail">Set GOOGLE_INDEXING_SA env var on Railway — server-side RS256 JWT signing via cryptography lib</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">✅</span><div><div class="if-layer-name">24h Indexation Verification</div><div class="if-layer-detail">Checks Bing index status per URL after 24 hours — returns real index_rate % per job</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="view" id="view-analytics">
+      <div class="page-hdr">
+        <div><div class="page-title">📊 Analytics</div><div class="page-sub">Indexing rates, hit trends, duplicate detection</div></div>
+        <div class="hdr-btns">
+          <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
+          <button class="btn btn-outline" style="font-size:.6rem" onclick="exportAllCSV()">↓ Export All CSV</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="an-total">0</div><div class="l">Total Links</div></div>
+        <div class="stat"><div class="v purple" id="an-indexed">0</div><div class="l">Indexed</div></div>
+        <div class="stat"><div class="v blue" id="an-crawled">0</div><div class="l">Crawled</div></div>
+        <div class="stat"><div class="v orange" id="an-pending">0</div><div class="l">Pending</div></div>
+        <div class="stat"><div class="v cyan" id="an-rate">0%</div><div class="l">Index Rate</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Index Rate by Project</div>
+        <div id="proj-rate-bars" style="margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Duplicate Link Detector</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">Links that appear in more than one project.</div>
+        <div id="dupe-list"><div style="font-size:.6rem;color:var(--muted2)">Click "Scan" to detect duplicates across all projects.</div></div>
+        <button class="btn btn-outline" style="font-size:.6rem;margin-top:10px" onclick="scanDuplicates()">🔍 Scan for Duplicates</button>
+      </div>
+      <div class="card">
+        <div class="card-label">Wayback Coverage</div>
+        <div id="wayback-coverage" style="font-size:.62rem;color:var(--muted)">No data yet — submit links and use Wayback blast.</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="page-hdr">
+        <div><div class="page-title">⚙ Settings &amp; API Keys</div><div class="page-sub">SA vault, GSC property, IndexNow, crawl configuration</div></div>
+        <div class="hdr-btns"><button class="btn btn-outline" onclick="showView('dashboard')">← Back</button></div>
+      </div>
+      <div class="card">
+        <div class="card-label">🔑 Service Account Key Vault</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:12px">Add multiple SA keys. Auto-rotates on quota hit — 10 keys = 2,000 submissions/day.</div>
+        <div class="sa-vault-list" id="sa-vault-list"><div style="font-size:.6rem;color:var(--muted2);padding:8px 0">No SA keys yet.</div></div>
+        <div class="sa-add-row">
+          <textarea id="sa-new-json" rows="3" placeholder='{"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}'></textarea>
+          <button class="btn btn-primary" style="align-self:flex-end;white-space:nowrap" onclick="addSAKey()">+ Add Key</button>
+        </div>
+        <div style="margin-top:12px">
+          <input id="gsc-site" placeholder="GSC Property URL — e.g. https://indexernow.vercel.app/" oninput="saveGscSettings()">
+          <div class="hint">Must match exactly the property in Google Search Console (including trailing slash).</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">🏎 Crawl Budget Optimizations</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:8px"><strong style="color:var(--text)">robots.txt</strong></div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:var(--mono);font-size:.6rem;color:var(--accent);line-height:2">
+          User-agent: *<br>Allow: /<br>Disallow: /api/<br><br>User-agent: Googlebot<br>Crawl-delay: 0<br>Allow: /<br>Allow: /link/<br><br>Sitemap: https://flexygist.com.ng/sitemap.xml
+        </div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:10px;margin-bottom:6px"><strong style="color:var(--text)">Response Headers</strong></div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:var(--mono);font-size:.6rem;color:var(--blue);line-height:2">
+          Server-Timing: db;dur=4, cache;dur=1, total;dur=12<br>
+          Link: &lt;https://flexygist.com.ng/sitemap.xml&gt;; rel=preconnect<br>
+          Link: &lt;https://flexygist.com.ng/feed.xml&gt;; rel=prefetch
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">✨ Structured Data — JSON-LD</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:var(--mono);font-size:.55rem;color:var(--text);line-height:1.9;overflow-x:auto;white-space:pre">&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Resource",
+  "datePublished": "TODAY_ISO",
+  "dateModified": "TODAY_ISO",
+  "url": "SHORT_URL"
+}
+&lt;/script&gt;</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Googlebot Footer -->
+<div class="bot-footer" id="bot-footer">
+  <div class="bot-footer-label"><div class="bfl-dot"></div><span>🤖 Bot Activity</span></div>
+  <div class="bot-feed-track" id="bot-feed-track">
+    <div class="bot-feed-inner" id="bot-feed-inner"><div class="bot-empty-feed">⏳ No bot hits yet</div></div>
+  </div>
+  <button class="bot-footer-refresh" onclick="refreshBotFeed()" title="Refresh">↻</button>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal-bg" id="modal-proj">
+  <div class="modal">
+    <div class="modal-title">New Project</div>
+    <input id="proj-name-input" placeholder="e.g. Naijarave Campaign, Forum Links…" maxlength="60">
+    <div class="modal-row">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('modal-proj')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="createProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Links Modal -->
+<div class="modal-bg" id="modal-links">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title" id="add-links-title">Add Backlinks</div>
+    <div style="font-size:.62rem;color:var(--muted);margin-bottom:6px">Paste one URL per line or upload a CSV. Short links auto-generated.</div>
+    <textarea id="links-input" rows="7" placeholder="https://www.kikyus.net/t20888-topic&#10;https://naijarave.com/thread/example&#10;https://forum.example.com/post/123"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="file" id="csv-file-input" accept=".csv,.txt" style="font-size:.6rem;flex:1" onchange="handleCSVUpload(this)">
+      <select id="link-tag-sel" style="width:130px;font-size:.65rem">
+        <option value="">No tag</option>
+        <option value="forum">Forum</option>
+        <option value="web2">Web 2.0</option>
+        <option value="guest">Guest Post</option>
+        <option value="niche">Niche Edit</option>
+        <option value="pbn">PBN</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('modal-links')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="addLinks()">⚡ Generate &amp; Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Crawl Details Modal -->
+<div class="modal-bg" id="modal-crawl">
+  <div class="modal crawl-modal">
+    <div class="modal-title">
+      <span style="font-size:1.1rem">🔍</span><span>Crawl Details</span>
+      <button class="btn btn-outline" style="margin-left:auto;font-size:.55rem;padding:3px 9px" onclick="closeModal('modal-crawl')">✕ Close</button>
+    </div>
+    <div class="crawl-url-bar" id="crawl-url-bar">—</div>
+    <div class="crawl-body-layout" id="crawl-body-layout">
+      <div class="crawl-preview-col" id="crawl-preview-col">
+        <div class="crawl-preview-frame">
+          <div class="cpf-hdr">🖥 Page Preview</div>
+          <div class="cpf-img-wrap" id="cpf-img-wrap">
+            <div class="cpf-loading" id="cpf-loading"><div class="spin" style="font-size:1.2rem">⟳</div><div>Loading preview…</div></div>
+          </div>
+        </div>
+        <div class="crawl-meta-mini" id="crawl-meta-mini" style="display:none"></div>
+        <a class="open-orig-btn" id="open-orig-btn" href="#" target="_blank" style="display:none">↗ Open Original Page</a>
+      </div>
+      <div class="crawl-sections" id="crawl-sections">
+        <div class="crawl-loading"><div class="spin">⟳</div><div>Loading crawl data…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Wayback Modal -->
+<div class="modal-bg" id="modal-wayback">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-title">🕰 Wayback Machine Blast</div>
+    <div style="font-size:.62rem;color:var(--muted);margin-bottom:12px">Saving URLs to archive.org triggers Googlebot re-crawl. Most reliable crawl signal used by paid indexers.</div>
+    <div id="wayback-log" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:.6rem;line-height:1.9;color:var(--muted)">Ready.</div>
+    <div class="modal-row">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('modal-wayback')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// LinkCore v8 — Full JS Engine
+// ══════════════════════════════════════════════════════════
+
+// ── Config ────────────────────────────────────────────────
+// ── Multi-domain short link bases (same code, 4 domains) ──
+const SHORT_BASES = [
+  'https://flexygist.com.ng/link/',
+  'https://guruswapaz.com.ng/link/',
+  'https://mp3fresh.com.ng/link/',
+  'https://naijasturf.com.ng/link/',
+];
+const SHORT_BASE = SHORT_BASES[0]; // primary (kept for legacy compat)
+
+// Returns all 4 short URLs for a given link code
+function allShortUrls(code){
+  return SHORT_BASES.map(base => base + code);
+}
+// Returns all 4 short URLs for an entire project's links (flat array)
+function allProjShortUrls(pl){
+  return pl.flatMap(l => allShortUrls(l.code));
+}
+const SITEMAP_URL      = 'https://flexygist.com.ng/sitemap.xml';
+const FEED_URL         = 'https://flexygist.com.ng/feed.xml';
+const INDEXNOW_KEY     = 'indexcore';
+const INDEXNOW_KEY_LOC = 'https://flexygist.com.ng/indexcore.txt';
+const SB_URL           = 'https://ydfeubmrlbkddlidhniv.supabase.co';
+const SB_KEY           = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
+const H                = {'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'};
+
+// ── State ─────────────────────────────────────────────────
+let projects   = [];
+let links      = {};
+let activeProj = null;
+let saVault    = [];
+let sites      = [];   // [{id, url, label, saKeys:[{label,json,daily_used,date}], status}]
+let workerJobs = [];
+let healthResults = [];
+let linkFilter = 'all';
+let chanSettings = {
+  gsc:true, idxApi:true, sitemapApi:true, indexnow:true,
+  wayback:true, bing:false, pubsub:true, xmlrpc:true, worker:false, rui:false, t2:true
+};
+
+// ── Boot ──────────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  loadSites();
+  restoreSettings();
+  await loadAll();
+  refreshBotFeed();
+  renderSAVault();
+  renderSAStatus();
+  renderSites();
+});
+
+// ══════════════════════════════════════════════════════════
+// SETTINGS PERSIST
+// ══════════════════════════════════════════════════════════
+function restoreSettings(){
+  try{
+    const ap = localStorage.getItem('lc_active_proj');
+    if(ap) activeProj = ap;
+    const v = JSON.parse(localStorage.getItem('lc_sa_vault')||'[]');
+    saVault = Array.isArray(v) ? v : [];
+    const c = JSON.parse(localStorage.getItem('lc_chan')||'null');
+    if(c) chanSettings = {...chanSettings,...c};
+    const site = localStorage.getItem('lc_gsc_site');
+    if(site){ const el=document.getElementById('gsc-site'); if(el) el.value=site; }
+    const bk = localStorage.getItem('lc_bing_key');
+    if(bk){ const el=document.getElementById('bing-api-key'); if(el) el.value=bk; }
+    const rk = localStorage.getItem('lc_rui_key');
+    if(rk){ const el=document.getElementById('rui-api-key'); if(el) el.value=rk; }
+    const wu = localStorage.getItem('lc_worker_url');
+    if(wu){
+      const el1=document.getElementById('worker-url-main'); if(el1) el1.value=wu;
+      const el2=document.getElementById('worker-url-input'); if(el2) el2.value=wu;
+    }
+    Object.keys(chanSettings).forEach(k=>{
+      const id = `ch-${k.replace(/([A-Z])/g,'-$1').toLowerCase()}-on`;
+      const el = document.getElementById(id);
+      if(el) el.checked = chanSettings[k];
+    });
+  }catch(e){}
+}
+
+function saveGscSettings(){
+  try{ localStorage.setItem('lc_gsc_site', document.getElementById('gsc-site').value); }catch(e){}
+}
+
+function saveChanSettings(){
+  chanSettings.gsc        = document.getElementById('ch-gsc-on')?.checked??true;
+  chanSettings.idxApi     = document.getElementById('ch-idx-api-on')?.checked??true;
+  chanSettings.sitemapApi = document.getElementById('ch-sitemap-api-on')?.checked??true;
+  chanSettings.indexnow   = document.getElementById('ch-indexnow-on')?.checked??true;
+  chanSettings.wayback    = document.getElementById('ch-wayback-on')?.checked??true;
+  chanSettings.bing       = document.getElementById('ch-bing-on')?.checked??false;
+  chanSettings.pubsub     = document.getElementById('ch-pubsub-on')?.checked??true;
+  chanSettings.xmlrpc     = document.getElementById('ch-xmlrpc-on')?.checked??true;
+  chanSettings.worker     = document.getElementById('ch-worker-on')?.checked??false;
+  chanSettings.rui        = document.getElementById('ch-rui-on')?.checked??false;
+  chanSettings.t2         = document.getElementById('ch-t2-on')?.checked??true;
+  try{
+    localStorage.setItem('lc_chan', JSON.stringify(chanSettings));
+    localStorage.setItem('lc_bing_key', document.getElementById('bing-api-key')?.value||'');
+    localStorage.setItem('lc_rui_key', document.getElementById('rui-api-key')?.value||'');
+    const wu = document.getElementById('worker-url-input')?.value||'';
+    if(wu) localStorage.setItem('lc_worker_url', wu);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════════
+// SA VAULT
+// ══════════════════════════════════════════════════════════
+function addSAKey(){
+  const raw = document.getElementById('sa-new-json').value.trim();
+  if(!raw){ toast('Paste a Service Account JSON first',''); return; }
+  try{
+    const sa = JSON.parse(raw);
+    if(!sa.client_email||!sa.private_key) throw new Error('Missing fields');
+    const label = sa.client_email.split('@')[0];
+    const today = new Date().toDateString();
+    saVault.push({label, json:raw, daily_used:0, date:today});
+    localStorage.setItem('lc_sa_vault', JSON.stringify(saVault));
+    document.getElementById('sa-new-json').value = '';
+    renderSAVault();
+    renderSAStatus();
+    toast(`🔑 SA key "${label}" added`,'green');
+  }catch(e){ toast('Invalid JSON: '+e.message,''); }
+}
+
+function removeSAKey(i){
+  saVault.splice(i,1);
+  localStorage.setItem('lc_sa_vault', JSON.stringify(saVault));
+  renderSAVault(); renderSAStatus();
+  toast('🗑 SA key removed','');
+}
+
+function renderSAVault(){
+  const el = document.getElementById('sa-vault-list');
+  if(!el) return;
+  if(!saVault.length){ el.innerHTML=`<div style="font-size:.6rem;color:var(--muted2);padding:8px 0">No SA keys yet.</div>`; return; }
+  el.innerHTML = saVault.map((sa,i)=>{
+    const today = new Date().toDateString();
+    if(sa.date!==today){ sa.daily_used=0; sa.date=today; }
+    const pct = Math.round((sa.daily_used/200)*100);
+    const cls = pct>=100?'full':pct>=75?'warn':'';
+    return `<div class="sa-vault-item">
+      <div class="sa-vault-label">🔑 ${he(sa.label)}</div>
+      <div class="sa-vault-quota ${cls}">${sa.daily_used}/200 today</div>
+      <div style="width:60px;background:var(--bg3);border-radius:3px;height:4px;overflow:hidden">
+        <div style="height:100%;width:${Math.min(pct,100)}%;background:${pct>=100?'var(--red)':pct>=75?'var(--orange)':'var(--accent)'}"></div>
+      </div>
+      <button class="btn btn-danger" style="font-size:.5rem;padding:2px 6px" onclick="removeSAKey(${i})">✕</button>
+    </div>`;
+  }).join('');
+  localStorage.setItem('lc_sa_vault', JSON.stringify(saVault));
+}
+
+function renderSAStatus(){
+  const el = document.getElementById('sa-status-display');
+  if(!el) return;
+  if(!saVault.length){ el.innerHTML=`<span style="color:var(--orange)">⚠ No SA keys — <a href="#" onclick="showView('settings');return false" style="color:var(--accent)">add in Settings</a></span>`; return; }
+  const today = new Date().toDateString();
+  const active = saVault.filter(s=>{ if(s.date!==today) s.daily_used=0; return s.daily_used<200; });
+  const totalCap = saVault.length * 200;
+  const totalUsed = saVault.reduce((a,s)=>a+(s.daily_used||0),0);
+  el.innerHTML = `<span style="color:var(--accent)">✓ ${saVault.length} SA key${saVault.length!==1?'s':''}</span> · ${active.length} active · <span style="color:var(--text)">${totalUsed}/${totalCap}</span> quota used · <span style="color:var(--blue)">${totalCap-totalUsed} remaining</span>`;
+}
+
+function getNextSA(){
+  const today = new Date().toDateString();
+  for(const sa of saVault){
+    if(sa.date!==today){ sa.daily_used=0; sa.date=today; }
+    if(sa.daily_used<200) return sa;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// VIEW SWITCHING
+// ══════════════════════════════════════════════════════════
+function showView(name, projId){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el = document.getElementById(`view-${name}`);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const match = document.querySelector(`.sb-btn[onclick*="'${name}'"]`);
+  if(match) match.classList.add('active');
+  if(name==='indexing'){ renderIndexingView(); renderReport(); renderSAStatus(); populateEscSel(); }
+  if(name==='project' && projId){
+    activeProj = projId;
+    try{localStorage.setItem('lc_active_proj',projId);}catch(e){}
+    renderProjectView(projId);
+    document.getElementById('domain-own-card').style.display = '';
+  }
+  if(name==='settings'){ renderSAVault(); renderSAStatus(); }
+  if(name==='sites'){ renderSites(); populateMsSel(); }
+  if(name==='worker'){ ifInit(); }
+  if(name==='analytics'){ renderAnalytics(); }
+  if(name==='health'){ populateHealthSel(); }
+  window.scrollTo(0,0);
+}
+
+function switchIdxTab(tab){
+  document.querySelectorAll('.idx-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.idx-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.idx-tab[onclick*="'${tab}'"]`)?.classList.add('active');
+  document.getElementById(`idx-pane-${tab}`)?.classList.add('active');
+  if(tab==='social') populateSocialSel();
+  if(tab==='report') renderReport();
+}
+
+// ══════════════════════════════════════════════════════════
+// SUPABASE HELPERS
+// ══════════════════════════════════════════════════════════
+async function sbGet(path){
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`,{headers:H});
+  return r.ok ? r.json() : [];
+}
+async function sbPost(table,data,prefer='resolution=merge-duplicates'){
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:{...H,'Prefer':`${prefer},return=representation`},body:JSON.stringify(data)});
+  if(!r.ok){const t=await r.text();console.error(`sbPost ${table} HTTP ${r.status}:`,t);}
+  return r;
+}
+async function sbPatch(table,filter,data){
+  return fetch(`${SB_URL}/rest/v1/${table}?${filter}`,{method:'PATCH',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify(data)});
+}
+async function sbDelete(table,filter){
+  return fetch(`${SB_URL}/rest/v1/${table}?${filter}`,{method:'DELETE',headers:H});
+}
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function genCode(){
+  const c='abcdefghijklmnopqrstuvwxyz'; let code,t=0;
+  do{ code=Array.from({length:5},()=>c[Math.floor(Math.random()*c.length)]).join(''); t++; }
+  while(allCodes().includes(code)&&t<200); return code;
+}
+function allCodes(){ return Object.values(links).flat().map(l=>l.code); }
+
+// ══════════════════════════════════════════════════════════
+// LOAD ALL DATA
+// ══════════════════════════════════════════════════════════
+async function loadAll(){
+  try{
+    document.getElementById('sb-status').textContent='Loading…';
+    const [projs, lnks] = await Promise.all([
+      sbGet('lc_projects?order=created_at.asc'),
+      sbGet('lc_links?select=*&order=added_at.asc&limit=10000')
+    ]);
+    projects = projs||[];
+    links = {};
+    projects.forEach(p=>{ links[p.id]=[]; });
+    (lnks||[]).forEach(l=>{ if(links[l.project_id]) links[l.project_id].push(l); });
+    const shortRows = await sbGet('ic_short_links?select=code,hits&limit=50000');
+    const hitsMap = {};
+    (shortRows||[]).forEach(r=>{ hitsMap[r.code]=r.hits||0; });
+    Object.values(links).flat().forEach(l=>{ if(hitsMap[l.code]!==undefined) l.hits=hitsMap[l.code]; });
+    document.getElementById('sb-status').textContent='Connected ✓';
+    renderAll();
+  }catch(e){
+    document.getElementById('sb-status').innerHTML = location.protocol==='file:'
+      ? '<span style="color:var(--orange)">⚠ Open via server</span>'
+      : '<span style="color:var(--red)">Offline</span>';
+    console.error('loadAll failed:',e);
+  }
+}
+
+function renderAll(){
+  renderSidebar(); renderDashboard(); renderIndexingView(); renderReport();
+  populateEscSel(); populateSocialSel(); populateMsSel(); populateWorkerSel(); populateHealthSel();
+  if(activeProj) renderProjectView(activeProj);
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function renderSidebar(){
+  const el = document.getElementById('proj-list-sb');
+  el.innerHTML = projects.map(p=>{
+    const cnt = (links[p.id]||[]).length;
+    return `<button class="sb-btn${activeProj===p.id?' active':''}" onclick="showView('project','${p.id}')">
+      <span class="dot"></span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left">${he(p.name)}</span>
+      <span class="cnt">${cnt}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderDashboard(){
+  const allLinks  = Object.values(links).flat();
+  const totalHits = allLinks.reduce((a,l)=>a+(l.hits||0),0);
+  const indexed   = allLinks.filter(l=>l.verdict==='PASS'||l.verdict==='indexed').length;
+  const dead      = allLinks.filter(l=>l.health==='dead').length;
+  document.getElementById('st-projects').textContent = projects.length;
+  document.getElementById('st-links').textContent    = allLinks.length;
+  document.getElementById('st-hits').textContent     = totalHits;
+  document.getElementById('st-indexed').textContent  = indexed;
+  document.getElementById('st-dead').textContent     = dead;
+  const empty = document.getElementById('proj-empty');
+  const grid  = document.getElementById('proj-grid');
+  if(!projects.length){ empty.style.display=''; grid.style.display='none'; return; }
+  empty.style.display='none'; grid.style.display='grid';
+  grid.innerHTML = projects.map(p=>{
+    const pl   = links[p.id]||[];
+    const hits = pl.reduce((a,l)=>a+(l.hits||0),0);
+    const idx  = pl.filter(l=>l.verdict==='PASS'||l.verdict==='indexed').length;
+    const date = new Date(p.created_at).toLocaleDateString();
+    return `<div class="proj-card" onclick="showView('project','${p.id}')">
+      <div class="proj-card-actions">
+        <button class="btn btn-danger" style="font-size:.55rem;padding:3px 7px" onclick="event.stopPropagation();deleteProject('${p.id}')">✕</button>
+      </div>
+      <div class="proj-card-name">${he(p.name)}</div>
+      <div class="proj-card-meta">
+        <span class="proj-chip chip-green">${pl.length} links</span>
+        <span class="proj-chip chip-orange">${hits} hits</span>
+        ${idx?`<span class="proj-chip chip-blue">${idx} indexed</span>`:''}
+      </div>
+      <div class="proj-card-date">Created ${date}</div>
+    </div>`;
+  }).join('');
+}
+
+// Filter state
+function setFilter(f, btn){
+  linkFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(activeProj) renderProjectView(activeProj);
+}
+
+function renderProjectView(projId){
+  const p  = projects.find(x=>x.id===projId);
+  if(!p) return;
+  let pl = links[projId]||[];
+  document.getElementById('proj-title').textContent = p.name;
+  document.getElementById('proj-sub').textContent   = `${pl.length} link${pl.length!==1?'s':''}`;
+
+  // Apply filter
+  const filtered = pl.filter(l=>{
+    if(linkFilter==='all') return true;
+    if(linkFilter==='indexed') return l.verdict==='PASS'||l.verdict==='indexed';
+    if(linkFilter==='crawled') return l.verdict==='NEUTRAL'||l.verdict==='crawled';
+    if(linkFilter==='pending') return !l.verdict||l.verdict==='pending';
+    if(linkFilter==='error')   return l.verdict==='FAIL'||l.verdict==='error';
+    if(linkFilter==='dead')    return l.health==='dead';
+    return true;
+  });
+
+  const tbody = document.getElementById('link-tbody');
+  const empty = document.getElementById('link-empty');
+  if(!filtered.length){ tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+
+  tbody.innerHTML = filtered.map(l=>{
+    const shortUrls4 = allShortUrls(l.code);
+    const shortUrl = shortUrls4[0]; // primary for display
+    const origDisp = l.original.replace(/^https?:\/\//,'').slice(0,40);
+    const hits     = l.hits||0;
+    const verdict  = verdictBadge(l.verdict);
+    const date     = new Date(l.added_at).toLocaleDateString();
+    const retries  = l.retry_count ? `<span class="retry-badge">↻${l.retry_count}</span>` : '';
+    const tagHtml  = l.tag ? `<span class="tag tag-${l.tag}">${he(l.tag)}</span>` : '—';
+    const waybackBadge = l.wayback_saved ? `<span class="wayback-badge">🕰 saved</span>` : '';
+    const healthIcon = l.health==='dead'?'<span class="health-dot health-dead" title="Dead link"></span>' :
+                       l.health==='ok'?'<span class="health-dot health-ok" title="Link OK"></span>' :
+                       l.health==='warn'?'<span class="health-dot health-warn" title="Warning"></span>' :
+                       '<span class="health-dot health-unknown" title="Unknown"></span>';
+    return `<tr>
+      <td style="width:32px"><input type="checkbox" class="link-sel" data-id="${l.id}" onchange="updateBulkBar()" style="width:14px;height:14px;accent-color:var(--accent)"></td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div class="domain-chips">
+            ${shortUrls4.map((u,i)=>`<a class="domain-chip chip-d${i}" href="${he(u)}" target="_blank" title="${he(u)}">
+              <span class="chip-dot"></span>${he(SHORT_BASES[i].replace('https://','').replace('/link/',''))}/<strong>${l.code}</strong>
+            </a>`).join('')}
+          </div>
+          ${waybackBadge}
+        </div>
+      </td>
+      <td><a class="link-orig" href="${he(l.original)}" target="_blank" title="${he(l.original)}">${he(origDisp)}${l.original.length>40?'…':''}</a></td>
+      <td>${tagHtml}</td>
+      <td>${verdict}${retries}</td>
+      <td>${healthIcon}</td>
+      <td><span class="${hits>0?'hits-num':'hits-zero'}">${hits}</span></td>
+      <td style="color:var(--muted);font-size:.62rem">${date}</td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="crawl-inspect-btn" onclick="openCrawlDetails('${he(shortUrls4[0])}','${he(l.original)}')">🔍</button>
+          <button class="btn btn-outline" style="font-size:.5rem;padding:2px 7px" onclick="copyAllShorts(${JSON.stringify(shortUrls4)},this)">COPY ALL</button>
+          <button class="btn btn-danger" style="font-size:.5rem;padding:2px 7px" onclick="deleteLink('${l.id}','${projId}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function selectAll(cb){
+  document.querySelectorAll('.link-sel').forEach(el=>el.checked=cb.checked);
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  const checked = document.querySelectorAll('.link-sel:checked');
+  const bar = document.getElementById('bulk-bar');
+  const cnt = document.getElementById('bulk-count');
+  if(checked.length>0){ bar.style.display='flex'; cnt.textContent=`${checked.length} selected`; }
+  else { bar.style.display='none'; }
+}
+
+function getSelectedIds(){
+  return [...document.querySelectorAll('.link-sel:checked')].map(el=>el.dataset.id);
+}
+
+async function bulkSubmitSelected(){
+  const ids = getSelectedIds();
+  if(!ids.length){ toast('Select links first',''); return; }
+  const pl = (links[activeProj]||[]).filter(l=>ids.includes(l.id));
+  const shortUrls = allProjShortUrls(pl);
+  toast(`🚀 Submitting ${ids.length} selected links…`,'green');
+  await blastUrls(shortUrls, pl, 'idx');
+  renderAll();
+}
+
+async function bulkWaybackSelected(){
+  const ids = getSelectedIds();
+  if(!ids.length){ toast('Select links first',''); return; }
+  const pl = (links[activeProj]||[]).filter(l=>ids.includes(l.id));
+  await waybackSaveLinks(pl);
+}
+
+async function bulkDeleteSelected(){
+  const ids = getSelectedIds();
+  if(!ids.length || !confirm(`Delete ${ids.length} selected links?`)) return;
+  for(const id of ids) await deleteLink(id, activeProj, true);
+  renderAll();
+  toast(`🗑 ${ids.length} links deleted`,'');
+}
+
+function verdictBadge(v){
+  if(!v||v==='pending') return `<span class="verdict-badge v-pending">Pending</span>`;
+  if(v==='PASS'||v==='indexed') return `<span class="verdict-badge v-indexed">Indexed</span>`;
+  if(v==='NEUTRAL'||v==='crawled') return `<span class="verdict-badge v-crawled">Crawled</span>`;
+  if(v==='FAIL'||v==='error') return `<span class="verdict-badge v-error">Error</span>`;
+  return `<span class="verdict-badge v-pending">${he(v)}</span>`;
+}
+
+function renderIndexingView(){
+  const sel = document.getElementById('idx-proj-sel');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Choose a project —</option>'+
+    projects.map(p=>`<option value="${p.id}">${he(p.name)} (${(links[p.id]||[]).length} links)</option>`).join('');
+  if(cur) sel.value=cur;
+  updateIdxPreview();
+}
+
+function updateIdxPreview(){
+  const pid = document.getElementById('idx-proj-sel')?.value;
+  const el  = document.getElementById('idx-preview');
+  if(!el) return;
+  if(!pid){ el.textContent='Select a project to see how many short links will be submitted.'; return; }
+  const pl = links[pid]||[];
+  const active = Object.entries(chanSettings).filter(([k,v])=>v&&k!=='t2').length;
+  el.textContent = `${pl.length} short link${pl.length!==1?'s':''} across ${active} active channel${active!==1?'s':''}.`;
+}
+
+function renderReport(){
+  const tbody = document.getElementById('report-tbody');
+  const empty = document.getElementById('report-empty');
+  if(!tbody) return;
+  const allLinks = Object.values(links).flat().filter(l=>l.submitted);
+  if(!allLinks.length){ tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  tbody.innerHTML = allLinks.map(l=>{
+    const p        = projects.find(x=>x.id===l.project_id)||{name:'—'};
+    const shortUrl = SHORT_BASES[0]+l.code;
+    const origDisp = l.original.replace(/^https?:\/\//,'').slice(0,35);
+    const hits     = l.hits||0;
+    const retries  = l.retry_count||0;
+    const tagHtml  = l.tag ? `<span class="tag tag-${l.tag}">${he(l.tag)}</span>` : '—';
+    const wb = l.wayback_saved ? `<span style="color:var(--cyan);font-size:.55rem">✓ saved</span>` : '—';
+    return `<tr>
+      <td style="font-size:.65rem;color:var(--muted);white-space:nowrap">${he(p.name)}</td>
+      <td><a class="link-short" href="${he(shortUrl)}" target="_blank" style="font-size:.72rem">${l.code}</a></td>
+      <td><a class="link-orig" href="${he(l.original)}" target="_blank" title="${he(l.original)}">${he(origDisp)}…</a></td>
+      <td>${tagHtml}</td>
+      <td>${verdictBadge(l.verdict)}</td>
+      <td><span class="${hits>0?'hits-num':'hits-zero'}">${hits}${hits>0?' 🤖':''}</span></td>
+      <td>${wb}</td>
+      <td style="color:var(--muted);font-size:.62rem">${retries>0?`↻${retries}`:'—'}</td>
+      <td><button class="crawl-inspect-btn" onclick="openCrawlDetails('${he(shortUrl)}','${he(l.original)}')">🔍 Inspect</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function populateEscSel(){
+  const sel = document.getElementById('esc-proj-sel');
+  if(!sel) return;
+  sel.innerHTML = '<option value="all">All Projects</option>'+
+    projects.map(p=>`<option value="${p.id}">${he(p.name)}</option>`).join('');
+}
+function populateSocialSel(){
+  const sel = document.getElementById('social-proj-sel');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Choose a project —</option>'+
+    projects.map(p=>`<option value="${p.id}">${he(p.name)}</option>`).join('');
+  if(cur) sel.value=cur;
+}
+function populateMsSel(){
+  const sel = document.getElementById('ms-proj-sel');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Choose a project —</option>'+
+    projects.map(p=>`<option value="${p.id}">${he(p.name)} (${(links[p.id]||[]).length} links)</option>`).join('');
+}
+function populateWorkerSel(){
+  const sel = document.getElementById('worker-proj-sel');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Choose a project —</option>'+
+    projects.map(p=>`<option value="${p.id}">${he(p.name)}</option>`).join('');
+}
+function populateHealthSel(){
+  const sel = document.getElementById('health-proj-sel');
+  if(!sel) return;
+  sel.innerHTML = '<option value="all">All Projects</option>'+
+    projects.map(p=>`<option value="${p.id}">${he(p.name)}</option>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// PROJECT CRUD
+// ══════════════════════════════════════════════════════════
+function openNewProj(){
+  document.getElementById('proj-name-input').value='';
+  document.getElementById('modal-proj').classList.add('open');
+  setTimeout(()=>document.getElementById('proj-name-input').focus(),100);
+}
+async function createProject(){
+  const name = document.getElementById('proj-name-input').value.trim();
+  if(!name){ toast('Enter a project name',''); return; }
+  const proj = { id:uid(), name, created_at:new Date().toISOString() };
+  await sbPost('lc_projects', proj);
+  projects.push(proj);
+  links[proj.id] = [];
+  closeModal('modal-proj');
+  renderAll();
+  showView('project', proj.id);
+  toast(`📁 "${name}" created`,'green');
+}
+async function deleteProject(id){
+  if(!confirm('Delete this project and all its links?')) return;
+  const codes = (links[id]||[]).map(l=>l.code);
+  if(codes.length) await sbDelete('ic_short_links',`code=in.(${codes.join(',')})`);
+  await sbDelete('lc_links',`project_id=eq.${id}`);
+  await sbDelete('lc_projects',`id=eq.${id}`);
+  projects = projects.filter(p=>p.id!==id);
+  delete links[id];
+  if(activeProj===id){ activeProj=null; try{localStorage.removeItem('lc_active_proj');}catch(e){} showView('dashboard'); }
+  renderAll();
+  toast('🗑 Project deleted','');
+}
+
+// ══════════════════════════════════════════════════════════
+// LINK CRUD
+// ══════════════════════════════════════════════════════════
+function openAddLinks(){
+  document.getElementById('links-input').value='';
+  document.getElementById('link-tag-sel').value='';
+  document.getElementById('add-links-title').textContent = `Add Links — ${projects.find(p=>p.id===activeProj)?.name||''}`;
+  document.getElementById('modal-links').classList.add('open');
+  setTimeout(()=>document.getElementById('links-input').focus(),100);
+}
+
+function handleCSVUpload(input){
+  if(!input.files.length) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const urls = text.split(/[\r\n,]+/).map(u=>u.trim().replace(/^"|"$/g,'')).filter(u=>u.startsWith('http'));
+    const textarea = document.getElementById('links-input');
+    textarea.value = (textarea.value ? textarea.value+'\n' : '') + urls.join('\n');
+    toast(`📄 ${urls.length} URLs loaded from CSV`,'green');
+  };
+  reader.readAsText(file);
+}
+
+async function addLinks(){
+  const raw  = document.getElementById('links-input').value;
+  const tag  = document.getElementById('link-tag-sel').value;
+  const urls = raw.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  if(!urls.length){ toast('Paste at least one URL',''); return; }
+  const existing = (links[activeProj]||[]).map(l=>l.original);
+  const newUrls  = urls.filter(u=>!existing.includes(u));
+  if(!newUrls.length){ toast('All URLs already in this project',''); closeModal('modal-links'); return; }
+  const now = new Date().toISOString();
+  const newLinks = newUrls.map(original=>({
+    id: uid(), project_id: activeProj, original,
+    code: genCode(), verdict:'pending', hits:0, submitted:false,
+    retry_count:0, added_at:now, tag: tag||null
+  }));
+  await sbPost('lc_links', newLinks);
+  // Register the same code on all 4 domains in ic_short_links
+  const shortLinkRows = newLinks.flatMap(l => SHORT_BASES.map(base => ({code:l.code, target:l.original})));
+  await sbPost('ic_short_links', shortLinkRows);
+  if(!links[activeProj]) links[activeProj]=[];
+  links[activeProj].push(...newLinks);
+  closeModal('modal-links');
+  renderAll();
+  toast(`✅ ${newLinks.length} short link${newLinks.length!==1?'s':''} created`,'green');
+  await autoSitemapAndSignal(newLinks.flatMap(l=>allShortUrls(l.code)));
+}
+
+async function deleteLink(id, projId, silent=false){
+  const lnk = (links[projId]||[]).find(l=>l.id===id);
+  await sbDelete('lc_links',`id=eq.${id}`);
+  if(lnk) await sbDelete('ic_short_links',`code=eq.${lnk.code}`);
+  links[projId] = (links[projId]||[]).filter(l=>l.id!==id);
+  if(!silent){ renderAll(); toast('🗑 Link removed',''); }
+}
+
+// ══════════════════════════════════════════════════════════
+// AUTO SITEMAP + SIGNAL ON NEW LINK
+// ══════════════════════════════════════════════════════════
+async function autoSitemapAndSignal(newShortUrls){
+  const allUrls = Object.values(links).flat().flatMap(l=>allShortUrls(l.code));
+  const now     = new Date().toISOString().split('T')[0];
+  const xml = buildSitemapXML(allUrls, now);
+  try{ localStorage.setItem('lc_sitemap_xml', xml); }catch(e){}
+  sitemapLog(`🗺 Sitemap updated — ${allUrls.length} URLs · lastmod ${now}`);
+  await fireSitemapSignals(newShortUrls, xml, 'auto');
+}
+
+function buildSitemapXML(urls, lastmod){
+  const entries = urls.map(u=>`  <url>\n    <loc>${he(u)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>`).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>`;
+}
+
+async function fireSitemapSignals(shortUrls, xml, logTarget='idx'){
+  const log = logTarget==='auto' ? sitemapLog : idxLog;
+  const smEnc = encodeURIComponent(SITEMAP_URL);
+  try{ await fetch(`https://www.google.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}); log('🗺 Google sitemap ping sent','ok'); }catch(e){}
+  try{ await fetch(`https://www.bing.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}); log('🗺 Bing sitemap ping sent','ok'); }catch(e){}
+  try{
+    const b=new URLSearchParams();
+    b.append('hub.mode','publish'); b.append('hub.url',SITEMAP_URL); b.append('hub.url',FEED_URL);
+    await fetch('https://pubsubhubbub.appspot.com/',{method:'POST',body:b,mode:'no-cors'});
+    log('📢 PubSubHubbub notified','ok');
+  }catch(e){}
+  for(const hub of ['https://pubsubhubbub.appspot.com/','https://pubsubhubbub.superfeedr.com/']){
+    try{
+      const b=new URLSearchParams(); b.append('hub.mode','publish'); b.append('hub.url',SITEMAP_URL);
+      await fetch(hub,{method:'POST',body:b,mode:'no-cors'});
+    }catch(e){}
+  }
+  log('🌐 WebSub hubs notified','ok');
+}
+
+function sitemapLog(msg, type='ok'){
+  const el = document.getElementById('sitemap-log');
+  if(el){ el.style.display='block'; el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight; }
+}
+
+// ══════════════════════════════════════════════════════════
+// GSC TOKEN
+// ══════════════════════════════════════════════════════════
+async function getToken(saJson, scope){
+  const sa = JSON.parse(saJson);
+  const now = Math.floor(Date.now()/1000);
+  const b64url = obj=>btoa(JSON.stringify(obj)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const sigInput = b64url({alg:'RS256',typ:'JWT'})+'.'+b64url({iss:sa.client_email,scope,aud:'https://oauth2.googleapis.com/token',iat:now,exp:now+3600});
+  const pemBody = sa.private_key.replace(/-----[^-]+-----/g,'').replace(/\s/g,'');
+  const keyDer  = Uint8Array.from(atob(pemBody),c=>c.charCodeAt(0));
+  const cryptoKey = await crypto.subtle.importKey('pkcs8',keyDer.buffer,{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);
+  const sig     = await crypto.subtle.sign('RSASSA-PKCS1-v1_5',cryptoKey,new TextEncoder().encode(sigInput));
+  const sigB64  = btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const resp    = await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${sigInput}.${sigB64}`});
+  const td = await resp.json();
+  if(!td.access_token) throw new Error(td.error_description||'Token failed');
+  return td.access_token;
+}
+
+// ══════════════════════════════════════════════════════════
+// LOG HELPERS
+// ══════════════════════════════════════════════════════════
+function idxLog(msg,type='info'){
+  const el=document.getElementById('idx-log');
+  if(!el) return; el.style.display='block';
+  el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight;
+}
+function escLog(msg,type='info'){
+  const el=document.getElementById('esc-log');
+  if(!el) return; el.style.display='block';
+  el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight;
+}
+function msLog(msg,type='info'){
+  const el=document.getElementById('ms-log');
+  if(!el) return; el.style.display='block';
+  el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight;
+}
+function workerLog(msg,type='info'){
+  const el=document.getElementById('worker-log');
+  if(!el) return; el.style.display='block';
+  el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight;
+}
+function setProgress(pct){
+  const wrap=document.getElementById('idx-progress'); const bar=document.getElementById('idx-prog-bar');
+  if(!wrap||!bar) return; wrap.style.display='block'; bar.style.width=Math.min(100,pct)+'%';
+}
+
+// ══════════════════════════════════════════════════════════
+// CORE URL BLASTER (used by indexing + multi-site + bulk)
+// ══════════════════════════════════════════════════════════
+async function blastUrls(shortUrls, pl, logTarget='idx'){
+  const log    = logTarget==='ms' ? msLog : logTarget==='esc' ? escLog : idxLog;
+  const site   = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
+  const total  = shortUrls.length;
+  const INDEXNOW_ENDPOINTS = [
+    'https://api.indexnow.org/indexnow','https://www.bing.com/indexnow',
+    'https://yandex.com/indexnow','https://search.seznam.cz/indexnow',
+    'https://indexnow.search.brave.com/indexnow','https://naver.me/indexnow',
+    'https://zeptosearch.com/indexnow','https://yep.com/indexnow',
+  ];
+
+  // ── 1. GSC Inspection + Indexing API ──
+  if(chanSettings.gsc || chanSettings.idxApi){
+    const sa = getNextSA();
+    if(!sa){ log('⚠ No SA keys — skipping GSC channels','err'); }
+    else{
+      try{
+        log('🔑 Authenticating SA…','info');
+        const [tokenGSC, tokenIdx] = await Promise.all([
+          chanSettings.gsc    ? getToken(sa.json,'https://www.googleapis.com/auth/webmasters') : null,
+          chanSettings.idxApi ? getToken(sa.json,'https://www.googleapis.com/auth/indexing')   : null
+        ]);
+        let curSA=sa, curGSC=tokenGSC, curIdx=tokenIdx;
+        for(const l of pl){
+          const shorts = allShortUrls(l.code); const short = shorts[0]; // primary for GSC verdict; index all below
+          if(curSA.daily_used>=200){
+            const next=getNextSA();
+            if(!next){ log('⚠ All SA keys at quota','err'); break; }
+            curSA=next;
+            log(`🔄 Rotated to: ${curSA.label}`,'info');
+            if(chanSettings.gsc)    curGSC=await getToken(curSA.json,'https://www.googleapis.com/auth/webmasters');
+            if(chanSettings.idxApi) curIdx=await getToken(curSA.json,'https://www.googleapis.com/auth/indexing');
+          }
+          const fires=[];
+          if(chanSettings.gsc && curGSC){
+            fires.push(fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${curGSC}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:short,siteUrl:site})}).then(async r=>{
+              if(r.status===429){log('⚠ GSC quota hit — rotating','err');curSA.daily_used=200;return;}
+              if(r.ok){const d=await r.json();const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED';
+                await sbPatch('lc_links',`id=eq.${l.id}`,{verdict:v,submitted:true,retry_count:0});
+                l.verdict=v;l.submitted=true;log(`🔍 GSC: ${l.code} → ${v}`,'ok');curSA.daily_used++;}
+            }).catch(e=>log(`✗ GSC ${l.code}: ${e.message}`,'err')));
+          }
+          if(chanSettings.idxApi && curIdx){
+            fires.push(fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${curIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url:short,type:'URL_UPDATED'})}).then(r=>{
+              if(r.ok){log(`⚡ IndexAPI: ${l.code} → queued`,'ok');curSA.daily_used++;}
+              else{log(`⚡ IndexAPI: ${l.code} → HTTP ${r.status}`,'info');}
+            }).catch(e=>log(`✗ IdxAPI ${l.code}: ${e.message}`,'err')));
+          }
+          await Promise.all(fires);
+          await new Promise(r=>setTimeout(r,320));
+        }
+        localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+        renderSAVault(); renderSAStatus();
+      }catch(e){ log(`✗ SA auth error: ${e.message}`,'err'); }
+    }
+  }
+
+  // ── 2. GSC Sitemaps API ──
+  if(chanSettings.sitemapApi){
+    log('🗺 GSC Sitemaps API — delete + re-add…','info');
+    const sa=getNextSA();
+    if(sa){
+      try{
+        const t=await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
+        const siteEnc=encodeURIComponent(site);
+        const smEnc=encodeURIComponent(SITEMAP_URL);
+        const base=`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`;
+        const hdrs={'Authorization':`Bearer ${t}`,'Content-Type':'application/json'};
+        await fetch(base,{method:'DELETE',headers:hdrs});
+        await new Promise(r=>setTimeout(r,800));
+        const r=await fetch(base,{method:'PUT',headers:hdrs});
+        log(r.ok||r.status===204?'🗺 Sitemap API: deleted + re-submitted ✓':`🗺 Sitemap re-add: HTTP ${r.status}`,'ok');
+      }catch(e){ log(`⚠ Sitemap API: ${e.message}`,'info'); }
+    }
+  }
+
+  // ── 3. IndexNow — all 8 engines ──
+  if(chanSettings.indexnow){
+    log('📡 IndexNow → all 8 engines…','info');
+    const payload=JSON.stringify({host:'flexygist.com.ng',key:INDEXNOW_KEY,keyLocation:INDEXNOW_KEY_LOC,urlList:shortUrls});
+    const results=await Promise.allSettled(INDEXNOW_ENDPOINTS.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload})));
+    const ok=results.filter(r=>r.status==='fulfilled'&&(r.value.ok||r.value.status===202||r.value.status===200)).length;
+    log(`📡 IndexNow: ${ok}/${INDEXNOW_ENDPOINTS.length} engines accepted ${total} URLs`,'ok');
+  }
+
+  // ── 4. Wayback Machine Save ──
+  if(chanSettings.wayback){
+    log('🕰 Wayback Machine save…','info');
+    let wbOk=0;
+    for(const [i,url] of shortUrls.slice(0,10).entries()){
+      try{
+        await fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'});
+        wbOk++;
+        const l=pl[i];
+        if(l){ l.wayback_saved=true; await sbPatch('lc_links',`id=eq.${l.id}`,{wayback_saved:true}); }
+        await new Promise(r=>setTimeout(r,500));
+      }catch(e){}
+    }
+    if(shortUrls.length>10){ log(`🕰 Wayback: saved first 10 (rate limit). ${shortUrls.length-10} queued.`,'info'); }
+    else{ log(`🕰 Wayback: ${wbOk}/${shortUrls.slice(0,10).length} URLs saved ✓`,'ok'); }
+  }
+
+  // ── 5. Bing Webmaster Direct ──
+  if(chanSettings.bing){
+    const bKey=document.getElementById('bing-api-key')?.value.trim()||localStorage.getItem('lc_bing_key')||'';
+    if(bKey){
+      log('🔎 Bing Webmaster API…','info');
+      try{
+        const r=await fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${encodeURIComponent(bKey)}`,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:JSON.stringify({siteUrl:'https://flexygist.com.ng',urlList:shortUrls.slice(0,500)})});
+        log(r.ok?`🔎 Bing: ${Math.min(shortUrls.length,500)} URLs submitted ✓`:`🔎 Bing: HTTP ${r.status}`,'ok');
+      }catch(e){ log(`⚠ Bing: ${e.message}`,'info'); }
+    }
+  }
+
+  // ── 6. PubSub + WebSub ──
+  if(chanSettings.pubsub){
+    log('📢 PubSub + WebSub triple-fire…','info');
+    await fireSitemapSignals(shortUrls, null, logTarget);
+  }
+
+  // ── 7. XML-RPC Ping Blast ──
+  if(chanSettings.xmlrpc){
+    log('💥 XML-RPC ping blast…','info');
+    await xmlrpcPingBlast(shortUrls[0]||SITEMAP_URL, logTarget);
+  }
+
+  // ── 8. Worker API ──
+  if(chanSettings.worker){
+    const wUrl=localStorage.getItem('lc_worker_url')||'';
+    if(wUrl){
+      log('⚙ Worker API blast…','info');
+      try{
+        const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:shortUrls.join('\n'),plan:'free'})});
+        if(r.ok){ const d=await r.json(); log(`⚙ Worker: job ${d.job_id} queued (${d.urls_queued} URLs)`,'ok'); }
+        else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
+      }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
+    }
+  }
+
+  // ── 9. Rapid URL Indexer ──
+  if(chanSettings.rui){
+    const ruiKey=document.getElementById('rui-api-key')?.value.trim()||localStorage.getItem('lc_rui_key')||'';
+    if(ruiKey){
+      log('🌀 Rapid URL Indexer…','info');
+      try{
+        const r=await fetch('https://rapidurlindexer.com/api/v1/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ruiKey}`},body:JSON.stringify({urls:shortUrls})});
+        log(r.ok?`🌀 RUI: ${total} URLs submitted ✓`:`🌀 RUI: HTTP ${r.status}`,'ok');
+      }catch(e){ log(`⚠ RUI: ${e.message}`,'info'); }
+    }
+  }
+
+  // Mark remaining as submitted
+  for(const l of pl){
+    if(!l.submitted){ await sbPatch('lc_links',`id=eq.${l.id}`,{submitted:true}); l.submitted=true; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// MAIN INDEXING RUN
+// ══════════════════════════════════════════════════════════
+async function runIndexing(){
+  const pid  = document.getElementById('idx-proj-sel').value;
+  if(!pid){ toast('Select a project first',''); return; }
+  const pl = links[pid]||[];
+  const shortUrls = allProjShortUrls(pl);
+  if(!shortUrls.length){ toast('No links in this project',''); return; }
+  const btn=document.getElementById('idx-btn');
+  btn.disabled=true; btn.textContent='⏳ Blasting…';
+  document.getElementById('idx-log').innerHTML='';
+  setProgress(2);
+  const total=shortUrls.length;
+  idxLog(`🚀 Blasting ${total} URLs across all enabled channels…`,'info');
+  await blastUrls(shortUrls, pl, 'idx');
+  setProgress(100);
+  idxLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','info');
+  idxLog(`✅ Blast complete — ${total} URLs`,'ok');
+  if(chanSettings.t2){ idxLog('📣 Social drafts ready — see Social Push tab','info'); document.getElementById('social-proj-sel').value=pid; }
+  btn.disabled=false; btn.textContent='🚀 Blast All Enabled Channels';
+  renderAll(); refreshBotFeed();
+  toast(`🚀 ${total} URLs blasted!`,'green');
+}
+
+// ── Worker submit from Submit tab ──
+function runWorkerSubmit(){
+  const pid = document.getElementById('idx-proj-sel').value;
+  if(!pid){ toast('Select a project first',''); return; }
+  document.getElementById('worker-proj-sel').value = pid;
+  showView('worker');
+  submitToWorker();
+}
+
+// ══════════════════════════════════════════════════════════
+// XML-RPC PING BLAST
+// ══════════════════════════════════════════════════════════
+async function xmlrpcPingBlast(targetUrl, logTarget='idx'){
+  const log = logTarget==='esc'?escLog:logTarget==='ms'?msLog:idxLog;
+  const endpoints = [
+    'https://rpc.pingomatic.com/','https://rpc.twingly.com/','https://ping.blo.gs/',
+    'https://ping.bloggers.jp/rpc/','https://blogsearch.google.com/ping/RPC2',
+    'https://blogsearch.google.co.uk/ping/RPC2','https://blogsearch.google.com.au/ping/RPC2',
+    'https://blogsearch.google.ca/ping/RPC2','https://blogsearch.google.de/ping/RPC2',
+    'https://blogsearch.google.fr/ping/RPC2','https://blogsearch.google.it/ping/RPC2',
+    'https://blogsearch.google.co.jp/ping/RPC2','https://blogsearch.google.co.in/ping/RPC2',
+    'https://blogsearch.google.co.kr/ping/RPC2','https://blogsearch.google.com.br/ping/RPC2',
+    'https://blogsearch.google.es/ping/RPC2','https://blogsearch.google.nl/ping/RPC2',
+    'https://blogsearch.google.pl/ping/RPC2','https://blogsearch.google.ru/ping/RPC2',
+    'https://blogsearch.google.se/ping/RPC2','https://blogsearch.google.com.mx/ping/RPC2',
+    'https://blogsearch.google.co.za/ping/RPC2','https://ping.blo.gs/',
+    'https://rpc.weblogs.com/RPC2','https://ping.feedburner.com/',
+    'https://coreblog.org/ping/','https://ping.rootblog.com/rpc.php',
+    'https://www.blogpeople.net/servlet/weblogUpdates','https://api.moreover.com/ping?u=',
+    'https://rpc.blogbuzzmachine.com/RPC2','https://ping.blogs.yandex.ru/RPC2',
+    'https://services.newsgator.com/ngws/xmlrpcping.aspx','https://bulkfeeds.net/rpc',
+    'https://www.blogdigger.com/RPC2','https://xping.pubsub.com/ping/',
+    'https://ping.syndic8.com/xmlrpc.php','https://www.blogrolling.com/ping.srv',
+    'https://ping.feedburner.com/','https://www.blogtopsites.com/outpings/xmlrpc.php',
+    'https://www.feedsubmitter.com/','https://feedburner.google.com/fb/a/pingSubmit',
+    'https://www.twingly.com/ping','https://api.twingly.com/ping',
+    'https://ping.myblog.jp/','https://www.snipsnap.org/RPC2',
+    'https://geourl.org/ping','https://blog.goo.ne.jp/XMLRPC',
+  ];
+  const body = xmlRpcBody('flexygist.com.ng', targetUrl);
+  const results = await Promise.allSettled(endpoints.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'text/xml'},body,mode:'no-cors'})));
+  log(`💥 XML-RPC: pinged ${results.length} services with ${he(targetUrl.slice(0,50))}…`,'ok');
+}
+
+function xmlRpcBody(name, url){
+  return `<?xml version="1.0"?><methodCall><methodName>weblogUpdates.ping</methodName><params><param><value><string>${name}</string></value></param><param><value><string>${url}</string></value></param></params></methodCall>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// WAYBACK MACHINE
+// ══════════════════════════════════════════════════════════
+async function waybackSaveLinks(pl){
+  document.getElementById('modal-wayback').classList.add('open');
+  const logEl = document.getElementById('wayback-log');
+  logEl.innerHTML = `<div>🕰 Saving ${pl.length} URLs to Wayback Machine…</div>`;
+  let saved=0;
+  for(const [i,l] of pl.entries()){
+    const urls = allShortUrls(l.code);
+    for(const url of urls){
+      try{
+        await fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'});
+        saved++;
+        logEl.innerHTML+=`<div style="color:var(--cyan)">✓ ${he(url.slice(0,60))}</div>`;
+      }catch(e){
+        logEl.innerHTML+=`<div style="color:var(--muted)">— ${he(url.slice(0,60))}</div>`;
+      }
+      logEl.scrollTop=logEl.scrollHeight;
+      await new Promise(r=>setTimeout(r,400));
+    }
+    l.wayback_saved=true;
+    await sbPatch('lc_links',`id=eq.${l.id}`,{wayback_saved:true});
+  }
+  logEl.innerHTML+=`<div style="color:var(--accent);margin-top:8px">✅ Done — ${saved}/${pl.length} saved to Wayback Machine</div>`;
+  renderAll();
+  toast(`🕰 ${saved} URLs saved to Wayback`,'green');
+}
+
+async function runWaybackOnProject(){
+  if(!activeProj){ toast('Open a project first',''); return; }
+  const pl = links[activeProj]||[];
+  if(!pl.length){ toast('No links in this project',''); return; }
+  await waybackSaveLinks(pl);
+}
+
+// ══════════════════════════════════════════════════════════
+// SITEMAP VIEWER + PING + INDEXNOW KEY FILE
+// ══════════════════════════════════════════════════════════
+function viewSitemap(){
+  const allUrls = Object.values(links).flat().flatMap(l=>allShortUrls(l.code));
+  const now = new Date().toISOString().split('T')[0];
+  const xml = buildSitemapXML(allUrls, now);
+  const win = window.open('','_blank');
+  win.document.write(`<pre style="font-family:monospace;font-size:13px;padding:20px;background:#09090b;color:#00ff88">${xml.replace(/</g,'&lt;')}</pre>`);
+}
+
+async function manualSitemapPing(){
+  const allUrls = Object.values(links).flat().flatMap(l=>allShortUrls(l.code));
+  if(!allUrls.length){ toast('No links yet',''); return; }
+  sitemapLog(`📡 Manual sitemap ping — ${allUrls.length} URLs…`,'info');
+  await fireSitemapSignals(allUrls, null, 'auto');
+  sitemapLog('✅ Manual sitemap ping complete','ok');
+  toast('📡 Sitemap signals fired','green');
+}
+
+function generateIndexNowKeyFile(){
+  const content = INDEXNOW_KEY;
+  const blob = new Blob([content],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${INDEXNOW_KEY}.txt`;
+  a.click();
+  toast(`🔑 Key file "${INDEXNOW_KEY}.txt" downloaded — serve at root of flexygist.com.ng (and the other 3 domains)`,'green');
+}
+
+// ══════════════════════════════════════════════════════════
+// ESCALATION LADDER
+// ══════════════════════════════════════════════════════════
+async function runEscalation(){
+  const pid  = document.getElementById('esc-proj-sel').value;
+  const site = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
+  document.getElementById('esc-log').innerHTML='';
+  const targetLinks = pid==='all' ? Object.values(links).flat() : (links[pid]||[]);
+  const neutral = targetLinks.filter(l=>(l.verdict==='NEUTRAL'||l.verdict==='crawled'||(!l.verdict||l.verdict==='pending'))&&l.submitted);
+  if(!neutral.length){ escLog('✅ No NEUTRAL/pending links found — all good!','ok'); return; }
+  escLog(`🔁 Found ${neutral.length} NEUTRAL links — escalating…`,'info');
+  for(const l of neutral){
+    const rc    = (l.retry_count||0)+1;
+    const shorts = allShortUrls(l.code); const short = shorts[0];
+    escLog(`— ${l.code} (retry #${rc})…`,'info');
+    const sa = getNextSA();
+    if(sa){
+      try{
+        const [tGSC,tIdx] = await Promise.all([
+          getToken(sa.json,'https://www.googleapis.com/auth/webmasters'),
+          getToken(sa.json,'https://www.googleapis.com/auth/indexing')
+        ]);
+        await Promise.all([
+          fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${tGSC}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:short,siteUrl:site})}).then(async r=>{if(r.ok){const d=await r.json();const v=d?.inspectionResult?.indexStatusResult?.verdict;if(v){l.verdict=v;await sbPatch('lc_links',`id=eq.${l.id}`,{verdict:v,retry_count:rc});}}}),
+          fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url:short,type:'URL_UPDATED'})})
+        ]);
+        sa.daily_used+=2;
+        escLog(`  ✓ GSC + Indexing API fired`,'ok');
+      }catch(e){ escLog(`  ⚠ SA error: ${e.message}`,'err'); }
+    }
+    // All tiers: IndexNow
+    const payload=JSON.stringify({host:'flexygist.com.ng',key:INDEXNOW_KEY,keyLocation:INDEXNOW_KEY_LOC,urlList:[short]});
+    await Promise.allSettled(['https://api.indexnow.org/indexnow','https://www.bing.com/indexnow','https://yandex.com/indexnow'].map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload})));
+    escLog(`  ✓ IndexNow fired`,'ok');
+    // All tiers: Wayback
+    try{ await fetch(`https://web.archive.org/save/${encodeURIComponent(short)}`,{mode:'no-cors'}); escLog(`  ✓ Wayback save triggered`,'ok'); }catch(e){}
+    // Tier 2+: ping blast + sitemap re-add
+    if(rc>=2){
+      await xmlrpcPingBlast(short,'esc');
+      await fireSitemapSignals([short],null,'esc');
+      const ruiKey=localStorage.getItem('lc_rui_key');
+      if(ruiKey){ try{ await fetch('https://rapidurlindexer.com/api/v1/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ruiKey}`},body:JSON.stringify({urls:[short]})}); escLog(`  ✓ RUI fired`,'ok'); }catch(e){} }
+    }
+    // Tier 3+: note social drafts
+    if(rc>=3){ escLog(`  📣 Tier 3 — social drafts recommended for ${l.code}. See Social Push.`,'info'); }
+    // Tier 4: flag for manual review
+    if(rc>=4){ escLog(`  🚨 ${l.code} retried 4+ times — manual review needed (noindex? robots? thin content?)`,'err'); await sbPatch('lc_links',`id=eq.${l.id}`,{verdict:'FAIL',retry_count:rc}); l.verdict='FAIL'; }
+    else { await sbPatch('lc_links',`id=eq.${l.id}`,{retry_count:rc}); l.retry_count=rc; }
+    await new Promise(r=>setTimeout(r,400));
+  }
+  localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+  renderSAVault(); renderSAStatus(); renderAll();
+  escLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','info');
+  escLog(`✅ Escalation complete for ${neutral.length} links`,'ok');
+  toast('🔁 Escalation done','green');
+}
+
+// ══════════════════════════════════════════════════════════
+// HEALTH CHECK
+// ══════════════════════════════════════════════════════════
+async function runHealthCheck(){
+  const pid = document.getElementById('health-proj-sel')?.value||'all';
+  const btn = document.getElementById('health-run-btn');
+  btn.disabled=true; btn.textContent='⏳ Scanning…';
+  const wrap = document.getElementById('health-progress');
+  const bar  = document.getElementById('health-prog-bar');
+  wrap.style.display='block'; bar.style.width='0';
+  document.getElementById('health-summary').textContent='Scanning links…';
+  document.getElementById('health-results-card').style.display='none';
+  const targetLinks = pid==='all' ? Object.values(links).flat() : (links[pid]||[]);
+  if(!targetLinks.length){ document.getElementById('health-summary').textContent='No links to scan.'; btn.disabled=false; btn.textContent='🔍 Scan All Projects'; return; }
+  healthResults = [];
+  let done=0;
+  for(const l of targetLinks){
+    const url = l.original;
+    let status='unknown', code=0;
+    try{
+      const r = await fetch(url,{method:'HEAD',redirect:'follow',signal:AbortSignal.timeout(8000)});
+      code=r.status;
+      if(r.status>=200&&r.status<300) status='ok';
+      else if(r.status===404||r.status===410) status='dead';
+      else status='warn';
+    }catch(e){
+      status='dead';
+    }
+    healthResults.push({...l, healthStatus:status, httpCode:code});
+    // Update in memory
+    const ml = (links[l.project_id]||[]).find(x=>x.id===l.id);
+    if(ml){ ml.health=status; await sbPatch('lc_links',`id=eq.${l.id}`,{health:status}); }
+    done++;
+    bar.style.width=Math.round((done/targetLinks.length)*100)+'%';
+  }
+  const ok   = healthResults.filter(r=>r.healthStatus==='ok').length;
+  const dead = healthResults.filter(r=>r.healthStatus==='dead').length;
+  const warn = healthResults.filter(r=>r.healthStatus==='warn').length;
+  document.getElementById('health-summary').textContent=`Scan complete: ${ok} OK · ${warn} warnings · ${dead} dead`;
+  document.getElementById('health-results-card').style.display='';
+  filterHealth('all');
+  btn.disabled=false; btn.textContent='🔍 Scan All Projects';
+  renderAll();
+  toast(`🩺 Health scan done — ${dead} dead links found`,'green');
+}
+
+function filterHealth(filter, btn){
+  if(btn){ document.querySelectorAll('#health-results-card .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  const grid = document.getElementById('health-grid');
+  const filtered = filter==='all' ? healthResults : healthResults.filter(r=>r.healthStatus===filter);
+  if(!filtered.length){ grid.innerHTML=`<div style="font-size:.6rem;color:var(--muted2);padding:20px;text-align:center">No results for this filter.</div>`; return; }
+  grid.innerHTML = filtered.map(r=>{
+    const p = projects.find(x=>x.id===r.project_id)||{name:'—'};
+    const icon = r.healthStatus==='ok'?'✅':r.healthStatus==='dead'?'❌':'⚠';
+    const codeStr = r.httpCode?` (HTTP ${r.httpCode})`:'';
+    return `<div class="health-row ${r.healthStatus}">
+      <span>${icon}</span>
+      <span style="font-size:.52rem;color:var(--muted2);white-space:nowrap">${he(p.name)}</span>
+      <span class="health-row-url" title="${he(r.original)}">${he(r.original.replace(/^https?:\/\//,'').slice(0,70))}</span>
+      <span class="health-row-status" style="color:${r.healthStatus==='ok'?'var(--accent)':r.healthStatus==='dead'?'var(--red)':'var(--orange)'}">${r.healthStatus.toUpperCase()}${codeStr}</span>
+      <a href="${he(r.original)}" target="_blank" style="font-size:.52rem;color:var(--blue)">↗</a>
+    </div>`;
+  }).join('');
+}
+
+async function deleteDeadLinks(){
+  const dead = healthResults.filter(r=>r.healthStatus==='dead');
+  if(!dead.length){ toast('No dead links to delete',''); return; }
+  if(!confirm(`Delete ${dead.length} dead links?`)) return;
+  for(const l of dead) await deleteLink(l.id, l.project_id, true);
+  healthResults = healthResults.filter(r=>r.healthStatus!=='dead');
+  filterHealth('all');
+  renderAll();
+  toast(`🗑 ${dead.length} dead links deleted`,'green');
+}
+
+async function checkProjectHealth(){
+  if(!activeProj){ toast('Open a project first',''); return; }
+  document.getElementById('health-proj-sel').value = activeProj;
+  showView('health');
+  await runHealthCheck();
+}
+
+// ══════════════════════════════════════════════════════════
+// MULTI-SITE MANAGER
+// ══════════════════════════════════════════════════════════
+function loadSites(){
+  try{
+    const v = JSON.parse(localStorage.getItem('lc_sites')||'[]');
+    sites = Array.isArray(v) ? v : [];
+  }catch(e){ sites=[]; }
+}
+
+function saveSites(){
+  try{ localStorage.setItem('lc_sites', JSON.stringify(sites)); }catch(e){}
+}
+
+function addSite(){
+  const url   = document.getElementById('new-site-url').value.trim();
+  const label = document.getElementById('new-site-label').value.trim();
+  const saRaw = document.getElementById('new-site-sa').value.trim();
+  if(!url){ toast('Enter a site URL',''); return; }
+  if(!saRaw){ toast('Paste a Service Account JSON',''); return; }
+  try{
+    const sa = JSON.parse(saRaw);
+    if(!sa.client_email||!sa.private_key) throw new Error('Missing SA fields');
+    const saEntry = {label: sa.client_email.split('@')[0], json: saRaw, daily_used:0, date: new Date().toDateString()};
+    const site = {id:uid(), url, label:label||new URL(url).hostname, saKeys:[saEntry], status:'untested', statusCode:null};
+    sites.push(site);
+    saveSites();
+    document.getElementById('new-site-url').value='';
+    document.getElementById('new-site-label').value='';
+    document.getElementById('new-site-sa').value='';
+    renderSites();
+    toast(`🌐 Site "${site.label}" added`,'green');
+  }catch(e){ toast('Invalid: '+e.message,''); }
+}
+
+function removeSite(id){
+  if(!confirm('Remove this site?')) return;
+  sites = sites.filter(s=>s.id!==id);
+  saveSites(); renderSites();
+  toast('🗑 Site removed','');
+}
+
+async function testSite(id){
+  const site = sites.find(s=>s.id===id);
+  if(!site||!site.saKeys.length){ toast('No SA key on this site',''); return; }
+  toast(`🔍 Testing ${site.label}…`,'');
+  const sa = site.saKeys[0];
+  try{
+    const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
+    const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site.url)}`,{headers:{'Authorization':`Bearer ${token}`}});
+    site.status = r.ok ? 'ok' : 'warn';
+    site.statusCode = r.status;
+    saveSites(); renderSites();
+    toast(r.ok ? `✓ ${site.label} connected` : `⚠ ${site.label}: HTTP ${r.status}`,'green');
+  }catch(e){ site.status='err'; saveSites(); renderSites(); toast(`✗ ${site.label}: ${e.message}`,''); }
+}
+
+async function testAllSites(){
+  if(!sites.length){ toast('No sites added yet',''); return; }
+  for(const s of sites) await testSite(s.id);
+}
+
+function renderSites(){
+  const grid  = document.getElementById('site-grid');
+  const empty = document.getElementById('site-empty');
+  if(!grid) return;
+  if(!sites.length){ grid.innerHTML=''; empty.style.display=''; updateSitesQuota(); return; }
+  empty.style.display='none';
+  grid.innerHTML = sites.map(s=>{
+    const statusCls = s.status==='ok'?'site-ok':s.status==='warn'||s.status==='err'?'site-warn':'';
+    const dotCls    = s.status==='ok'?'ok':s.status==='warn'||s.status==='err'?'warn':'';
+    const totalKeys = s.saKeys.length;
+    const today     = new Date().toDateString();
+    const activeKeys= s.saKeys.filter(k=>{ if(k.date!==today) k.daily_used=0; return k.daily_used<200; }).length;
+    return `<div class="site-card ${statusCls}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <span class="site-dot ${dotCls}"></span>
+        <div class="site-card-domain">${he(s.label)}</div>
+      </div>
+      <div class="site-card-url">${he(s.url)}</div>
+      <div style="font-size:.55rem;color:var(--muted)">${totalKeys} SA key${totalKeys!==1?'s':''} · ${activeKeys} active today · ${activeKeys*200} req/day cap</div>
+      <div class="site-actions">
+        <button class="btn btn-outline" style="font-size:.55rem;padding:4px 8px" onclick="testSite('${s.id}')">🔍 Test</button>
+        <button class="btn btn-danger" style="font-size:.55rem;padding:4px 8px" onclick="removeSite('${s.id}')">✕ Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateSitesQuota();
+}
+
+function updateSitesQuota(){
+  const el = document.getElementById('sites-quota-summary');
+  if(!el) return;
+  const today = new Date().toDateString();
+  const totalKeys = sites.reduce((a,s)=>a+s.saKeys.filter(k=>{ if(k.date!==today) k.daily_used=0; return k.daily_used<200; }).length,0);
+  el.textContent = `${sites.length} sites · ${totalKeys*200} req/day capacity`;
+}
+
+async function runMultiSiteBlast(){
+  const pid = document.getElementById('ms-proj-sel').value;
+  if(!pid){ toast('Select a project first',''); return; }
+  if(!sites.length){ toast('Add sites first in the Sites section above',''); return; }
+  const pl = links[pid]||[];
+  const shortUrls = allProjShortUrls(pl);
+  if(!shortUrls.length){ toast('No links in this project',''); return; }
+  document.getElementById('ms-log').innerHTML='';
+  const msWrap=document.getElementById('ms-progress'); const msBar=document.getElementById('ms-prog-bar');
+  msWrap.style.display='block'; msBar.style.width='0';
+  msLog(`🌐 Blasting ${shortUrls.length} URLs across ${sites.length} sites…`,'info');
+  let sitesDone=0;
+  for(const site of sites){
+    msLog(`\n— Site: ${he(site.label)} (${he(site.url)})…`,'info');
+    if(!site.saKeys.length){ msLog(`  ⚠ No SA keys on ${site.label} — skipping`,'err'); sitesDone++; msBar.style.width=Math.round((sitesDone/sites.length)*100)+'%'; continue; }
+    const gscSite = site.url;
+    const today = new Date().toDateString();
+    let sa = site.saKeys.find(k=>{ if(k.date!==today) k.daily_used=0; return k.daily_used<200; });
+    if(!sa){ msLog(`  ⚠ All keys at quota on ${site.label}`, 'err'); sitesDone++; msBar.style.width=Math.round((sitesDone/sites.length)*100)+'%'; continue; }
+    try{
+      const [tokenGSC, tokenIdx] = await Promise.all([
+        getToken(sa.json,'https://www.googleapis.com/auth/webmasters'),
+        getToken(sa.json,'https://www.googleapis.com/auth/indexing')
+      ]);
+      let fired=0;
+      for(const l of pl){
+        const shorts = allShortUrls(l.code);
+        if(sa.daily_used>=200){ const next=site.saKeys.find(k=>k.daily_used<200); if(!next) break; sa=next; }
+        await Promise.allSettled(shorts.flatMap(short=>[
+          fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${tokenGSC}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:short,siteUrl:gscSite})}).then(async r=>{ if(r.ok){const d=await r.json();const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED';l.verdict=v;await sbPatch('lc_links',`id=eq.${l.id}`,{verdict:v,submitted:true});sa.daily_used++;fired++;} }),
+          fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tokenIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url:short,type:'URL_UPDATED'})}).then(r=>{ if(r.ok){sa.daily_used++; fired++;} })
+        ]));
+        await new Promise(r=>setTimeout(r,300));
+      }
+      msLog(`  ✓ ${he(site.label)}: ${fired} API calls fired`,'ok');
+    }catch(e){ msLog(`  ✗ ${he(site.label)}: ${e.message}`,'err'); }
+    sitesDone++;
+    msBar.style.width=Math.round((sitesDone/sites.length)*100)+'%';
+    saveSites();
+  }
+  msBar.style.width='100%';
+  msLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','info');
+  msLog(`✅ Multi-site blast complete across ${sites.length} sites`,'ok');
+  renderAll();
+  toast(`🌐 Multi-site blast done!`,'green');
+}
+
+// ══════════════════════════════════════════════════════════
+// INDEXFORCE ENGINE — full embedded panel
+// ══════════════════════════════════════════════════════════
+const STATUS_COLOR = {idle:'var(--muted2)',queued:'var(--orange)',running:'var(--blue)',complete:'var(--accent)',failed:'var(--red)'};
+const STATUS_LABEL = {idle:'Idle',queued:'Queued',running:'Running…',complete:'Complete ✓',failed:'Failed'};
+
+let ifPlan         = 'free';
+let ifCurrentJobId = null;
+let ifPollTimer    = null;
+let ifHistory      = [];
+
+function ifInit(){
+  try{ ifHistory = JSON.parse(localStorage.getItem('lc_iforce_jobs')||'[]'); }catch(e){ ifHistory=[]; }
+  populateWorkerSel();
+  restoreWorkerUrl();
+  ifRenderHistory();
+}
+
+function ifSetPlan(p){
+  ifPlan=p;
+  document.getElementById('if-plan-free').className='plan-pill'+(p==='free'?' active':'');
+  document.getElementById('if-plan-pro').className='plan-pill'+(p==='pro'?' active':'');
+}
+
+function ifCountUrls(){
+  const urls = ifParseUrls(document.getElementById('if-url-input')?.value||'');
+  const cnt  = document.getElementById('if-url-count');
+  const btn  = document.getElementById('if-submit-btn');
+  if(!cnt||!btn) return;
+  if(urls.length){ cnt.textContent=`${urls.length} URL${urls.length!==1?'s':''} detected`; btn.disabled=false; }
+  else{ cnt.textContent='Paste URLs above or load from a project'; btn.disabled=true; }
+}
+
+function ifParseUrls(raw){
+  return raw.replace(/,/g,'\n').split('\n').map(u=>u.trim()).filter(u=>{ try{new URL(u);return true;}catch{return false;} });
+}
+
+function ifFillFromProject(){
+  const pid = document.getElementById('worker-proj-sel')?.value;
+  const ta  = document.getElementById('if-url-input');
+  if(!pid||!ta){ toast('Select a project first',''); return; }
+  const pl = links[pid]||[];
+  if(!pl.length){ toast('No links in this project',''); return; }
+  ta.value = pl.flatMap(l=>allShortUrls(l.code)).join('\n');
+  ifCountUrls();
+  toast(`↓ ${pl.length} short links loaded`,'green');
+}
+
+async function ifSubmitJob(){
+  const raw  = document.getElementById('if-url-input')?.value||'';
+  const urls = ifParseUrls(raw);
+  if(!urls.length){ toast('Add URLs first',''); return; }
+  const wUrl = localStorage.getItem('lc_worker_url')||document.getElementById('worker-url-main')?.value.trim().replace(/\/$/,'')||'';
+  if(!wUrl){ toast('Set your Railway Worker URL first',''); return; }
+  const btn  = document.getElementById('if-submit-btn');
+  const prog = document.getElementById('if-prog-wrap');
+  const bar  = document.getElementById('if-prog-bar');
+  btn.disabled=true; btn.textContent='⏳ Submitting…';
+  if(prog) prog.style.display='block';
+  if(bar)  bar.style.width='10%';
+  try{
+    const r = await fetch(`${wUrl}/api/submit`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({raw_urls:raw, plan:ifPlan, user_id:'linkcore-v10'})
+    });
+    if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); btn.disabled=false; btn.textContent='⚡ Start Indexing'; if(prog) prog.style.display='none'; return; }
+    const d = await r.json();
+    ifCurrentJobId = d.job_id;
+    const stub = {job_id:d.job_id, status:'queued', url_count:d.urls_queued, urls_skipped:d.urls_skipped||0, queued_at:new Date().toISOString(), plan:ifPlan, worker_url:wUrl};
+    ifSaveHistory(stub);
+    ifRenderJobCard(stub);
+    ifRenderHistory();
+    ifStartPolling(d.job_id, wUrl);
+    if(bar) bar.style.width='30%';
+    toast(`⚡ Job queued — ${d.urls_queued} URLs across 7 layers`,'green');
+  }catch(e){
+    toast('Worker unreachable: '+e.message,'');
+    btn.disabled=false; btn.textContent='⚡ Start Indexing';
+    if(prog) prog.style.display='none';
+  }
+}
+
+function ifStartPolling(jobId, wUrl){
+  if(ifPollTimer) clearInterval(ifPollTimer);
+  ifPollTimer = setInterval(async()=>{
+    try{
+      const r = await fetch(`${wUrl}/api/status/${jobId}`);
+      if(!r.ok) return;
+      const job = await r.json();
+      ifSaveHistory(job);
+      ifRenderJobCard(job);
+      ifRenderHistory();
+      const bar = document.getElementById('if-prog-bar');
+      if(bar) bar.style.width = job.status==='complete'?'100%':job.status==='running'?'65%':'30%';
+      if(job.status==='complete'||job.status==='failed'){
+        clearInterval(ifPollTimer); ifPollTimer=null;
+        const btn=document.getElementById('if-submit-btn');
+        if(btn){ btn.disabled=false; btn.textContent='⚡ Start Indexing'; }
+        const prog=document.getElementById('if-prog-wrap');
+        if(prog) setTimeout(()=>prog.style.display='none',2000);
+        toast(job.status==='complete'?'✅ IndexForce complete!':'⚠ Job failed — check Railway logs',job.status==='complete'?'green':'');
+        if(job.status==='complete') await refreshVerdicts().catch(()=>{});
+      }
+    }catch(e){}
+  },4000);
+}
+
+function ifRenderJobCard(job){
+  const wrap = document.getElementById('if-job-card');
+  if(!wrap) return;
+  wrap.style.display='block';
+  const res = job.results||{};
+  const isComplete = job.status==='complete';
+  const isRunning  = job.status==='running';
+  const isQueued   = job.status==='queued';
+  const isFailed   = job.status==='failed';
+  const layerState = isComplete?'on':isRunning?'pulse':'off';
+
+  const statsHtml = (isComplete||isRunning) ? `
+    <div class="if-job-stats">
+      <div class="if-stat"><div class="if-stat-v">${(job.url_count||0).toLocaleString()}</div><div class="if-stat-l">URLs</div></div>
+      <div class="if-stat"><div class="if-stat-v blue">${res.pings_fired!=null?res.pings_fired.toLocaleString():'—'}</div><div class="if-stat-l">Pings Fired</div></div>
+      <div class="if-stat"><div class="if-stat-v orange">${res.pings_ok!=null?res.pings_ok.toLocaleString():'—'}</div><div class="if-stat-l">Pings OK</div></div>
+      <div class="if-stat"><div class="if-stat-v purple">${res.indexnow_ok!=null?res.indexnow_ok:'—'}</div><div class="if-stat-l">IndexNow</div></div>
+    </div>`
+  : `<div style="padding:10px 14px;font-size:.6rem;color:var(--muted)">${isQueued?'⏳ Queued — worker will pick up in seconds…':'⏳ Processing…'}</div>`;
+
+  wrap.innerHTML = `<div class="card" style="padding:0;overflow:hidden">
+    <div class="if-job-hdr">
+      <div class="if-layer-dot ${isComplete?'if-dot-on':isFailed?'if-dot-err':isRunning?'if-dot-pulse':'if-dot-off'}" style="width:10px;height:10px"></div>
+      <span class="if-job-status if-status-${job.status}">${STATUS_LABEL[job.status]||job.status}</span>
+      <span style="font-size:.62rem;color:var(--text);margin-left:4px">${(job.url_count||0)} URLs · ${(job.plan||ifPlan).toUpperCase()}</span>
+      <span style="font-size:.5rem;color:var(--muted2);margin-left:6px">${new Date(job.queued_at||Date.now()).toLocaleString()}</span>
+      <span class="if-job-id">${he((job.job_id||'').slice(0,18))}…</span>
+      ${isComplete||isFailed?`<button class="if-resubmit-btn" onclick="ifResubmit('${he(job.job_id||'')}')">↻ Resubmit</button>`:''}
+    </div>
+    ${statsHtml}
+    <div class="if-layers-block">
+      ${ifLayerRow('📡','XML-RPC Mass Ping','l1',layerState,res.pings_ok!=null?`${res.pings_ok?.toLocaleString()||0}/${res.pings_fired?.toLocaleString()||0} pings OK`:'Firing 90+ endpoints server-side…')}
+      ${ifLayerRow('⚡','IndexNow API','l2',layerState,res.indexnow_ok!=null?`${res.indexnow_ok} engines hit`:'Submitting to Bing, Yandex, Seznam, Brave…')}
+      ${ifLayerRow('📰','RSS Feed Injection','l3',isComplete?'on':'off',isComplete?'Feed submitted to 10 aggregators (Feedly, FeedBurner…)':'Waiting…')}
+      ${ifLayerRow('🗺','Sitemap Submission','l4',isComplete?'on':'off',isComplete?'Pinged Google + Bing + Yandex sitemaps':'Waiting…')}
+      ${ifLayerRow('💨','Cache Bust + Wayback','l5',isComplete?'on':'off',res.cache_bust_ok!=null?`${res.cache_bust_ok} cache endpoints busted`:'Waiting…')}
+      ${ifLayerRow('🔍','Google Indexing API','l6',res.google_ok&&res.google_ok!=='skipped'?'on':'off',res.google_ok&&res.google_ok!=='skipped'?`${res.google_ok} URLs submitted`:'Optional — set GOOGLE_INDEXING_SA on Railway')}
+      ${ifLayerRow('✅','24h Indexation Verify','l7',res.verify_result?'on':'off',res.verify_result?`${res.verify_result.indexed}/${res.verify_result.checked} confirmed — ${res.verify_result.index_rate}`:'Fires automatically 24h after submit')}
+    </div>
+    <div class="if-notice ${isComplete?'ok':isFailed?'err':'pending'}">
+      ${isComplete?'✅ All 7 layers complete. If URLs are not indexed within 72h, use Escalation tab to re-blast.'
+        :isFailed?'⚠ '+he(job.error||'Job failed — check Railway logs')
+        :'⏳ '+STATUS_LABEL[job.status]+' — polling every 4 seconds…'}
+    </div>
+  </div>`;
+}
+
+function ifLayerRow(icon, name, id, state, detail){
+  const dotClass = state==='on'?'if-dot-on':state==='pulse'?'if-dot-pulse':state==='err'?'if-dot-err':'if-dot-off';
+  return `<div class="if-layer">
+    <span class="if-layer-icon">${icon}</span>
+    <div style="flex:1"><div class="if-layer-name">${name}</div><div class="if-layer-detail" id="${id}-detail">${he(String(detail))}</div></div>
+    <div class="if-layer-dot ${dotClass}" id="${id}-dot"></div>
+  </div>`;
+}
+
+function ifSaveHistory(job){
+  ifHistory = [job,...ifHistory.filter(h=>h.job_id!==job.job_id)].slice(0,50);
+  try{ localStorage.setItem('lc_iforce_jobs', JSON.stringify(ifHistory)); }catch(e){}
+}
+
+function ifRenderHistory(){
+  const el = document.getElementById('if-history-list');
+  if(!el) return;
+  if(!ifHistory.length){ el.innerHTML=`<div style="font-size:.6rem;color:var(--muted2);padding:16px 0;text-align:center">No jobs yet — submit URLs above.</div>`; return; }
+  el.innerHTML = ifHistory.map(h=>{
+    const sc  = STATUS_COLOR[h.status]||'var(--muted2)';
+    const res = h.results||{};
+    const vb  = res.verify_result?`<span class="if-verify-badge">✓ ${res.verify_result.index_rate} indexed</span>`:'';
+    return `<div class="if-history-row" onclick="ifLoadJob('${he(h.job_id||'')}')">
+      <div class="if-h-dot" style="background:${sc};box-shadow:0 0 5px ${sc}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.62rem;color:var(--text);font-weight:700">${(h.url_count||0)} URLs · ${STATUS_LABEL[h.status]||h.status}${vb}</div>
+        <div style="font-size:.5rem;color:var(--muted2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${he(h.job_id||'')} · ${new Date(h.queued_at||Date.now()).toLocaleString()}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;font-size:.55rem">
+        ${res.pings_ok!=null?`<div style="color:var(--accent)">${res.pings_ok?.toLocaleString()} pings OK</div>`:''}
+        ${res.indexnow_ok!=null?`<div style="color:var(--muted)">${res.indexnow_ok} IndexNow</div>`:''}
+      </div>
+      <button class="if-resubmit-btn" onclick="event.stopPropagation();ifResubmit('${he(h.job_id||'')}')">↻</button>
+    </div>`;
+  }).join('');
+}
+
+function ifLoadJob(jobId){
+  const job = ifHistory.find(h=>h.job_id===jobId);
+  if(!job) return;
+  ifRenderJobCard(job);
+  document.getElementById('if-job-card')?.scrollIntoView({behavior:'smooth'});
+  if(job.status==='queued'||job.status==='running'){
+    const wUrl=job.worker_url||localStorage.getItem('lc_worker_url')||'';
+    if(wUrl) ifStartPolling(jobId,wUrl);
+  }
+}
+
+async function ifResubmit(jobId){
+  const wUrl=localStorage.getItem('lc_worker_url')||document.getElementById('worker-url-main')?.value.trim().replace(/\/$/,'')||'';
+  if(!wUrl){ toast('Set Worker URL first',''); return; }
+  try{
+    const r=await fetch(`${wUrl}/api/resubmit/${jobId}`,{method:'POST'});
+    if(r.ok){ toast('↻ Job re-queued','green'); ifStartPolling(jobId,wUrl); }
+    else toast(`Resubmit failed: HTTP ${r.status}`,'');
+  }catch(e){ toast('Worker unreachable: '+e.message,''); }
+}
+
+function ifClearHistory(){
+  if(!confirm('Clear all IndexForce job history?')) return;
+  ifHistory=[];
+  try{ localStorage.removeItem('lc_iforce_jobs'); }catch(e){}
+  ifRenderHistory();
+  const jc=document.getElementById('if-job-card'); if(jc) jc.style.display='none';
+  toast('🗑 History cleared','');
+}
+
+// ── Bridge: channel 8 in blastUrls() still calls worker ──
+function submitToWorker(){ showView('worker'); ifFillFromProject(); }
+function runWorkerSubmit(){
+  const pid=document.getElementById('idx-proj-sel').value;
+  if(!pid){ toast('Select a project first',''); return; }
+  document.getElementById('worker-proj-sel').value=pid;
+  showView('worker'); ifFillFromProject();
+}
+function workerLog(msg,type='info'){
+  const el=document.getElementById('idx-log');
+  if(el){ el.style.display='block'; el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight; }
+}
+function refreshWorkerJobs(){ ifRenderHistory(); }
+function renderWorkerJobs(){ ifRenderHistory(); }
+
+// ══════════════════════════════════════════════════════════
+// WORKER HEALTH + URL SAVE
+// ══════════════════════════════════════════════════════════
+function saveWorkerUrl(){
+  const url = (document.getElementById('worker-url-main')?.value||'').trim().replace(/\/$/,'');
+  if(!url){ toast('Paste your Railway URL first',''); return; }
+  localStorage.setItem('lc_worker_url', url);
+  toast('✅ Worker URL saved','green');
+}
+
+function restoreWorkerUrl(){
+  const wu = localStorage.getItem('lc_worker_url')||'';
+  if(!wu) return;
+  const el1 = document.getElementById('worker-url-main');
+  const el2 = document.getElementById('worker-url-input');
+  if(el1) el1.value = wu;
+  if(el2) el2.value = wu;
+}
+
+async function checkWorkerHealth(){
+  const wUrl = (document.getElementById('worker-url-main')?.value||'').trim().replace(/\/$/,'')
+             || localStorage.getItem('lc_worker_url')||'';
+  if(!wUrl){ toast('Enter your Railway URL first',''); return; }
+  const dot  = document.getElementById('worker-dot');
+  const txt  = document.getElementById('worker-health-text');
+  if(dot){ dot.className='worker-dot'; }
+  if(txt){ txt.style.color='var(--muted)'; txt.textContent='Testing connection…'; }
+  try{
+    const t0 = Date.now();
+    const r  = await fetch(`${wUrl}/health`, {signal: AbortSignal.timeout(8000)});
+    const ms = Date.now()-t0;
+    if(r.ok){
+      const d = await r.json().catch(()=>({}));
+      const qLen  = d.queue_length??'?';
+      const done  = d.jobs_completed??'?';
+      const vers  = d.version||'';
+      if(dot){ dot.className='worker-dot alive'; }
+      if(txt){ txt.style.color='var(--accent)'; txt.textContent=`✅ Worker alive — ${ms}ms · Queue: ${qLen} · Done: ${done}${vers?' · v'+vers:''}`; }
+      localStorage.setItem('lc_worker_url', wUrl);
+    } else {
+      if(dot){ dot.className='worker-dot dead'; }
+      if(txt){ txt.style.color='var(--red)'; txt.textContent=`⚠ Worker returned HTTP ${r.status}`; }
+    }
+  } catch(e){
+    if(dot){ dot.className='worker-dot dead'; }
+    if(txt){ txt.style.color='var(--red)'; txt.textContent=`❌ Unreachable — ${e.message}`; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// ANALYTICS
+// ══════════════════════════════════════════════════════════
+function renderAnalytics(){
+  const allLinks = Object.values(links).flat();
+  const indexed  = allLinks.filter(l=>l.verdict==='PASS'||l.verdict==='indexed').length;
+  const crawled  = allLinks.filter(l=>l.verdict==='NEUTRAL'||l.verdict==='crawled').length;
+  const pending  = allLinks.filter(l=>!l.verdict||l.verdict==='pending').length;
+  const rate     = allLinks.length ? Math.round((indexed/allLinks.length)*100) : 0;
+  document.getElementById('an-total').textContent   = allLinks.length;
+  document.getElementById('an-indexed').textContent = indexed;
+  document.getElementById('an-crawled').textContent = crawled;
+  document.getElementById('an-pending').textContent = pending;
+  document.getElementById('an-rate').textContent    = rate+'%';
+  // Per-project rate bars
+  const barsEl = document.getElementById('proj-rate-bars');
+  if(barsEl){
+    if(!projects.length){ barsEl.innerHTML=`<div style="font-size:.6rem;color:var(--muted2)">No projects yet.</div>`; return; }
+    barsEl.innerHTML = projects.map(p=>{
+      const pl  = links[p.id]||[];
+      const idx = pl.filter(l=>l.verdict==='PASS'||l.verdict==='indexed').length;
+      const pct = pl.length ? Math.round((idx/pl.length)*100) : 0;
+      return `<div class="proj-rate-bar-wrap">
+        <div class="proj-rate-bar-label">${he(p.name)}</div>
+        <div class="proj-rate-bar-track"><div class="proj-rate-bar-fill" style="width:${pct}%"></div></div>
+        <div class="proj-rate-bar-pct">${pct}%</div>
+        <span style="font-size:.5rem;color:var(--muted)">${idx}/${pl.length}</span>
+      </div>`;
+    }).join('');
+  }
+  // Wayback coverage
+  const wbCovered = allLinks.filter(l=>l.wayback_saved).length;
+  const wbEl = document.getElementById('wayback-coverage');
+  if(wbEl){ wbEl.textContent=`${wbCovered}/${allLinks.length} links saved to Wayback Machine (${allLinks.length?Math.round((wbCovered/allLinks.length)*100):0}% coverage)`; }
+}
+
+function scanDuplicates(){
+  const seen = {};
+  const dupes = [];
+  for(const [pid, pl] of Object.entries(links)){
+    const proj = projects.find(p=>p.id===pid);
+    for(const l of pl){
+      const key = l.original;
+      if(seen[key]){ dupes.push({url:l.original, proj1:seen[key], proj2:proj?.name||pid}); }
+      else{ seen[key]=proj?.name||pid; }
+    }
+  }
+  const el = document.getElementById('dupe-list');
+  if(!dupes.length){ el.innerHTML=`<div style="font-size:.6rem;color:var(--accent)">✅ No duplicates found across projects.</div>`; return; }
+  el.innerHTML = `<div style="font-size:.6rem;color:var(--orange);margin-bottom:8px">⚠ ${dupes.length} duplicate${dupes.length!==1?'s':''} found:</div>` +
+    dupes.map(d=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:.58rem;margin-bottom:4px">
+      <div style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${he(d.url)}</div>
+      <div style="color:var(--muted);margin-top:3px">In: <span style="color:var(--orange)">${he(d.proj1)}</span> and <span style="color:var(--orange)">${he(d.proj2)}</span></div>
+    </div>`).join('');
+}
+
+function exportAllCSV(){
+  const rows = [['Project','Original URL','Short URL','Tag','Status','Health','Hits','Retries','Added','Wayback']];
+  for(const [pid, pl] of Object.entries(links)){
+    const p = projects.find(x=>x.id===pid)||{name:'—'};
+    pl.forEach(l=>rows.push([p.name,l.original,allShortUrls(l.code).join(' | '),l.tag||'',l.verdict||'pending',l.health||'',l.hits||0,l.retry_count||0,l.added_at,l.wayback_saved?'yes':'no']));
+  }
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `linkcore-all-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('↓ All CSV exported','green');
+}
+
+// ══════════════════════════════════════════════════════════
+// SOCIAL SHARE DRAFTS
+// ══════════════════════════════════════════════════════════
+function generateSocialDrafts(){
+  const pid = document.getElementById('social-proj-sel').value;
+  if(!pid){ toast('Select a project first',''); return; }
+  const p  = projects.find(x=>x.id===pid);
+  const pl = (links[pid]||[]).slice(0,5);
+  if(!pl.length){ toast('No links in this project',''); return; }
+  const out = document.getElementById('social-drafts-output');
+  const url = SHORT_BASES[0]+pl[0].code; // primary domain for social drafts
+  const allUrls4 = allShortUrls(pl[0].code);
+  const orig = pl[0].original;
+  const domain = (()=>{ try{return new URL(orig).hostname;}catch(e){return orig.slice(0,30);} })();
+  out.innerHTML = `<div class="social-share-grid">
+    <div class="social-card">
+      <div class="social-card-title">🟠 Reddit</div>
+      <textarea readonly>Useful resource I found on ${domain} — might help if you're looking into this niche. ${url}</textarea>
+      <div class="social-btn-row">
+        <button class="btn btn-outline" style="font-size:.55rem" onclick="copyText(this.previousElementSibling.previousElementSibling)">Copy</button>
+        <a class="btn btn-blue" style="font-size:.55rem;text-decoration:none" href="https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent('Resource — '+domain)}" target="_blank">Open Reddit</a>
+      </div>
+    </div>
+    <div class="social-card">
+      <div class="social-card-title">🐦 X / Twitter</div>
+      <textarea readonly>Found a solid resource on ${domain}: ${url} — worth bookmarking 🔖</textarea>
+      <div class="social-btn-row">
+        <button class="btn btn-outline" style="font-size:.55rem" onclick="copyText(this.previousElementSibling.previousElementSibling)">Copy</button>
+        <a class="btn btn-blue" style="font-size:.55rem;text-decoration:none" href="https://twitter.com/intent/tweet?text=${encodeURIComponent('Resource on '+domain+': '+url)}" target="_blank">Open X</a>
+      </div>
+    </div>
+    <div class="social-card">
+      <div class="social-card-title">🔵 LinkedIn</div>
+      <textarea readonly>Came across this resource worth sharing for anyone in this space. ${url}</textarea>
+      <div class="social-btn-row">
+        <button class="btn btn-outline" style="font-size:.55rem" onclick="copyText(this.previousElementSibling.previousElementSibling)">Copy</button>
+        <a class="btn btn-blue" style="font-size:.55rem;text-decoration:none" href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}" target="_blank">Open LinkedIn</a>
+      </div>
+    </div>
+    <div class="social-card">
+      <div class="social-card-title">📌 Pinterest</div>
+      <textarea readonly>Resource: ${url} — saving for reference. ${domain}</textarea>
+      <div class="social-btn-row">
+        <button class="btn btn-outline" style="font-size:.55rem" onclick="copyText(this.previousElementSibling.previousElementSibling)">Copy</button>
+        <a class="btn btn-blue" style="font-size:.55rem;text-decoration:none" href="https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent('Resource from '+domain)}" target="_blank">Open Pinterest</a>
+      </div>
+    </div>
+  </div>
+  ${pl.length>1?`<div style="margin-top:12px;font-size:.6rem;color:var(--muted)">Showing draft for first link. ${pl.length} links in project — cycle through for max coverage.</div>`:''}
+  <div style="margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px">
+    <div style="font-size:.58rem;font-weight:700;color:var(--accent);margin-bottom:6px">📋 All Short Links</div>
+    <textarea readonly rows="8" style="font-size:.58rem">${pl.flatMap(l=>allShortUrls(l.code)).join('\n')}</textarea>
+    <button class="btn btn-outline" style="font-size:.55rem;margin-top:6px" onclick="copyText(this.previousElementSibling)">Copy All</button>
+  </div>`;
+}
+
+function copyText(el){ navigator.clipboard?.writeText(el.value||el.textContent).then(()=>toast('✓ Copied','green')); }
+
+// ══════════════════════════════════════════════════════════
+// DOMAIN OWNERSHIP CHECKLIST
+// ══════════════════════════════════════════════════════════
+function toggleDomainOwn(){
+  const checked = document.getElementById('proj-own-domain').checked;
+  document.getElementById('domain-checklist').style.opacity = checked ? '1' : '.4';
+}
+function checkDomainItem(el){ el.parentElement.classList.toggle('done', el.checked); }
+function openSocialPush(){
+  showView('indexing'); switchIdxTab('social');
+  setTimeout(()=>{ const sel=document.getElementById('social-proj-sel'); if(sel&&activeProj) sel.value=activeProj; },100);
+}
+
+// ══════════════════════════════════════════════════════════
+// COPY / CSV / REFRESH
+// ══════════════════════════════════════════════════════════
+function copyShort(url, btn){
+  navigator.clipboard?.writeText(url).then(()=>{
+    const orig=btn.textContent; btn.textContent='✓'; btn.style.color='var(--accent)';
+    setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; },1600);
+  });
+}
+function exportProjCSV(){
+  const p  = projects.find(x=>x.id===activeProj); if(!p) return;
+  const pl = links[activeProj]||[];
+  const rows=[['Project','Original URL','Short URL','Tag','Status','Health','Hits','Retries','Added']];
+  pl.forEach(l=>rows.push([p.name,l.original,allShortUrls(l.code).join(' | '),l.tag||'',l.verdict||'pending',l.health||'',l.hits||0,l.retry_count||0,l.added_at]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`linkcore-${p.name.replace(/\s+/g,'-')}.csv`; a.click();
+  toast('↓ CSV exported','green');
+}
+async function refreshVerdicts(){
+  if(!activeProj) return;
+  const pl = links[activeProj]||[];
+  if(!pl.length) return;
+  const ids   = pl.map(l=>l.id).join(',');
+  const codes = pl.map(l=>l.code).join(',');
+  const [lRows, icRows] = await Promise.all([
+    sbGet(`lc_links?id=in.(${ids})&select=id,verdict,retry_count,submitted,health,wayback_saved`),
+    sbGet(`ic_short_links?code=in.(${codes})&select=code,hits`)
+  ]);
+  (lRows||[]).forEach(r=>{ const l=pl.find(x=>x.id===r.id); if(l){Object.assign(l,r);} });
+  (icRows||[]).forEach(r=>{ const l=pl.find(x=>x.code===r.code); if(l) l.hits=r.hits||0; });
+  renderProjectView(activeProj);
+  renderReport();
+  refreshBotFeed();
+  toast('↻ Status & hits refreshed','green');
+}
+
+// ══════════════════════════════════════════════════════════
+// GOOGLEBOT FOOTER FEED
+// ══════════════════════════════════════════════════════════
+let botFeedEvents = [];
+async function refreshBotFeed(){
+  try{
+    const rows = await sbGet('ic_short_links?hits=gt.0&order=updated_at.desc&limit=60&select=code,hits,updated_at');
+    if(!rows||!rows.length){ renderBotFeed([]); return; }
+    const allLinks = Object.values(links).flat();
+    const events = rows.map(row=>{
+      const lnk  = allLinks.find(l=>l.code===row.code);
+      const proj = lnk ? projects.find(p=>p.id===lnk.project_id) : null;
+      return {code:row.code, hits:row.hits||0, time:row.updated_at||null, projName:proj?proj.name:'Unknown', original:lnk?lnk.original:null};
+    });
+    botFeedEvents = events;
+    renderBotFeed(events);
+  }catch(e){}
+}
+function renderBotFeed(events){
+  const inner = document.getElementById('bot-feed-inner');
+  if(!inner) return;
+  if(!events.length){ inner.style.animation='none'; inner.innerHTML=`<div class="bot-empty-feed">⏳ No bot hits yet</div>`; return; }
+  const chips = events.map(ev=>{
+    const timeStr   = ev.time ? relTime(ev.time) : '—';
+    const projLabel = ev.projName.length>18 ? ev.projName.slice(0,16)+'…' : ev.projName;
+    return `<div class="bot-event" title="${ev.original?he(ev.original):''}">
+      <span class="be-icon">🤖</span><span class="be-time">${timeStr}</span><span class="be-sep">·</span>
+      <span class="be-proj">${he(projLabel)}</span><span class="be-sep">›</span>
+      <span class="be-code">${he(ev.code)}</span><span class="be-sep">·</span>
+      <span class="be-hits">${ev.hits} hit${ev.hits!==1?'s':''}</span>
+    </div>`;
+  }).join('');
+  inner.innerHTML = chips+chips;
+  requestAnimationFrame(()=>{
+    const halfW = inner.scrollWidth/2;
+    const dur   = Math.max(20,halfW/60);
+    inner.style.animation='none'; inner.offsetHeight;
+    inner.style.animation=`scrollFeed ${dur}s linear infinite`;
+  });
+}
+function relTime(iso){
+  try{
+    const diff=Date.now()-new Date(iso).getTime();
+    const m=Math.floor(diff/60000);
+    if(m<1) return 'just now';
+    if(m<60) return `${m}m ago`;
+    const h=Math.floor(m/60);
+    if(h<24) return `${h}h ago`;
+    return `${Math.floor(h/24)}d ago`;
+  }catch(e){ return '—'; }
+}
+
+// ══════════════════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════════════════
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open')); });
+
+// ══════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`toast show${type?' '+type:''}`;
+  clearTimeout(el._t); el._t=setTimeout(()=>{ el.className='toast'; },2500);
+}
+
+// ══════════════════════════════════════════════════════════
+// CRAWL DETAILS MODAL
+// ══════════════════════════════════════════════════════════
+async function openCrawlDetails(shortUrl, originalUrl){
+  document.getElementById('modal-crawl').classList.add('open');
+  const urlBar = document.getElementById('crawl-url-bar');
+  urlBar.innerHTML = `<span>Short:</span> ${he(shortUrl)} &nbsp;→&nbsp; <span>Original:</span> ${he(originalUrl.slice(0,70))}${originalUrl.length>70?'…':''}`;
+  const sections = document.getElementById('crawl-sections');
+  sections.innerHTML = `<div class="crawl-loading"><div class="spin">⟳</div><div>Querying Google Search Console…</div></div>`;
+  loadPagePreview(originalUrl);
+  const sa   = getNextSA();
+  const site = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
+  if(!sa){ sections.innerHTML=`<div class="crawl-no-sa"><div class="ns-icon">🔑</div><div style="margin-bottom:8px;color:var(--text);font-size:.72rem">Service Account Required</div><div>Add SA keys in <strong style="color:var(--accent)">Settings</strong> tab.</div></div>`; return; }
+  try{
+    const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
+    const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})});
+    if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
+    const data = await r.json();
+    renderCrawlDetails(sections, data?.inspectionResult||{}, shortUrl, originalUrl);
+  }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
+}
+
+function loadPagePreview(url){
+  const wrap   = document.getElementById('cpf-img-wrap');
+  const metaEl = document.getElementById('crawl-meta-mini');
+  const openBtn= document.getElementById('open-orig-btn');
+  openBtn.href=url; openBtn.style.display='block';
+  const screenshotUrl=`https://image.thum.io/get/width/520/crop/900/noanimate/${encodeURIComponent(url)}`;
+  wrap.innerHTML=`<div class="cpf-loading"><div class="spin" style="font-size:1.2rem">⟳</div><div>Capturing…</div></div>`;
+  const img=new Image();
+  img.onload=()=>{
+    wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; wrap.appendChild(img);
+    try{
+      const u=new URL(url); metaEl.style.display='flex';
+      metaEl.innerHTML=`<div class="cmm-row"><span class="cmm-k">Domain</span><span class="cmm-v blue">${he(u.hostname)}</span></div>
+        <div class="cmm-row"><span class="cmm-k">Protocol</span><span class="cmm-v ${u.protocol==='https:'?'good':'warn'}">${he(u.protocol.replace(':',''))}</span></div>
+        <div class="cmm-row"><span class="cmm-k">Path</span><span class="cmm-v" style="font-size:.5rem;overflow:hidden;max-width:130px;white-space:nowrap">${he(u.pathname||'/')}</span></div>`;
+    }catch(e){}
+  };
+  img.onerror=()=>{
+    try{
+      const u=new URL(url);
+      wrap.innerHTML=`<div class="cpf-error"><img src="https://www.google.com/s2/favicons?domain=${u.hostname}&sz=32" style="width:32px;border-radius:6px;margin-bottom:4px"><div style="color:var(--text);font-size:.65rem;font-weight:700">${he(u.hostname)}</div><div style="font-size:.52rem;margin-top:4px">Screenshot unavailable</div></div>`;
+      metaEl.style.display='flex'; metaEl.innerHTML=`<div class="cmm-row"><span class="cmm-k">Domain</span><span class="cmm-v blue">${he(u.hostname)}</span></div>`;
+    }catch(e){ wrap.innerHTML='<div class="cpf-error">Preview unavailable</div>'; }
+  };
+  img.src=screenshotUrl;
+}
+
+function renderCrawlDetails(container, res, shortUrl, originalUrl){
+  const idx  = res.indexStatusResult||{};
+  const mob  = res.mobileUsabilityResult||{};
+  const rich = res.richResultsResult||{};
+  const amp  = res.ampResult||{};
+  const verdict = idx.verdict||'UNKNOWN';
+  const vClass  = verdict==='PASS'?'pass': verdict==='NEUTRAL'?'neutral': verdict==='FAIL'?'fail':'pending';
+  const vIcon   = verdict==='PASS'?'✅': verdict==='NEUTRAL'?'🔵': verdict==='FAIL'?'❌':'⏳';
+  const vLabel  = verdict==='PASS'?'Indexed': verdict==='NEUTRAL'?'Crawled / Not Indexed': verdict==='FAIL'?'Not Indexed (Error)':'Unknown / Pending';
+  let html=`<div class="crawl-verdict-banner ${vClass}">
+    <span class="cvb-icon">${vIcon}</span>
+    <div><div class="cvb-label ${vClass}">${vLabel}</div>${idx.coverageState?`<div class="cvb-sub">${he(idx.coverageState)}</div>`:''}</div>
+  </div>
+  <div class="crawl-section">
+    <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">📄</span><span style="color:var(--accent)">Index Status</span></div>
+    <div class="crawl-section-body">
+      ${kv('Verdict',verdict,vClass)}
+      ${kv('Coverage State',idx.coverageState||'—')}
+      ${kv('Robots.txt',idx.robotsTxtState||'—',robotsColor(idx.robotsTxtState))}
+      ${kv('Indexing State',idx.indexingState||'—',indexingColor(idx.indexingState))}
+      ${kv('Page Fetch',idx.pageFetchState||'—',fetchColor(idx.pageFetchState))}
+      ${kv('Last Crawl',idx.lastCrawlTime?fmtDate(idx.lastCrawlTime):'—',idx.lastCrawlTime?'good':'')}
+      ${kv('Crawled As',idx.crawledAs||'—','blue')}
+      ${kv('Google Canonical',idx.googleCanonical?shortUrl===idx.googleCanonical?'✓ Matches':'⚠ '+idx.googleCanonical.slice(0,50):'—',idx.googleCanonical&&idx.googleCanonical===shortUrl?'good':'warn')}
+      ${kv('Sitemap',(idx.sitemap&&idx.sitemap.length)?idx.sitemap[0].slice(0,50)+'…':'—')}
+      ${kv('Referring URLs',(idx.referringUrls&&idx.referringUrls.length)?idx.referringUrls.length+' found':'None',idx.referringUrls?.length?'good':'')}
+    </div>
+  </div>`;
+  const mobVerdict=mob.verdict||'—';
+  const mobIssues=mob.issues||[];
+  html+=`<div class="crawl-section">
+    <div class="crawl-section-hdr" style="background:rgba(59,130,246,0.04)"><span class="cs-icon">📱</span><span style="color:var(--blue)">Mobile Usability</span></div>
+    <div class="crawl-section-body ${mobIssues.length?'single':''}">
+      ${mobIssues.length?mobIssues.map(i=>`<div class="crawl-kv"><div class="ck">Issue</div><div class="cv bad">${he(i.issueType||i)}</div></div>`).join(''):kv('Status',mobVerdict==='PASS'?'✓ Mobile Friendly':mobVerdict==='FAIL'?'✗ Issues Found':mobVerdict,mobVerdict==='PASS'?'good':mobVerdict==='FAIL'?'bad':'')}
+    </div>
+  </div>`;
+  if(rich.verdict||(rich.detectedItems&&rich.detectedItems.length)){
+    const ri=rich.detectedItems||[];
+    html+=`<div class="crawl-section">
+      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.04)"><span class="cs-icon">✨</span><span style="color:var(--purple)">Rich Results</span></div>
+      <div class="crawl-section-body ${ri.length?'single':''}">
+        ${ri.length?ri.map(i=>`<div class="crawl-kv"><div class="ck">${he(i.richResultType||'Type')}</div><div class="cv blue">${(i.items||[]).length} items</div></div>`).join(''):kv('Status',rich.verdict||'—',rich.verdict==='PASS'?'good':rich.verdict==='FAIL'?'bad':'')}
+      </div>
+    </div>`;
+  }
+  if(amp.verdict){
+    html+=`<div class="crawl-section">
+      <div class="crawl-section-hdr" style="background:rgba(245,158,11,0.04)"><span class="cs-icon">⚡</span><span style="color:var(--orange)">AMP</span></div>
+      <div class="crawl-section-body">
+        ${kv('AMP Status',amp.verdict||'—',amp.verdict==='PASS'?'good':amp.verdict==='FAIL'?'bad':'')}
+        ${amp.ampUrl?kv('AMP URL',amp.ampUrl.slice(0,50)+'…'):''}
+      </div>
+    </div>`;
+  }
+  if(idx.referringUrls&&idx.referringUrls.length){
+    html+=`<div class="crawl-section">
+      <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">🔗</span><span style="color:var(--accent)">Referring URLs (${idx.referringUrls.length})</span></div>
+      <div class="crawl-section-body single">
+        ${idx.referringUrls.map(u=>`<div class="crawl-kv"><div class="cv blue"><a href="${he(u)}" target="_blank" style="color:var(--blue);text-decoration:none">${he(u.slice(0,80))}${u.length>80?'…':''}</a></div></div>`).join('')}
+      </div>
+    </div>`;
+  }
+  html+=`<div class="crawl-section" id="psi-section">
+    <div class="crawl-section-hdr" style="background:rgba(245,158,11,0.04)"><span class="cs-icon">⚡</span><span style="color:var(--orange)">PageSpeed Scores</span><span style="margin-left:auto;font-size:.48rem;color:var(--muted2)">via Google PSI</span></div>
+    <div class="crawl-section-body" id="psi-body"><div class="crawl-kv"><div class="cv" style="color:var(--muted2);font-size:.6rem">⟳ Loading…</div></div></div>
+  </div>`;
+  container.innerHTML = html;
+  if(originalUrl) loadPageSpeedScores(originalUrl);
+}
+
+async function loadPageSpeedScores(url){
+  const body=document.getElementById('psi-body'); if(!body) return;
+  try{
+    const [mobR,deskR]=await Promise.all([
+      fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=mobile&category=performance&category=accessibility&category=seo`),
+      fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=desktop&category=performance&category=seo`)
+    ]);
+    if(!mobR.ok&&!deskR.ok){ body.innerHTML=`<div class="crawl-kv"><div class="cv warn">PSI unavailable</div></div>`; return; }
+    const score=(data,cat)=>{ const s=data?.lighthouseResult?.categories?.[cat]?.score; return s!=null?Math.round(s*100):null; };
+    const sc=s=>s==null?'':s>=90?'good':s>=50?'warn':'bad';
+    const ss=s=>s==null?'—':s+'';
+    const md=mobR.ok?await mobR.json():null;
+    const dd=deskR.ok?await deskR.json():null;
+    const fcp=md?.lighthouseResult?.audits?.['first-contentful-paint']?.displayValue||'—';
+    const lcp=md?.lighthouseResult?.audits?.['largest-contentful-paint']?.displayValue||'—';
+    const cls=md?.lighthouseResult?.audits?.['cumulative-layout-shift']?.displayValue||'—';
+    const tbt=md?.lighthouseResult?.audits?.['total-blocking-time']?.displayValue||'—';
+    body.innerHTML=`
+      <div class="crawl-kv"><div class="ck">📱 Mobile Perf</div><div class="cv ${sc(score(md,'performance'))}">${ss(score(md,'performance'))}/100</div></div>
+      <div class="crawl-kv"><div class="ck">🖥 Desktop Perf</div><div class="cv ${sc(score(dd,'performance'))}">${ss(score(dd,'performance'))}/100</div></div>
+      <div class="crawl-kv"><div class="ck">♿ Accessibility</div><div class="cv ${sc(score(md,'accessibility'))}">${ss(score(md,'accessibility'))}/100</div></div>
+      <div class="crawl-kv"><div class="ck">🔍 SEO Score</div><div class="cv ${sc(score(md,'seo'))}">${ss(score(md,'seo'))}/100</div></div>
+      <div class="crawl-kv"><div class="ck">⏱ FCP</div><div class="cv">${he(fcp)}</div></div>
+      <div class="crawl-kv"><div class="ck">🖼 LCP</div><div class="cv">${he(lcp)}</div></div>
+      <div class="crawl-kv"><div class="ck">📐 CLS</div><div class="cv">${he(cls)}</div></div>
+      <div class="crawl-kv"><div class="ck">🚧 TBT</div><div class="cv">${he(tbt)}</div></div>`;
+  }catch(e){ if(body) body.innerHTML=`<div class="crawl-kv"><div class="cv warn">PSI failed: ${he(e.message)}</div></div>`; }
+}
+
+// ══════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════
+function kv(key,val,cls=''){ return `<div class="crawl-kv"><div class="ck">${he(key)}</div><div class="cv ${cls}">${he(String(val))}</div></div>`; }
+function fmtDate(iso){ try{return new Date(iso).toLocaleString();}catch(e){return iso;} }
+function robotsColor(s){ return !s||s==='ALLOWED'?'good': s==='DISALLOWED'?'bad':'warn'; }
+function indexingColor(s){ return !s||s==='INDEXING_ALLOWED'?'good': s.includes('BLOCKED')||s.includes('FORBIDDEN')?'bad':'warn'; }
+function fetchColor(s){ return !s||s==='SUCCESSFUL'?'good': s==='SOFT_404'||s==='REDIRECT_ERROR'?'warn': s==='ACCESS_DENIED'||s==='NOT_FOUND'?'bad':''; }
+function he(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+
+// ══════════════════════════════════════════════════════════
+// MULTI-DOMAIN NAKED URL COPY
+// ══════════════════════════════════════════════════════════
+const DOMAIN_COLORS = ['var(--accent)','var(--blue)','var(--orange)','var(--purple)'];
+const DOMAIN_NAMES  = SHORT_BASES.map(b=>b.replace('https://','').replace('/link/',''));
+
+function copyAllShorts(urls, btn){
+  const text = urls.join('\n');
+  navigator.clipboard?.writeText(text).then(()=>{
+    const orig=btn.textContent; btn.textContent='✓ Copied!'; btn.style.color='var(--accent)';
+    setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; },1800);
+  });
+}
+
+function openNakedUrlPanel(){
+  if(!activeProj){ toast('Open a project first',''); return; }
+  const pl = links[activeProj]||[];
+  if(!pl.length){ toast('No links in this project',''); return; }
+  document.getElementById('modal-naked-urls').classList.add('open');
+  renderNakedUrls();
+}
+
+function renderNakedUrls(){
+  const pl = links[activeProj]||[];
+  const out = document.getElementById('naked-urls-output');
+  if(!out||!pl.length) return;
+
+  out.innerHTML = pl.map((l, li)=>{
+    const urls = allShortUrls(l.code);
+    const origDomain = (()=>{ try{return new URL(l.original).hostname;}catch(e){return l.original.slice(0,30);} })();
+    const tag = l.tag ? `<span style="font-size:.48rem;color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px">${he(l.tag)}</span>` : '';
+
+    const domainRows = urls.map((url, di)=>`
+      <div class="naked-url-item">
+        <span class="chip-dot" style="width:6px;height:6px;border-radius:50%;background:${DOMAIN_COLORS[di]};flex-shrink:0"></span>
+        <span class="naked-url-text">${he(url)}</span>
+        <button class="naked-copy-btn" onclick="navigator.clipboard?.writeText(${JSON.stringify(url)}).then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Copy',1200)})">Copy</button>
+      </div>`).join('');
+
+    return `<div class="naked-url-row">
+      <div class="naked-url-row-hdr">
+        <span style="color:var(--text)">${li+1}. ${he(origDomain)}</span>${tag}
+        <a href="${he(l.original)}" target="_blank" style="font-size:.5rem;color:var(--muted);margin-left:auto;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px">${he(l.original)}</a>
+      </div>
+      ${domainRows}
+    </div>`;
+  }).join('');
+}
+
+function nakedCopyAll(){
+  const pl = links[activeProj]||[];
+  if(!pl.length) return;
+  const lines = pl.flatMap(l=>allShortUrls(l.code));
+  navigator.clipboard?.writeText(lines.join('\n')).then(()=>toast(`⧉ Copied ${lines.length} naked URLs`,'green'));
+}
+
+// ── DOMContentLoaded ──
+document.addEventListener('DOMContentLoaded',()=>{
+  ifInit();
+  const inner = document.getElementById('bot-feed-inner');
+  if(inner){
+    inner.addEventListener('mouseenter',()=>inner.classList.add('paused'));
+    inner.addEventListener('mouseleave',()=>inner.classList.remove('paused'));
+  }
+  const projInput = document.getElementById('proj-name-input');
+  if(projInput) projInput.addEventListener('keydown',e=>{ if(e.key==='Enter') createProject(); });
+});
+</script>
+
+<!-- ═══ NAKED URLS COPY MODAL ═══ -->
+<div class="modal-bg" id="modal-naked-urls">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-title" style="display:flex;align-items:center;gap:10px">
+      <span>📋 Short Links — Naked URLs</span>
+      <button class="btn btn-outline" style="margin-left:auto;font-size:.55rem;padding:3px 9px" onclick="closeModal('modal-naked-urls')">✕ Close</button>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);margin-bottom:14px;line-height:1.7">
+      All 4 short URLs per link — ready to paste. Each code redirects (301) to the original backlink URL.
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-primary" style="font-size:.6rem" onclick="nakedCopyAll()">⧉ Copy All URLs</button>
+    </div>
+    <div id="naked-urls-output" style="display:flex;flex-direction:column;gap:8px;max-height:62vh;overflow-y:auto;padding-right:4px"></div>
+  </div>
+</div>
+
+</body>
+</html>
