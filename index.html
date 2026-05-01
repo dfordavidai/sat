@@ -3,393 +3,539 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Links</title>
+<title>FlexyGist — Nigerian Lifestyle, News & Entertainment</title>
+<meta name="description" content="Your daily dose of Nigerian lifestyle, trending news, music, entertainment and culture. Stay connected with what's happening across Nigeria.">
+<meta name="keywords" content="Nigerian lifestyle, Nigeria news, Naija entertainment, Nigerian music, Nigeria gist, Lagos lifestyle">
+<meta name="author" content="FlexyGist">
+<meta property="og:title" content="FlexyGist — Nigerian Lifestyle, News & Entertainment">
+<meta property="og:description" content="Your daily dose of Nigerian lifestyle, trending news, music, entertainment and culture.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://flexygist.com.ng">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="FlexyGist — Nigerian Lifestyle, News & Entertainment">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://flexygist.com.ng/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  :root {
-    --bg:       #f7f5f0;
-    --bg2:      #efecea;
-    --border:   #dedad4;
-    --text:     #1a1714;
-    --muted:    #8a8480;
-    --accent:   #2d6a4f;
-    --accent2:  #40916c;
-    --red:      #c1440e;
-    --mono:     'JetBrains Mono', monospace;
-    --serif:    'Lora', Georgia, serif;
-  }
+:root{
+  --cream:    #faf8f4;
+  --paper:    #f3f0ea;
+  --warm:     #e8e3d9;
+  --border:   #d4cfc6;
+  --border2:  #c4bdb1;
+  --text:     #1c1a17;
+  --text2:    #3d3a35;
+  --muted:    #7a7368;
+  --muted2:   #a09890;
+  --green:    #1a5c3a;
+  --green2:   #2d7a52;
+  --green3:   #e8f5ee;
+  --red:      #b83232;
+  --serif:    'Source Serif 4', Georgia, serif;
+  --display:  'Playfair Display', Georgia, serif;
+  --mono:     'DM Mono', monospace;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--serif);
-    min-height: 100vh;
-    padding: 0;
-  }
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--text);font-family:var(--serif);font-size:16px;line-height:1.7}
 
-  /* ── Header ── */
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 28px 0 22px;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    background: rgba(247,245,240,.92);
-    backdrop-filter: blur(8px);
-    z-index: 10;
-  }
-  header h1 {
-    font-size: 1.05rem;
-    font-weight: 500;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-  header .dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    margin: 0 10px;
-    vertical-align: middle;
-    position: relative;
-    top: -1px;
-  }
-  .live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: var(--mono);
-    font-size: .52rem;
-    color: var(--accent2);
-    background: #d8f3dc;
-    border: 1px solid #b7e4c7;
-    border-radius: 20px;
-    padding: 2px 9px;
-    margin-top: 6px;
-  }
-  .live-badge::before {
-    content: '';
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: pulse 1.8s infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: .4; transform: scale(.7); }
-  }
+/* ── TOPBAR ── */
+.topbar{background:var(--green);color:#fff;text-align:center;padding:8px;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase}
+.topbar a{color:#a8d8bb;text-decoration:none}
 
-  /* ── Main layout ── */
-  main {
-    max-width: 660px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
-  }
+/* ── MASTHEAD ── */
+.masthead{border-bottom:3px double var(--border2);padding:32px 20px 24px;text-align:center;background:var(--cream)}
+.masthead-date{font-family:var(--mono);font-size:.55rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+.masthead h1{font-family:var(--display);font-size:clamp(2.4rem,6vw,4rem);font-weight:800;color:var(--text);letter-spacing:-.02em;line-height:1}
+.masthead-sub{font-family:var(--serif);font-style:italic;font-size:.95rem;color:var(--muted);margin-top:8px;font-weight:300}
+.masthead-nav{display:flex;justify-content:center;gap:0;margin-top:20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0}
+.masthead-nav a{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);text-decoration:none;padding:10px 18px;border-right:1px solid var(--border);transition:background .15s,color .15s}
+.masthead-nav a:first-child{border-left:1px solid var(--border)}
+.masthead-nav a:hover,.masthead-nav a.active{background:var(--green);color:#fff}
 
-  /* ── State messages ── */
-  .state {
-    text-align: center;
-    padding: 60px 0;
-    font-family: var(--mono);
-    font-size: .65rem;
-    color: var(--muted);
-  }
-  .state.error { color: var(--red); }
+/* ── LAYOUT ── */
+.container{max-width:1080px;margin:0 auto;padding:0 20px}
+.layout{display:grid;grid-template-columns:1fr 300px;gap:48px;padding:40px 0 80px}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}}
 
-  /* ── Feed ── */
-  .feed { display: flex; flex-direction: column; gap: 0; }
+/* ── SECTION LABELS ── */
+.section-label{font-family:var(--mono);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--text);padding-bottom:6px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
+.section-label .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green2);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* ── Entry card ── */
-  .entry {
-    border-bottom: 1px solid var(--border);
-    padding: 26px 0;
-    animation: fadeUp .4s ease both;
-  }
-  .entry:first-child { border-top: 1px solid var(--border); }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+/* ── FEATURED HERO ── */
+.hero{margin-bottom:36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+.hero-category{font-family:var(--mono);font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green2);margin-bottom:8px}
+.hero h2{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;line-height:1.2;color:var(--text);margin-bottom:12px}
+.hero-lead{font-size:1rem;color:var(--text2);font-weight:300;font-style:italic;line-height:1.8;margin-bottom:16px}
+.hero-byline{font-family:var(--mono);font-size:.52rem;color:var(--muted);letter-spacing:.06em}
 
-  .entry-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-  .avatar {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono);
-    font-size: .55rem;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-  .entry-author {
-    font-family: var(--mono);
-    font-size: .6rem;
-    color: var(--muted);
-  }
-  .entry-author strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-  .entry-time {
-    font-family: var(--mono);
-    font-size: .52rem;
-    color: var(--muted);
-    margin-left: auto;
-  }
+/* ── ARTICLE GRID ── */
+.articles{display:flex;flex-direction:column;gap:0}
+.article-row{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.article-num{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--warm);flex-shrink:0;line-height:1;width:36px;text-align:right}
+.article-body{}
+.article-cat{font-family:var(--mono);font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green2);margin-bottom:4px}
+.article-title{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:6px}
+.article-excerpt{font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300}
 
-  /* ── Link rows ── */
-  .link-rows { display: flex; flex-direction: column; gap: 9px; }
+/* ── LINKS FEED SECTION ── */
+.links-section{margin-top:36px;padding-top:36px;border-top:2px solid var(--text)}
 
-  .link-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .link-row:hover {
-    border-color: var(--accent2);
-    box-shadow: 0 2px 8px rgba(45,106,79,.08);
-  }
+.link-entry{padding:14px 0;border-bottom:1px solid var(--border);animation:fadeIn .3s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  .domain-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .dot-0 { background: #2d6a4f; }
-  .dot-1 { background: #2563eb; }
-  .dot-2 { background: #ea580c; }
-  .dot-3 { background: #7c3aed; }
+.link-entry-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.link-code-badge{font-family:var(--mono);font-size:.58rem;font-weight:500;background:var(--text);color:var(--cream);padding:2px 10px;border-radius:3px;letter-spacing:.06em}
+.link-entry-date{font-family:var(--mono);font-size:.48rem;color:var(--muted2);margin-left:auto}
 
-  .domain-label {
-    font-family: var(--mono);
-    font-size: .52rem;
-    color: var(--muted);
-    flex-shrink: 0;
-    width: 160px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.link-domains{display:flex;flex-wrap:wrap;gap:8px}
+.link-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border:1px solid var(--border);border-radius:4px;background:#fff;text-decoration:none;transition:border-color .12s,background .12s;white-space:nowrap}
+.link-chip:hover{border-color:var(--green2);background:var(--green3)}
+.link-chip-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.link-chip-domain{font-family:var(--mono);font-size:.48rem;color:var(--muted)}
+.link-chip-code{font-family:var(--mono);font-size:.6rem;font-weight:500;color:var(--green)}
 
-  .link-anchor {
-    font-family: var(--mono);
-    font-size: .65rem;
-    font-weight: 500;
-    color: var(--accent);
-    text-decoration: none;
-    letter-spacing: .04em;
-    transition: color .12s;
-    flex: 1;
-  }
-  .link-anchor:hover { color: var(--accent2); text-decoration: underline; }
+.links-loading{font-family:var(--mono);font-size:.6rem;color:var(--muted);padding:20px 0;text-align:center}
+.links-empty{font-family:var(--mono);font-size:.6rem;color:var(--muted2);padding:20px 0;font-style:italic}
 
-  .copy-btn {
-    font-family: var(--mono);
-    font-size: .48rem;
-    padding: 3px 8px;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    background: var(--bg);
-    color: var(--muted);
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all .12s;
-  }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.load-more-btn{display:block;width:100%;margin-top:16px;padding:10px;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .15s}
+.load-more-btn:hover{border-color:var(--green);color:var(--green);background:var(--green3)}
 
-  /* ── Pagination ── */
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-    margin-top: 40px;
-    font-family: var(--mono);
-    font-size: .6rem;
-    color: var(--muted);
-  }
-  .page-btn {
-    padding: 6px 16px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: #fff;
-    cursor: pointer;
-    font-family: var(--mono);
-    font-size: .6rem;
-    color: var(--text);
-    transition: all .12s;
-  }
-  .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-  .page-btn:disabled { opacity: .35; cursor: default; }
+/* ── SIDEBAR ── */
+.sidebar{}
+.sidebar-block{margin-bottom:32px}
+.sidebar-block .section-label{font-size:.48rem}
 
-  /* ── Footer ── */
-  footer {
-    text-align: center;
-    font-family: var(--mono);
-    font-size: .5rem;
-    color: var(--muted);
-    padding: 20px;
-    border-top: 1px solid var(--border);
-    margin-top: 20px;
-  }
+/* About */
+.about-box{background:var(--paper);border:1px solid var(--border);padding:18px}
+.about-box p{font-size:.82rem;line-height:1.7;color:var(--text2);font-weight:300}
+.about-box strong{font-family:var(--display);font-size:1rem;display:block;margin-bottom:8px;color:var(--text)}
+
+/* Tags */
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--mono);font-size:.5rem;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border2);color:var(--muted);background:#fff;cursor:default}
+
+/* Guestbook sidebar form */
+.gb-locked{text-align:center;padding:16px 0}
+.gb-locked-icon{font-size:1.4rem;margin-bottom:6px}
+.gb-locked p{font-family:var(--mono);font-size:.52rem;color:var(--muted);margin-bottom:10px}
+.gb-pw-input{width:100%;padding:7px 10px;font-family:var(--mono);font-size:.6rem;border:1px solid var(--border2);background:var(--cream);color:var(--text);margin-bottom:6px;outline:none}
+.gb-pw-input:focus{border-color:var(--green)}
+.gb-pw-btn{width:100%;padding:8px;font-family:var(--mono);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;background:var(--green);color:#fff;border:none;cursor:pointer;transition:background .15s}
+.gb-pw-btn:hover{background:var(--green2)}
+.gb-pw-err{font-family:var(--mono);font-size:.5rem;color:var(--red);margin-top:4px;display:none}
+
+.gb-form{display:none}
+.gb-form textarea{width:100%;min-height:80px;padding:10px;font-family:var(--serif);font-size:.82rem;border:1px solid var(--border2);background:var(--cream);color:var(--text);resize:vertical;outline:none;line-height:1.6}
+.gb-form textarea:focus{border-color:var(--green)}
+.gb-url-input{width:100%;padding:7px 10px;font-family:var(--mono);font-size:.58rem;border:1px solid var(--border2);background:var(--cream);color:var(--text);margin-top:6px;outline:none}
+.gb-url-input:focus{border-color:var(--green)}
+.gb-form-actions{display:flex;gap:8px;margin-top:8px}
+.gb-submit-btn{flex:1;padding:8px;font-family:var(--mono);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;background:var(--green);color:#fff;border:none;cursor:pointer}
+.gb-submit-btn:hover{background:var(--green2)}
+.gb-logout-btn{padding:8px 12px;font-family:var(--mono);font-size:.5rem;background:none;border:1px solid var(--border2);color:var(--muted);cursor:pointer}
+
+/* Guestbook entries list */
+.gb-entries{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.gb-entry{background:var(--paper);border:1px solid var(--border);padding:12px}
+.gb-entry-text{font-size:.82rem;color:var(--text2);line-height:1.6;margin-bottom:6px;font-weight:300}
+.gb-entry-link{display:block;font-family:var(--mono);font-size:.5rem;color:var(--green);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px}
+.gb-entry-link:hover{text-decoration:underline}
+.gb-entry-meta{font-family:var(--mono);font-size:.45rem;color:var(--muted2);display:flex;justify-content:space-between;align-items:center}
+.gb-delete-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.5rem;font-family:var(--mono);padding:0;display:none}
+.gb-delete-btn:hover{color:var(--red)}
+.unlocked .gb-delete-btn{display:inline}
+
+/* ── FOOTER ── */
+footer{background:var(--text);color:var(--muted2);padding:40px 20px 24px;text-align:center}
+footer .footer-logo{font-family:var(--display);font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:8px}
+footer p{font-size:.75rem;line-height:1.8;max-width:500px;margin:0 auto 16px}
+footer .footer-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+footer .footer-links a{font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);text-decoration:none}
+footer .footer-links a:hover{color:#fff}
+footer .copy{font-family:var(--mono);font-size:.48rem;color:#4a4740;margin-top:20px;border-top:1px solid #2a2825;padding-top:16px}
+
+/* ── DOMAIN COLORS ── */
+.dc0{background:#1a5c3a}.dc1{background:#1d4ed8}.dc2{background:#c2410c}.dc3{background:#6d28d9}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Links<span class="dot"></span>Feed</h1>
-  <div><span class="live-badge">live</span></div>
+<div class="topbar">
+  🇳🇬 Nigeria's go-to source for lifestyle, gist & entertainment &nbsp;·&nbsp; <a href="#links-feed">Latest Links</a> &nbsp;·&nbsp; <a href="#guestbook">Guestbook</a>
+</div>
+
+<header class="masthead">
+  <div class="masthead-date" id="today-date"></div>
+  <h1>FlexyGist</h1>
+  <p class="masthead-sub">Nigerian Lifestyle · News · Entertainment · Culture</p>
+  <nav class="masthead-nav" aria-label="Main navigation">
+    <a href="#" class="active">Home</a>
+    <a href="#lifestyle">Lifestyle</a>
+    <a href="#entertainment">Entertainment</a>
+    <a href="#links-feed">Links</a>
+    <a href="#guestbook">Guestbook</a>
+  </nav>
 </header>
 
-<main>
-  <div id="state" class="state">Loading…</div>
-  <div class="feed" id="feed"></div>
-  <div class="pagination" id="pagination" style="display:none">
-    <button class="page-btn" id="btn-prev" onclick="changePage(-1)">← Prev</button>
-    <span id="page-info"></span>
-    <button class="page-btn" id="btn-next" onclick="changePage(1)">Next →</button>
-  </div>
-</main>
+<div class="container">
+  <div class="layout">
 
+    <!-- ═══ MAIN COLUMN ═══ -->
+    <main>
+
+      <!-- Hero Article -->
+      <div class="hero" id="lifestyle">
+        <div class="hero-category">Lifestyle &amp; Culture</div>
+        <h2>The Rise of Nigerian Digital Culture: How Gen Z is Redefining Naija Identity Online</h2>
+        <p class="hero-lead">From Afrobeats going global to the Japa movement reshaping communities abroad, Nigerian youth are crafting a new cultural language that speaks to both home and the diaspora.</p>
+        <div class="hero-byline">FlexyGist Editorial &nbsp;·&nbsp; <span id="hero-date"></span> &nbsp;·&nbsp; Culture</div>
+      </div>
+
+      <!-- Articles -->
+      <div class="articles" id="entertainment">
+        <div class="section-label">Top Stories</div>
+
+        <div class="article-row">
+          <div class="article-num">01</div>
+          <div class="article-body">
+            <div class="article-cat">Entertainment</div>
+            <div class="article-title">Afrobeats Artists Dominating Global Charts in 2026</div>
+            <div class="article-excerpt">Nigerian artists continue to break streaming records worldwide, with multiple chart entries across Billboard, UK and European platforms — a testament to the unstoppable global wave of Afrobeats.</div>
+          </div>
+        </div>
+
+        <div class="article-row">
+          <div class="article-num">02</div>
+          <div class="article-body">
+            <div class="article-cat">Lifestyle</div>
+            <div class="article-title">Lagos Food Scene: 10 Must-Try Spots Making Waves This Year</div>
+            <div class="article-excerpt">From upscale suya bars in Lekki to hidden pepper soup joints on the mainland, Lagos eating culture has never been more exciting or more diverse.</div>
+          </div>
+        </div>
+
+        <div class="article-row">
+          <div class="article-num">03</div>
+          <div class="article-body">
+            <div class="article-cat">Tech &amp; Business</div>
+            <div class="article-title">Nigeria's Startup Ecosystem: What's Funding and What's Not in 2026</div>
+            <div class="article-excerpt">A closer look at where venture capital is flowing in the Nigerian tech space, which sectors are attracting attention, and what founders need to know right now.</div>
+          </div>
+        </div>
+
+        <div class="article-row">
+          <div class="article-num">04</div>
+          <div class="article-body">
+            <div class="article-cat">Culture</div>
+            <div class="article-title">Nollywood's Streaming Era: How Nigerian Films Are Winning Globally</div>
+            <div class="article-excerpt">With major platforms licensing Nollywood content at record pace, the industry is entering a golden era — though questions about quality control and fair pay for creatives remain.</div>
+          </div>
+        </div>
+
+        <div class="article-row">
+          <div class="article-num">05</div>
+          <div class="article-body">
+            <div class="article-cat">Lifestyle</div>
+            <div class="article-title">The Japa Generation: Nigerians Abroad Keeping Culture Alive</div>
+            <div class="article-excerpt">How the diaspora maintains its Naija roots — from suya pop-ups in London to Afrobeats nights in Toronto — and what it means for Nigerian identity at home and abroad.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ LINKS FEED ═══ -->
+      <div class="links-section" id="links-feed">
+        <div class="section-label">
+          <span>Resource Links</span>
+          <span class="live-dot"></span>
+        </div>
+        <div id="links-state" class="links-loading">Loading links…</div>
+        <div id="links-feed-inner"></div>
+        <button class="load-more-btn" id="load-more-btn" style="display:none" onclick="loadMore()">Load more links</button>
+      </div>
+
+    </main>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+
+      <!-- About -->
+      <div class="sidebar-block">
+        <div class="section-label">About</div>
+        <div class="about-box">
+          <strong>FlexyGist</strong>
+          <p>Your daily source for Nigerian lifestyle, trending gist, entertainment news, and curated web resources. Rooted in Lagos, reaching everywhere.</p>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="sidebar-block">
+        <div class="section-label">Topics</div>
+        <div class="tags">
+          <span class="tag">Lifestyle</span>
+          <span class="tag">Music</span>
+          <span class="tag">Nollywood</span>
+          <span class="tag">Lagos</span>
+          <span class="tag">Afrobeats</span>
+          <span class="tag">Tech</span>
+          <span class="tag">Culture</span>
+          <span class="tag">Diaspora</span>
+          <span class="tag">Food</span>
+          <span class="tag">Fashion</span>
+          <span class="tag">Japa</span>
+          <span class="tag">Business</span>
+        </div>
+      </div>
+
+      <!-- ═══ GUESTBOOK ═══ -->
+      <div class="sidebar-block" id="guestbook">
+        <div class="section-label">Guestbook</div>
+
+        <!-- Locked state -->
+        <div class="gb-locked" id="gb-locked">
+          <div class="gb-locked-icon">🔒</div>
+          <p>Admin access required to post</p>
+          <input type="password" class="gb-pw-input" id="gb-pw" placeholder="Enter password…" onkeydown="if(event.key==='Enter')gbLogin()">
+          <button class="gb-pw-btn" onclick="gbLogin()">Unlock</button>
+          <div class="gb-pw-err" id="gb-pw-err">Wrong password.</div>
+        </div>
+
+        <!-- Unlocked form -->
+        <div class="gb-form" id="gb-form">
+          <textarea id="gb-text" placeholder="Write a note, comment, or resource description…" rows="4"></textarea>
+          <input type="url" class="gb-url-input" id="gb-url" placeholder="Link URL (optional)">
+          <div class="gb-form-actions">
+            <button class="gb-submit-btn" onclick="gbSubmit()">Post Entry</button>
+            <button class="gb-logout-btn" onclick="gbLogout()">Lock</button>
+          </div>
+        </div>
+
+        <!-- Entries -->
+        <div class="gb-entries unlocked-hide" id="gb-entries">
+          <div class="links-loading" id="gb-loading">Loading…</div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
 <footer>
-  linkcore &middot; live feed
+  <div class="container">
+    <div class="footer-logo">FlexyGist</div>
+    <p>Nigerian lifestyle, news and entertainment from the heart of Lagos. Covering culture, music, tech, and the stories that matter to Nigerians everywhere.</p>
+    <div class="footer-links">
+      <a href="#lifestyle">Lifestyle</a>
+      <a href="#entertainment">Entertainment</a>
+      <a href="#links-feed">Links</a>
+      <a href="#guestbook">Guestbook</a>
+    </div>
+    <div class="copy">&copy; <span id="year"></span> FlexyGist &mdash; flexygist.com.ng &nbsp;·&nbsp; All rights reserved</div>
+  </div>
 </footer>
 
 <script>
-// ── Config ──────────────────────────────────────────────────
+// ── CONFIG ──────────────────────────────────────────────────
 const SB_URL = 'https://ydfeubmrlbkddlidhniv.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
-
+const GB_PASSWORD = 'flexy';
 const DOMAINS = [
-  'https://flexygist.com.ng/link/',
-  'https://guruswapaz.com.ng/link/',
-  'https://mp3fresh.com.ng/link/',
-  'https://naijasturf.com.ng/link/'
+  { base: 'https://flexygist.com.ng/link/',   label: 'flexygist.com.ng',   cls: 'dc0' },
+  { base: 'https://guruswapaz.com.ng/link/',  label: 'guruswapaz.com.ng',  cls: 'dc1' },
+  { base: 'https://mp3fresh.com.ng/link/',    label: 'mp3fresh.com.ng',    cls: 'dc2' },
+  { base: 'https://naijasturf.com.ng/link/',  label: 'naijasturf.com.ng',  cls: 'dc3' },
 ];
+const PAGE_SIZE = 15;
 
-const PER_PAGE = 20;
-let allLinks  = [];
-let page      = 1;
+// ── STATE ──────────────────────────────────────────────────
+let allLinks   = [];
+let shownCount = PAGE_SIZE;
+let gbUnlocked = sessionStorage.getItem('gb_unlocked') === '1';
 
-// ── Fetch ────────────────────────────────────────────────────
-async function load() {
-  setState('Loading…');
+// ── DATES ──────────────────────────────────────────────────
+const now = new Date();
+document.getElementById('today-date').textContent =
+  now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('hero-date').textContent =
+  now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+document.getElementById('year').textContent = now.getFullYear();
+
+// ── SUPABASE HELPERS ────────────────────────────────────────
+const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+
+async function sbGet(path) {
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: H });
+  return r.ok ? r.json() : [];
+}
+async function sbPost(table, data) {
+  return fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify(data)
+  });
+}
+async function sbDelete(table, filter) {
+  return fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method: 'DELETE', headers: H });
+}
+
+// ── LINKS FEED ──────────────────────────────────────────────
+async function loadLinks() {
   try {
-    const res = await fetch(
-      `${SB_URL}/rest/v1/ic_short_links?select=code,created_at&order=created_at.desc&limit=1000`,
-      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    allLinks = await res.json();
-    if (!allLinks.length) { setState('No links yet.'); return; }
-    setState('');
-    render();
-  } catch (e) {
-    setState(`Error: ${e.message}`, true);
+    allLinks = await sbGet('ic_short_links?select=code,created_at&order=created_at.desc&limit=500');
+    renderLinks();
+  } catch(e) {
+    document.getElementById('links-state').textContent = 'Could not load links.';
   }
 }
 
-// ── Render page ───────────────────────────────────────────────
-function render() {
-  const total  = allLinks.length;
-  const pages  = Math.ceil(total / PER_PAGE);
-  const start  = (page - 1) * PER_PAGE;
-  const slice  = allLinks.slice(start, start + PER_PAGE);
+function renderLinks() {
+  const state  = document.getElementById('links-state');
+  const feed   = document.getElementById('links-feed-inner');
+  const moreBtn = document.getElementById('load-more-btn');
 
-  const feed = document.getElementById('feed');
+  if (!allLinks.length) {
+    state.textContent = 'No links yet.';
+    state.className = 'links-empty';
+    feed.innerHTML = '';
+    moreBtn.style.display = 'none';
+    return;
+  }
+  state.textContent = '';
+  state.style.display = 'none';
+
+  const slice = allLinks.slice(0, shownCount);
   feed.innerHTML = slice.map((row, i) => {
-    const delay  = i * 35;
-    const date   = formatDate(row.created_at);
-    const initials = row.code.slice(0,2).toUpperCase();
-
-    const linkRows = DOMAINS.map((base, di) => {
-      const url    = base + row.code;
-      const domain = base.replace('https://','').replace('/link/','');
-      return `
-        <div class="link-row">
-          <span class="domain-dot dot-${di}"></span>
-          <span class="domain-label">${domain}</span>
-          <a class="link-anchor" href="${url}" target="_blank" rel="noopener">${row.code}</a>
-          <button class="copy-btn" onclick="copyUrl('${url}', this)">Copy</button>
-        </div>`;
-    }).join('');
-
+    const date = new Date(row.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const chips = DOMAINS.map(d => `
+      <a class="link-chip" href="${d.base}${row.code}" target="_blank" rel="noopener nofollow">
+        <span class="link-chip-dot ${d.cls}"></span>
+        <span class="link-chip-domain">${d.label}</span>
+        <span class="link-chip-code">${row.code}</span>
+      </a>`).join('');
     return `
-      <div class="entry" style="animation-delay:${delay}ms">
-        <div class="entry-meta">
-          <div class="avatar">${initials}</div>
-          <div class="entry-author"><strong>/${row.code}</strong></div>
-          <div class="entry-time">${date}</div>
+      <div class="link-entry" style="animation-delay:${i*30}ms">
+        <div class="link-entry-header">
+          <span class="link-code-badge">${row.code}</span>
+          <span class="link-entry-date">${date}</span>
         </div>
-        <div class="link-rows">${linkRows}</div>
+        <div class="link-domains">${chips}</div>
       </div>`;
   }).join('');
 
-  // Pagination
-  const pg = document.getElementById('pagination');
-  if (pages > 1) {
-    pg.style.display = 'flex';
-    document.getElementById('page-info').textContent = `${page} / ${pages}`;
-    document.getElementById('btn-prev').disabled = page === 1;
-    document.getElementById('btn-next').disabled = page === pages;
+  moreBtn.style.display = shownCount < allLinks.length ? 'block' : 'none';
+}
+
+function loadMore() {
+  shownCount += PAGE_SIZE;
+  renderLinks();
+}
+
+// ── GUESTBOOK ──────────────────────────────────────────────
+function gbLogin() {
+  const pw = document.getElementById('gb-pw').value;
+  if (pw === GB_PASSWORD) {
+    gbUnlocked = true;
+    sessionStorage.setItem('gb_unlocked','1');
+    showGbState();
   } else {
-    pg.style.display = 'none';
+    document.getElementById('gb-pw-err').style.display = 'block';
+    document.getElementById('gb-pw').value = '';
+  }
+}
+
+function gbLogout() {
+  gbUnlocked = false;
+  sessionStorage.removeItem('gb_unlocked');
+  showGbState();
+}
+
+function showGbState() {
+  document.getElementById('gb-locked').style.display = gbUnlocked ? 'none' : 'block';
+  document.getElementById('gb-form').style.display   = gbUnlocked ? 'block' : 'none';
+  const entries = document.getElementById('gb-entries');
+  entries.classList.toggle('unlocked', gbUnlocked);
+}
+
+async function loadGuestbook() {
+  const loading = document.getElementById('gb-loading');
+  try {
+    const rows = await sbGet('fg_guestbook?select=id,text,url,created_at&order=created_at.desc&limit=50');
+    renderGuestbook(rows);
+  } catch(e) {
+    if (loading) loading.textContent = 'Could not load entries.';
+  }
+}
+
+function renderGuestbook(rows) {
+  const container = document.getElementById('gb-entries');
+  const loading = document.getElementById('gb-loading');
+  if (loading) loading.remove();
+
+  const existing = container.querySelectorAll('.gb-entry');
+  existing.forEach(e => e.remove());
+
+  if (!rows.length) {
+    container.insertAdjacentHTML('beforeend','<div class="links-empty" style="font-size:.55rem">No entries yet.</div>');
+    return;
   }
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function changePage(dir) {
-  page += dir;
-  render();
-}
-
-// ── Helpers ───────────────────────────────────────────────────
-function setState(msg, isError = false) {
-  const el = document.getElementById('state');
-  el.textContent = msg;
-  el.className = 'state' + (isError ? ' error' : '');
-  document.getElementById('feed').innerHTML = '';
-  document.getElementById('pagination').style.display = 'none';
-}
-
-function formatDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-}
-
-function copyUrl(url, btn) {
-  navigator.clipboard?.writeText(url).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = '✓';
-    btn.style.color = 'var(--accent)';
-    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1400);
+  rows.forEach(row => {
+    const date = new Date(row.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const linkHtml = row.url
+      ? `<a class="gb-entry-link" href="${escHtml(row.url)}" target="_blank" rel="noopener nofollow">${escHtml(row.url)}</a>`
+      : '';
+    const el = document.createElement('div');
+    el.className = 'gb-entry';
+    el.dataset.id = row.id;
+    el.innerHTML = `
+      <div class="gb-entry-text">${escHtml(row.text)}</div>
+      ${linkHtml}
+      <div class="gb-entry-meta">
+        <span>${date}</span>
+        <button class="gb-delete-btn" onclick="gbDelete('${row.id}', this.closest('.gb-entry'))">Delete</button>
+      </div>`;
+    container.appendChild(el);
   });
 }
 
-// ── Init ──────────────────────────────────────────────────────
-load();
+async function gbSubmit() {
+  const text = document.getElementById('gb-text').value.trim();
+  const url  = document.getElementById('gb-url').value.trim();
+  if (!text) return;
+  const btn = document.querySelector('.gb-submit-btn');
+  btn.textContent = 'Posting…'; btn.disabled = true;
+  try {
+    const r = await sbPost('fg_guestbook', { text, url: url || null });
+    if (r.ok) {
+      document.getElementById('gb-text').value = '';
+      document.getElementById('gb-url').value  = '';
+      await loadGuestbook();
+    }
+  } finally {
+    btn.textContent = 'Post Entry'; btn.disabled = false;
+  }
+}
 
-// Auto-refresh every 60s
-setInterval(load, 60000);
+async function gbDelete(id, el) {
+  if (!gbUnlocked) return;
+  await sbDelete('fg_guestbook', `id=eq.${id}`);
+  el.remove();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INIT ────────────────────────────────────────────────────
+showGbState();
+loadLinks();
+loadGuestbook();
+
+// Auto-refresh links every 90s
+setInterval(loadLinks, 90000);
 </script>
 </body>
 </html>
