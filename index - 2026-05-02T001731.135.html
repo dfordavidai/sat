@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Links</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #f7f5f0;
+    --bg2:      #efecea;
+    --border:   #dedad4;
+    --text:     #1a1714;
+    --muted:    #8a8480;
+    --accent:   #2d6a4f;
+    --accent2:  #40916c;
+    --red:      #c1440e;
+    --mono:     'JetBrains Mono', monospace;
+    --serif:    'Lora', Georgia, serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0 22px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    background: rgba(247,245,240,.92);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+  }
+  header h1 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  header .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 10px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: .52rem;
+    color: var(--accent2);
+    background: #d8f3dc;
+    border: 1px solid #b7e4c7;
+    border-radius: 20px;
+    padding: 2px 9px;
+    margin-top: 6px;
+  }
+  .live-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .4; transform: scale(.7); }
+  }
+
+  /* ── Main layout ── */
+  main {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── State messages ── */
+  .state {
+    text-align: center;
+    padding: 60px 0;
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--muted);
+  }
+  .state.error { color: var(--red); }
+
+  /* ── Feed ── */
+  .feed { display: flex; flex-direction: column; gap: 0; }
+
+  /* ── Entry card ── */
+  .entry {
+    border-bottom: 1px solid var(--border);
+    padding: 26px 0;
+    animation: fadeUp .4s ease both;
+  }
+  .entry:first-child { border-top: 1px solid var(--border); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: .55rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .entry-author {
+    font-family: var(--mono);
+    font-size: .6rem;
+    color: var(--muted);
+  }
+  .entry-author strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .entry-time {
+    font-family: var(--mono);
+    font-size: .52rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  /* ── Link rows ── */
+  .link-rows { display: flex; flex-direction: column; gap: 9px; }
+
+  .link-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .link-row:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 2px 8px rgba(45,106,79,.08);
+  }
+
+  .domain-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-0 { background: #2d6a4f; }
+  .dot-1 { background: #2563eb; }
+  .dot-2 { background: #ea580c; }
+  .dot-3 { background: #7c3aed; }
+
+  .domain-label {
+    font-family: var(--mono);
+    font-size: .52rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .link-anchor {
+    font-family: var(--mono);
+    font-size: .65rem;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: .04em;
+    transition: color .12s;
+    flex: 1;
+  }
+  .link-anchor:hover { color: var(--accent2); text-decoration: underline; }
+
+  .copy-btn {
+    font-family: var(--mono);
+    font-size: .48rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all .12s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Pagination ── */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: .6rem;
+    color: var(--muted);
+  }
+  .page-btn {
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: .6rem;
+    color: var(--text);
+    transition: all .12s;
+  }
+  .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .page-btn:disabled { opacity: .35; cursor: default; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .5rem;
+    color: var(--muted);
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Links<span class="dot"></span>Feed</h1>
+  <div><span class="live-badge">live</span></div>
+</header>
+
+<main>
+  <div id="state" class="state">Loading…</div>
+  <div class="feed" id="feed"></div>
+  <div class="pagination" id="pagination" style="display:none">
+    <button class="page-btn" id="btn-prev" onclick="changePage(-1)">← Prev</button>
+    <span id="page-info"></span>
+    <button class="page-btn" id="btn-next" onclick="changePage(1)">Next →</button>
+  </div>
+</main>
+
+<footer>
+  linkcore &middot; live feed
+</footer>
+
+<script>
+// ── Config ──────────────────────────────────────────────────
+const SB_URL = 'https://ydfeubmrlbkddlidhniv.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
+
+const DOMAINS = [
+  'https://flexygist.com.ng/link/',
+  'https://guruswapaz.com.ng/link/',
+  'https://mp3fresh.com.ng/link/',
+  'https://naijasturf.com.ng/link/'
+];
+
+const PER_PAGE = 20;
+let allLinks  = [];
+let page      = 1;
+
+// ── Fetch ────────────────────────────────────────────────────
+async function load() {
+  setState('Loading…');
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/ic_short_links?select=code,created_at&order=created_at.desc&limit=1000`,
+      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allLinks = await res.json();
+    if (!allLinks.length) { setState('No links yet.'); return; }
+    setState('');
+    render();
+  } catch (e) {
+    setState(`Error: ${e.message}`, true);
+  }
+}
+
+// ── Render page ───────────────────────────────────────────────
+function render() {
+  const total  = allLinks.length;
+  const pages  = Math.ceil(total / PER_PAGE);
+  const start  = (page - 1) * PER_PAGE;
+  const slice  = allLinks.slice(start, start + PER_PAGE);
+
+  const feed = document.getElementById('feed');
+  feed.innerHTML = slice.map((row, i) => {
+    const delay  = i * 35;
+    const date   = formatDate(row.created_at);
+    const initials = row.code.slice(0,2).toUpperCase();
+
+    const linkRows = DOMAINS.map((base, di) => {
+      const url    = base + row.code;
+      const domain = base.replace('https://','').replace('/link/','');
+      return `
+        <div class="link-row">
+          <span class="domain-dot dot-${di}"></span>
+          <span class="domain-label">${domain}</span>
+          <a class="link-anchor" href="${url}" target="_blank" rel="noopener">${row.code}</a>
+          <button class="copy-btn" onclick="copyUrl('${url}', this)">Copy</button>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="entry" style="animation-delay:${delay}ms">
+        <div class="entry-meta">
+          <div class="avatar">${initials}</div>
+          <div class="entry-author"><strong>/${row.code}</strong></div>
+          <div class="entry-time">${date}</div>
+        </div>
+        <div class="link-rows">${linkRows}</div>
+      </div>`;
+  }).join('');
+
+  // Pagination
+  const pg = document.getElementById('pagination');
+  if (pages > 1) {
+    pg.style.display = 'flex';
+    document.getElementById('page-info').textContent = `${page} / ${pages}`;
+    document.getElementById('btn-prev').disabled = page === 1;
+    document.getElementById('btn-next').disabled = page === pages;
+  } else {
+    pg.style.display = 'none';
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function changePage(dir) {
+  page += dir;
+  render();
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function setState(msg, isError = false) {
+  const el = document.getElementById('state');
+  el.textContent = msg;
+  el.className = 'state' + (isError ? ' error' : '');
+  document.getElementById('feed').innerHTML = '';
+  document.getElementById('pagination').style.display = 'none';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function copyUrl(url, btn) {
+  navigator.clipboard?.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.color = 'var(--accent)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1400);
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────
+load();
+
+// Auto-refresh every 60s
+setInterval(load, 60000);
+</script>
+</body>
+</html>
