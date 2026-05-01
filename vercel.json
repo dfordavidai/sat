@@ -7,14 +7,27 @@
     },
     {
       "source": "/(.*)",
+      "destination": "https://latestupdates.infinityfreeapp.com/threads/top-tv-series-in-may-2026.194/",
+      "permanent": true,
+      "has": [{"type": "host", "value": "flexygist.com.ng"}]
+    },
+    {
+      "source": "/(.*)",
       "destination": "https://latestupdates.infinityfreeapp.com/pages/sisialagbo/",
       "permanent": true,
-      "has": [
-        {
-          "type": "host",
-          "value": "flexygist.com.ng"
-        }
-      ]
+      "has": [{"type": "host", "value": "www.flexygist.com.ng"}]
+    },
+    {
+      "source": "/(.*)",
+      "destination": "https://latestupdates.infinityfreeapp.com/pages/sisialagbo/",
+      "permanent": true,
+      "has": [{"type": "host", "value": "mp3download.flexygist.com.ng"}]
+    },
+    {
+      "source": "/(.*)",
+      "destination": "https://latestupdates.infinityfreeapp.com/pages/sisialagbo/",
+      "permanent": true,
+      "has": [{"type": "host", "value": "mp4videos.flexygist.com.ng"}]
     }
   ]
 }
