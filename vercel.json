@@ -1,10 +1,10 @@
 {
   "routes": [
-    { "src": "/sitemap.xml",         "dest": "/api/sitemap",            "has": [{ "type": "host", "value": "flexygist.com.ng" }] },
-    { "src": "/feed.xml",            "dest": "/api/feed",               "has": [{ "type": "host", "value": "flexygist.com.ng" }] },
-    { "src": "/link-hub",            "dest": "/api/link-hub",           "has": [{ "type": "host", "value": "flexygist.com.ng" }] },
-    { "src": "/crawl-hub",           "dest": "/api/link-hub",           "has": [{ "type": "host", "value": "flexygist.com.ng" }] },
-    { "src": "/link/(?<code>[^/]+)", "dest": "/api/redirect?code=$code","has": [{ "type": "host", "value": "flexygist.com.ng" }] },
+    { "src": "/sitemap.xml",         "dest": "/api/sitemap"             },
+    { "src": "/feed.xml",            "dest": "/api/feed"                },
+    { "src": "/link-hub",            "dest": "/api/link-hub"            },
+    { "src": "/crawl-hub",           "dest": "/api/link-hub"            },
+    { "src": "/link/(?<code>[^/]+)", "dest": "/api/redirect?code=$code" },
 
     { "src": "/(.*)", "headers": { "Location": "https://flexygist.com.ng/$1" }, "status": 301, "has": [{ "type": "host", "value": "www.flexygist.com.ng" }] },
     { "src": "/(.*)", "headers": { "Location": "https://flexygist.com.ng/$1" }, "status": 301, "has": [{ "type": "host", "value": "www.mp3fresh.com.ng" }] },
@@ -19,12 +19,7 @@
     { "src": "/(.*)", "headers": { "Location": "https://flexygist.com.ng/$1" }, "status": 301, "has": [{ "type": "host", "value": "mp4videos.flexygist.com.ng" }] },
     { "src": "/(.*)", "headers": { "Location": "https://flexygist.com.ng/$1" }, "status": 301, "has": [{ "type": "host", "value": "mp3download.flexygist.com.ng" }] },
 
-    { "src": "/sitemap.xml",         "dest": "/api/sitemap"             },
-    { "src": "/feed.xml",            "dest": "/api/feed"                },
-    { "src": "/link-hub",            "dest": "/api/link-hub"            },
-    { "src": "/crawl-hub",           "dest": "/api/link-hub"            },
-    { "src": "/link/(?<code>[^/]+)", "dest": "/api/redirect?code=$code" },
-    { "src": "/(.*)",                "dest": "/index.html", "status": 404 }
+    { "src": "/(.*)", "dest": "/index.html", "status": 404 }
   ],
   "headers": [
     {
