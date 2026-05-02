@@ -1,10 +1,37 @@
 {
+  "redirects": [
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "www.flexygist.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "www.mp3fresh.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "mp3fresh.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "www.naijasturf.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "naijasturf.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "waecgceexpo.guruswapaz.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "jambexporuns.guruswapaz.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "www.guruswapaz.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "guruswapaz.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "jamb.guruswapaz.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "mp4videos.flexygist.com.ng" }] },
+    { "source": "/(.*)", "destination": "https://flexygist.com.ng/$1", "permanent": true,
+      "has": [{ "type": "host", "value": "mp3download.flexygist.com.ng" }] }
+  ],
   "routes": [
-    { "src": "/sitemap.xml",             "dest": "/api/sitemap"              },
-    { "src": "/feed.xml",                "dest": "/api/feed"                 },
-    { "src": "/link-hub",                "dest": "/api/link-hub"             },
-    { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
-    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  }
+    { "src": "/sitemap.xml",         "dest": "/api/sitemap"             },
+    { "src": "/feed.xml",            "dest": "/api/feed"                },
+    { "src": "/link-hub",            "dest": "/api/link-hub"            },
+    { "src": "/crawl-hub",           "dest": "/api/link-hub"            },
+    { "src": "/link/(?<code>[^/]+)", "dest": "/api/redirect?code=$code" },
+    { "src": "/(.*)",                "dest": "/index.html", "status": 404 }
   ],
   "headers": [
     {
