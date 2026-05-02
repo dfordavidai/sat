@@ -1,28 +1,8 @@
 {
-  "redirects": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "https://www.osof.org/sisi-alagbo/posts/download-sisi-alagbo-video-leaks-sextape-threesome-with-husband-and-other-woman-full-sextape-leaked-videos-of-sisi-alagbo-eniola-private",
-      "permanent": true,
-      "has": [{ "type": "host", "value": "flexygist.com.ng" }]
-    },
-    {
-      "source": "/(.*)",
-      "destination": "https://www.osof.org/sisi-alagbo/posts/watch-sisi-alagbo-leaked-video-sextape-threesome-full-videos-on-twitter",
-      "permanent": true,
-      "has": [{ "type": "host", "value": "www.guruswapaz.com.ng" }]
-    },
-    {
-      "source": "/(.*)",
-      "destination": "https://www.osof.org/sisi-alagbo/posts/watch-sisi-alagbo-leaked-video-sextape-threesome-full-videos-on-twitter",
-      "permanent": true,
-      "has": [{ "type": "host", "value": "mp3fresh.com.ng" }]
-    },
-    {
-      "source": "/(.*)",
-      "destination": "https://www.osof.org/sisi-alagbo-full-video/posts/heres-sisi-alagbo-eniola-threesome-s3xtape-leaked-video-leaks",
-      "permanent": true,
-      "has": [{ "type": "host", "value": "naijasturf.com.ng" }]
+      "src": "/link/(?<code>[^/]+)",
+      "dest": "/api/redirect?code=$code"
     }
   ]
 }
