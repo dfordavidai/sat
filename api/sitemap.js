@@ -1,11 +1,12 @@
 /**
  * LinkCore — sitemap.xml Edge Function
  * Serves the per-domain sitemap XML stored in Supabase lc_sitemaps.
+ * lastmod is spoofed to now on every serve — signals freshness to Googlebot.
  *
  * Deploy to ALL 4 domain repos (same file).
  * Route: /sitemap.xml → /api/sitemap
  *
- * Required env vars (same as redirect.js):
+ * Required env vars:
  *   SUPABASE_URL
  *   SUPABASE_KEY
  */
@@ -20,7 +21,6 @@ export default async function handler(request) {
     return new Response('Server misconfigured', { status: 500 });
   }
 
-  // Derive this domain's hostname from the incoming request
   const host = new URL(request.url).hostname;
 
   try {
@@ -32,31 +32,49 @@ export default async function handler(request) {
     if (!res.ok) throw new Error(`Supabase ${res.status}`);
 
     const rows = await res.json();
+    const now  = new Date();
 
     if (!rows || !rows.length || !rows[0].xml) {
-      // No sitemap built yet — return a minimal valid one
       const fallback = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </urlset>`;
       return new Response(fallback, {
         status: 200,
         headers: {
-          'Content-Type': 'application/xml; charset=utf-8',
-          'Cache-Control': 'public, max-age=3600',
+          'Content-Type':    'application/xml; charset=utf-8',
+          'Cache-Control':   'public, max-age=3600',
           'X-Sitemap-Status': 'empty',
         },
       });
     }
 
-    const { xml, url_count, updated_at } = rows[0];
+    const { xml: rawXml, url_count, updated_at } = rows[0];
+
+    // ── Lastmod Freshness Spoofing ──────────────────────────────────────────
+    // Replace every <lastmod> value in the stored XML with today's date.
+    // Google treats a changed lastmod as a freshness signal and recrawls faster.
+    const today  = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const xml    = rawXml.replace(/<lastmod>[^<]*<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+
+    // ETag based on url_count + today — changes daily, forcing Googlebot recheck
+    const etag = `"lc-sm-${url_count || 0}-${today}"`;
+
+    // ── Conditional GET support (304 Not Modified) ──────────────────────────
+    // When Googlebot revisits and sends If-None-Match, honour it.
+    // This builds trust — Googlebot crawls pages with reliable cache signals more often.
+    const ifNoneMatch = request.headers.get('if-none-match');
+    if (ifNoneMatch === etag) {
+      return new Response(null, { status: 304 });
+    }
 
     return new Response(xml, {
       status: 200,
       headers: {
-        'Content-Type':   'application/xml; charset=utf-8',
-        'Cache-Control':  'public, max-age=3600',
-        'Last-Modified':  new Date(updated_at).toUTCString(),
-        'X-Sitemap-URLs': String(url_count || 0),
+        'Content-Type':    'application/xml; charset=utf-8',
+        'Cache-Control':   'public, max-age=3600, stale-while-revalidate=300',
+        'Last-Modified':   now.toUTCString(),
+        'ETag':            etag,
+        'X-Sitemap-URLs':  String(url_count || 0),
       },
     });
 
