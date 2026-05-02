@@ -1,8 +1,7 @@
 {
   "routes": [
-    {
-      "src": "/link/(?<code>[^/]+)",
-      "dest": "/api/redirect?code=$code"
-    }
+    { "src": "/sitemap.xml",              "dest": "/api/sitemap" },
+    { "src": "/feed.xml",                 "dest": "/api/feed"    },
+    { "src": "/link/(?<code>[^/]+)",      "dest": "/api/redirect?code=$code" }
   ]
 }
