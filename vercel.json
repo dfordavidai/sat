@@ -1,7 +1,16 @@
 {
   "routes": [
-    { "src": "/sitemap.xml",              "dest": "/api/sitemap" },
-    { "src": "/feed.xml",                 "dest": "/api/feed"    },
-    { "src": "/link/(?<code>[^/]+)",      "dest": "/api/redirect?code=$code" }
+    { "src": "/sitemap.xml",             "dest": "/api/sitemap"              },
+    { "src": "/feed.xml",                "dest": "/api/feed"                 },
+    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  }
+  ],
+  "headers": [
+    {
+      "source": "/link/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag",  "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store"          }
+      ]
+    }
   ]
 }
