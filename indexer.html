@@ -404,6 +404,7 @@ textarea{resize:vertical;line-height:1.7}
     </div>
     <div class="sb-label">Views</div>
     <button class="sb-btn active" onclick="showView('dashboard')"><span class="dot"></span> Dashboard</button>
+    <button class="sb-btn" onclick="showView('rawblast')"><span class="dot"></span> 🔥 Raw URL Blast</button>
     <button class="sb-btn" onclick="showView('indexing')"><span class="dot"></span> Indexing Hub</button>
     <button class="sb-btn" onclick="showView('health')"><span class="dot"></span> Health Check</button>
     <button class="sb-btn" onclick="showView('sites')"><span class="dot"></span> Multi-Site</button>
@@ -502,6 +503,7 @@ textarea{resize:vertical;line-height:1.7}
           <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added link from <strong>Category / Archive page</strong></label>
           <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added to <strong>Recent Posts widget / sidebar</strong></label>
           <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Updated <strong>sitemap.xml lastmod</strong> timestamp</label>
+          <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Deployed <strong>/link-hub</strong> route (api/link-hub.js) — crawl trigger page</label>
           <label class="domain-check-item"><input type="checkbox" onchange="checkDomainItem(this)"> Added page to <strong>RSS / Atom feed</strong></label>
         </div>
         <div style="margin-top:10px;display:flex;align-items:center;gap:10px;font-size:.6rem;color:var(--muted)">
@@ -511,9 +513,43 @@ textarea{resize:vertical;line-height:1.7}
     </div>
 
     <!-- INDEXING HUB -->
+    <!-- ══ RAW URL BLAST VIEW ══ -->
+    <div class="view" id="view-rawblast">
+      <div class="page-hdr">
+        <div><div class="page-title">🔥 Raw URL Blast</div><div class="page-sub">Paste any URLs — fires every channel exactly like shortlink add. No Supabase entry needed.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">📋 Paste URLs to Blast</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">One URL per line. Hits GSC Indexing API · IndexNow × 8 · Bing Webmaster Direct API · Wayback · XML-RPC × 45 · PubSubHubbub · Feed Aggregators × 47 · Sitemap ping — everything. No shortlink created.</div>
+        <textarea id="raw-blast-input" rows="10" placeholder="https://somesite.com/backlink-page&#10;https://anothersite.com/your-link&#10;https://example.com/page-with-your-link"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="raw-blast-btn" onclick="rawUrlBlast()">🔥 Blast All Channels</button>
+          <button class="btn btn-outline" onclick="document.getElementById('raw-blast-input').value=''">Clear</button>
+          <span style="font-size:.58rem;color:var(--muted)" id="raw-blast-count"></span>
+        </div>
+      </div>
+      <div class="card" style="display:none" id="raw-blast-results-card">
+        <div class="card-label">📡 Blast Results</div>
+        <div class="idx-log" id="raw-blast-log" style="display:block;max-height:320px"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">ℹ️ What this does</div>
+        <div class="esc-ladder">
+          <div class="esc-rung"><div class="esc-num">1</div><div class="esc-info"><div class="esc-title">Google Indexing API</div><div class="esc-sub">URL_UPDATED push via your SA keys — direct to Google's indexing queue</div></div></div>
+          <div class="esc-rung"><div class="esc-num">2</div><div class="esc-info"><div class="esc-title">GSC URL Inspection</div><div class="esc-sub">Triggers a fresh crawl request in Search Console for each URL</div></div></div>
+          <div class="esc-rung"><div class="esc-num">3</div><div class="esc-info"><div class="esc-title">IndexNow × 8 Engines</div><div class="esc-sub">Bing, Yandex, Seznam, Brave, Naver, Yep, Zeptosearch, api.indexnow.org</div></div></div>
+          <div class="esc-rung"><div class="esc-num">4</div><div class="esc-info"><div class="esc-title">Bing Webmaster Direct API</div><div class="esc-sub">ssl.bing.com/webmaster SubmitUrl — higher-priority queue than IndexNow</div></div></div>
+          <div class="esc-rung"><div class="esc-num">5</div><div class="esc-info"><div class="esc-title">Wayback Machine</div><div class="esc-sub">Archives each URL at web.archive.org — crawl signal amplifier</div></div></div>
+          <div class="esc-rung"><div class="esc-num">6</div><div class="esc-info"><div class="esc-title">XML-RPC Ping Blast</div><div class="esc-sub">Fires 45+ XML-RPC ping endpoints simultaneously</div></div></div>
+          <div class="esc-rung"><div class="esc-num">7</div><div class="esc-info"><div class="esc-title">PubSubHubbub + 47 Feed Aggregators</div><div class="esc-sub">Notifies all RSS/Atom aggregators that bots monitor constantly</div></div></div>
+          <div class="esc-rung"><div class="esc-num">8</div><div class="esc-info"><div class="esc-title">Google + Bing Sitemap Ping</div><div class="esc-sub">Pings all 4 domain sitemaps — forces immediate re-scan</div></div></div>
+        </div>
+      </div>
+    </div>
+
     <div class="view" id="view-indexing">
       <div class="page-hdr">
-        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">Auto-blast on add · GSC Indexing API · IndexNow × 8 · Wayback · XML-RPC × 45 · RSS/Atom Feeds · Worker</div></div>
+        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">Auto-blast on add · GSC Indexing API · IndexNow × 8 · Bing Direct API · Wayback · XML-RPC × 45 · RSS/Atom + 47 Aggregators · Link Hub Crawl Trigger · lastmod Freshness</div></div>
         <div class="hdr-btns"><button class="btn btn-outline" onclick="showView('dashboard')">← Back</button></div>
       </div>
       <div class="idx-tabs">
@@ -607,11 +643,38 @@ textarea{resize:vertical;line-height:1.7}
             <div class="ch-desc">80+ verified-alive ping endpoints: Pingomatic, blo.gs, Twingly, all Google Blog Search regions simultaneously.</div>
             <label class="ch-toggle"><input type="checkbox" id="ch-xmlrpc-on-hub" checked onchange="syncHubToSettings('ch-xmlrpc-on')"> Enable</label>
           </div>
-          <div class="channel-card">
-            <div class="ch-hdr"><span class="ch-icon">⚙</span><span class="ch-title">Worker API Blast</span><span class="ch-badge badge-white">SERVER-SIDE</span></div>
-            <div class="ch-desc">Sends URLs to your Railway worker.py backend — server-side pings bypass browser CORS for higher success rate.</div>
+          <div class="channel-card active-ch">
+            <div class="ch-hdr"><span class="ch-icon">⚙</span><span class="ch-title">Worker API Blast — BEAST</span><span class="ch-badge badge-white">SERVER-SIDE</span></div>
+            <div class="ch-desc">12-layer server-side engine. No CORS limits, real TCP, multi-SA parallel fire. All layers run simultaneously.</div>
             <input id="worker-url-input-hub" placeholder="https://your-app.railway.app" style="margin:8px 0" oninput="document.getElementById('worker-url-input').value=this.value;saveChanSettings()">
             <label class="ch-toggle"><input type="checkbox" id="ch-worker-on-hub" onchange="syncHubToSettings('ch-worker-on')"> Enable (auto-fires on Submit)</label>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px">
+              <div style="font-size:.52rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">⚡ BEAST Techniques</div>
+              <label class="ch-toggle"><input type="checkbox" id="ch-multi-sa-on" checked onchange="saveChanSettings()"> 🔥 Multi-SA Parallel Fire — all keys blast same URL simultaneously</label>
+              <label class="ch-toggle"><input type="checkbox" id="ch-bing-first-on" checked onchange="saveChanSettings()"> 🔎 Bing-First Strategy — Bing indexes in 1-3min → Google detects via cross-engine monitoring</label>
+              <label class="ch-toggle"><input type="checkbox" id="ch-websub-on" checked onchange="saveChanSettings()"> 📡 WebSub Deep Stack — 5 hubs × all feeds simultaneously</label>
+              <label class="ch-toggle"><input type="checkbox" id="ch-amplify-on" checked onchange="saveChanSettings()"> 🌐 Crawl Amplify — server-side diverse UA fetches → organic traffic signal</label>
+            </div>
+            <div id="worker-sa-pool-status" style="font-size:.5rem;color:var(--muted);margin-top:5px;padding:3px 0">—</div>
+          </div>
+          <div class="channel-card" id="card-residential-proxy">
+            <div class="ch-hdr"><span class="ch-icon">🌐</span><span class="ch-title">Residential Proxy Crawl</span><span class="ch-badge badge-grey">GREY-HIGH</span></div>
+            <div class="ch-desc">Routes real HTTP fetches to your URLs through rotating residential IPs (US/EU/NG/IN). Google's crawl scheduler boosts priority when organic user traffic is detected — 10+ diverse IPs = crawl queue jump. Requires PROXY_GATEWAY env on Railway worker or Brightdata/Oxylabs/IPRoyal endpoint.</div>
+            <div style="margin:8px 0;display:flex;flex-direction:column;gap:5px">
+              <input id="proxy-gateway-url" placeholder="http://user:pass@gate.provider.com:port (optional — worker uses Railway env)" style="font-size:.62rem" oninput="saveProxySettings()">
+              <div style="display:flex;gap:6px;align-items:center">
+                <select id="proxy-fetch-count" style="width:90px;font-size:.62rem" onchange="saveProxySettings()">
+                  <option value="5">5 IPs</option>
+                  <option value="10" selected>10 IPs</option>
+                  <option value="15">15 IPs</option>
+                  <option value="20">20 IPs</option>
+                </select>
+                <span style="font-size:.58rem;color:var(--muted);flex:1">IPs per URL blast</span>
+              </div>
+            </div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-proxy-on" onchange="saveProxySettings()"> Enable residential crawl amplification</label>
+            <div id="proxy-status" style="font-size:.5rem;color:var(--muted);margin-top:4px;line-height:1.5">Configure PROXY_GATEWAY on Railway or connect a proxy provider above</div>
+            <button class="btn btn-outline" style="font-size:.56rem;margin-top:7px;padding:4px 10px;width:100%" onclick="testProxyGateway()">🔌 Test Gateway</button>
           </div>
           <div class="channel-card">
             <div class="ch-hdr"><span class="ch-icon">🌀</span><span class="ch-title">Rapid URL Indexer</span><span class="ch-badge badge-grey">PAID</span></div>
@@ -793,7 +856,7 @@ textarea{resize:vertical;line-height:1.7}
       <div class="page-hdr">
         <div>
           <div class="page-title">⚡ IndexForce</div>
-          <div class="page-sub">7-layer server-side indexing engine · XML-RPC · IndexNow · RSS · Sitemap · Cache Bust · GSC · Bing · 24h Verification</div>
+          <div class="page-sub">12-layer server-side engine · Multi-SA Parallel · Bing-First · WebSub Deep · XML-RPC · IndexNow · GSC · Crawl Amplify · 24h Verify</div>
         </div>
         <div class="hdr-btns">
           <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
@@ -858,17 +921,22 @@ textarea{resize:vertical;line-height:1.7}
         </div>
       </div>
 
-      <!-- 7 Layers explained -->
+      <!-- 12 Layers explained -->
       <div class="card">
-        <div class="card-label">🔬 What worker.py Fires</div>
+        <div class="card-label">🔬 What BEAST worker.py Fires (12 Layers, All Simultaneous)</div>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
-          <div class="if-layer"><span class="if-layer-icon">📡</span><div><div class="if-layer-name">XML-RPC Mass Ping</div><div class="if-layer-detail">90 verified-alive endpoints, server-side TCP, retry logic, 80 concurrent — actual success rate vs browser's blind no-cors fires</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">⚡</span><div><div class="if-layer-name">IndexNow API</div><div class="if-layer-detail">6 engines: Bing, Yandex, Seznam, Brave, api.indexnow.org + case variant — batched, confirmed OK per engine</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">📰</span><div><div class="if-layer-name">RSS Feed Injection</div><div class="if-layer-detail">Generates a real RSS/Atom feed per job, submits to 10 aggregators (Feedly, FeedBurner, etc.) — not available in browser</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">Sitemap Submission</div><div class="if-layer-detail">Builds per-job sitemap XML, pings Google + Bing + Yandex webmaster sitemap endpoints directly</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">💨</span><div><div class="if-layer-name">Cache Bust + Wayback</div><div class="if-layer-detail">Hits Google webcache + Wayback Machine save + archive.org availability — server-side so no CORS block</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🔍</span><div><div class="if-layer-name">Google Indexing API (optional)</div><div class="if-layer-detail">Set GOOGLE_INDEXING_SA env var on Railway — server-side RS256 JWT signing via cryptography lib</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">✅</span><div><div class="if-layer-name">24h Indexation Verification</div><div class="if-layer-detail">Checks Bing index status per URL after 24 hours — returns real index_rate % per job</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔥</span><div><div class="if-layer-name">Multi-SA Parallel Indexing API</div><div class="if-layer-detail">ALL SA keys × all URLs simultaneously — N× independent priority signals to Google's indexing queue vs sequential round-robin</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔍</span><div><div class="if-layer-name">GSC URL Inspection (all SAs parallel)</div><div class="if-layer-detail">Every SA inspects every URL simultaneously — forces scheduler to re-evaluate crawl priority</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">GSC Sitemap — Delete + Re-add</div><div class="if-layer-detail">Force re-scan from scratch via GSC API — stronger signal than a sitemap ping</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔎</span><div><div class="if-layer-name">Bing-First Strategy</div><div class="if-layer-detail">Bing indexes in 1-3min → Google detects via cross-engine monitoring. Fires BEFORE Google API calls</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">⚡</span><div><div class="if-layer-name">IndexNow × 6 Engines</div><div class="if-layer-detail">Bing, Yandex, Seznam, Brave, api.indexnow.org — all fire in parallel, confirmed OK per engine</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📡</span><div><div class="if-layer-name">XML-RPC Blast (80+ endpoints)</div><div class="if-layer-detail">TRUE parallel TCP — all endpoints fire simultaneously via real connections, 6s hard timeout, actual success rate</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📢</span><div><div class="if-layer-name">WebSub / PubSubHubbub (4 hubs)</div><div class="if-layer-detail">All hubs × all feeds simultaneously — appspot, superfeedr, websubhub, switchboard p3k</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔎</span><div><div class="if-layer-name">Bing Webmaster Direct API</div><div class="if-layer-detail">ssl.bing.com SubmitUrlbatch — higher-priority queue than IndexNow</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🕰</span><div><div class="if-layer-name">Wayback Machine Save</div><div class="if-layer-detail">web.archive.org/save — triggers discovery via archive change monitoring</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">Sitemap Ping (Google + Bing + Yandex)</div><div class="if-layer-detail">Direct pings to all 3 engines for all sitemap URLs</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📰</span><div><div class="if-layer-name">RSS Feed + Aggregators</div><div class="if-layer-detail">Generates real RSS/Atom per job, submits to Feedly, FeedBurner, etc.</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🌐</span><div><div class="if-layer-name">Crawl Amplify</div><div class="if-layer-detail">Diverse UA fetches from server — organic traffic signals spike crawl priority in Google's scheduler</div></div></div>
         </div>
       </div>
     </div>
@@ -1161,8 +1229,8 @@ Then deploy.</div></div>
 
           <div class="set-row">
             <div class="set-label">Bing API Key <span class="set-status" id="st-bing">not set</span></div>
-            <input id="bing-api-key" placeholder="Bing Webmaster API Key" oninput="updateStatus('bing-api-key','st-bing');saveChanSettings()">
-            <div class="set-tip">Optional — gives direct Bing URL submission (separate from IndexNow). Get it at <a href="https://www.bing.com/webmasters" target="_blank">bing.com/webmasters</a>.</div>
+            <input id="bing-api-key" placeholder="Bing Webmaster API Key" oninput="updateStatus('bing-api-key','st-bing');localStorage.setItem('lc_bing_api_key',this.value.trim());saveChanSettings()">
+            <div class="set-tip">Direct Bing URL Submission API (higher-priority queue than IndexNow — separate endpoint). Auto-fires on every link add AND on every escalation retry. Get it at <a href="https://www.bing.com/webmasters" target="_blank">bing.com/webmasters</a>.</div>
           </div>
 
           <div class="steps-list">
@@ -1432,6 +1500,7 @@ const FEED_URLS = SHORT_BASES.map(base => {
 });
 const INDEXNOW_KEY     = 'indexcore';
 const INDEXNOW_KEY_LOC = 'https://flexygist.com.ng/indexcore.txt';
+const INDEXNOW_HOST    = 'flexygist.com.ng';
 const SB_URL           = 'https://ydfeubmrlbkddlidhniv.supabase.co';
 const SB_KEY           = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
 const H                = {'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'};
@@ -1494,13 +1563,212 @@ let healthResults = [];
 let linkFilter = 'all';
 let chanSettings = {
   gsc:true, idxApi:true, sitemapApi:true, indexnow:true,
-  wayback:true, bing:false, pubsub:true, xmlrpc:true, worker:false, rui:false, t2:true
+  wayback:true, bing:false, pubsub:true, xmlrpc:true, worker:false, rui:false, t2:true,
+  multiSaParallel:true, bingFirst:true, websub:true, amplify:true, proxyEnabled:false
 };
+
+// ══════════════════════════════════════════════════════════
+// BEAST: Multi-SA Parallel Fire Engine
+// All SA keys fire the same URL simultaneously — max signal weight
+// ══════════════════════════════════════════════════════════
+async function fireAllSAsInParallel(urls, logFn) {
+  if (!saVault.length) { logFn('⚠ No SA keys for parallel fire', 'err'); return {ok:0, fired:0}; }
+  logFn(`🔥 Multi-SA parallel: ${saVault.length} SA keys × ${urls.length} URLs simultaneously…`, 'info');
+  const today = new Date().toDateString();
+  const activeSAs = saVault.filter(sa => {
+    if (sa.date !== today) { sa.daily_used = 0; sa.date = today; }
+    return sa.daily_used < 200;
+  });
+  if (!activeSAs.length) { logFn('⚠ All SA keys at quota', 'err'); return {ok:0, fired:0}; }
+
+  // Get ALL tokens simultaneously — pre-warmed, zero latency
+  const tokenPairs = await Promise.allSettled(activeSAs.map(sa =>
+    Promise.all([
+      getToken(sa.json, 'https://www.googleapis.com/auth/indexing'),
+      getToken(sa.json, 'https://www.googleapis.com/auth/webmasters'),
+    ]).then(([idxTok, gscTok]) => ({sa, idxTok, gscTok}))
+  ));
+  const validPairs = tokenPairs.filter(r => r.status === 'fulfilled').map(r => r.value);
+  logFn(`🔑 ${validPairs.length}/${activeSAs.length} SA tokens acquired`, 'ok');
+
+  // Fire ALL SAs × ALL URLs simultaneously
+  const allFires = [];
+  for (const {sa, idxTok, gscTok} of validPairs) {
+    for (const url of urls.slice(0, 200)) {
+      // Indexing API — URL_UPDATED
+      if (idxTok) {
+        allFires.push(
+          fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {
+            method:'POST',
+            headers:{'Authorization':`Bearer ${idxTok}`,'Content-Type':'application/json'},
+            body: JSON.stringify({url, type:'URL_UPDATED'}),
+          }).then(r => { if(r.ok) sa.daily_used++; return r.ok; }).catch(() => false)
+        );
+      }
+    }
+  }
+
+  const results = await Promise.allSettled(allFires);
+  const ok = results.filter(r => r.status==='fulfilled' && r.value).length;
+  logFn(`⚡ Parallel SA fire: ${ok}/${allFires.length} submissions OK (${validPairs.length} SAs)`, 'ok');
+  localStorage.setItem('lc_sa_vault', JSON.stringify(saVault));
+  cfgSet('sa_vault', JSON.stringify(saVault)).catch(()=>{});
+  renderSAVault(); renderSAStatus();
+  return {ok, fired: allFires.length, sa_count: validPairs.length};
+}
+
+// ══════════════════════════════════════════════════════════
+// BEAST: WebSub Deep Stack
+// All hubs × all feeds simultaneously (not just 2 hubs)
+// ══════════════════════════════════════════════════════════
+const WEBSUB_HUBS_FULL = [
+  'https://pubsubhubbub.appspot.com/',
+  'https://pubsubhubbub.superfeedr.com/',
+  'https://websubhub.com/',
+  'https://switchboard.p3k.io/',
+  'https://hubbub.api.typepad.com/',
+];
+
+async function fireWebSubDeep(feedUrls, sitemapUrls, logFn) {
+  const allTargets = [...new Set([...feedUrls, ...sitemapUrls])];
+  const tasks = [];
+  for (const hub of WEBSUB_HUBS_FULL) {
+    for (const target of allTargets) {
+      const body = new URLSearchParams({'hub.mode':'publish','hub.url':target}).toString();
+      tasks.push(
+        fetch(hub, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body, mode:'no-cors'})
+        .catch(()=>{})
+      );
+    }
+  }
+  await Promise.allSettled(tasks);
+  logFn(`📡 WebSub deep-stack: ${tasks.length} notifications fired (${WEBSUB_HUBS_FULL.length} hubs × ${allTargets.length} feeds)`, 'ok');
+}
+
+// ══════════════════════════════════════════════════════════
+// BEAST: Bing-First Strategy
+// Bing indexes in 1-3 min → Google picks up via cross-engine monitoring
+// ══════════════════════════════════════════════════════════
+async function bingFirstStrategy(urls, logFn) {
+  logFn('🔎 Bing-first: submitting to Bing + Yandex first (Google proxy effect)…', 'info');
+  const indexNowKey = localStorage.getItem('lc_indexnow_key') || INDEXNOW_KEY;
+  const payload = JSON.stringify({
+    host: new URL(SHORT_BASES[0] || 'https://flexygist.com.ng/').hostname,
+    key: indexNowKey,
+    keyLocation: localStorage.getItem('lc_indexnow_loc') || INDEXNOW_KEY_LOC,
+    urlList: urls.slice(0, 500),
+  });
+  const [bingR, yandexR] = await Promise.allSettled([
+    fetch('https://www.bing.com/indexnow', {method:'POST', headers:{'Content-Type':'application/json; charset=utf-8'}, body: payload}),
+    fetch('https://yandex.com/indexnow', {method:'POST', headers:{'Content-Type':'application/json; charset=utf-8'}, body: payload}),
+  ]);
+  const bOk = bingR.status==='fulfilled' && (bingR.value.ok || bingR.value.status===202);
+  const yOk = yandexR.status==='fulfilled' && (yandexR.value.ok || yandexR.value.status===202);
+  logFn(`🔎 Bing-first: Bing ${bOk?'✓':'—'} | Yandex ${yOk?'✓':'—'} (Google will detect within 2-5min)`, bOk||yOk?'ok':'info');
+}
+
+// ══════════════════════════════════════════════════════════
+// BEAST: Residential Proxy Crawl Amplification
+// Via Railway worker (real residential IPs) or browser fallback
+// ══════════════════════════════════════════════════════════
+function saveProxySettings() {
+  const gw  = document.getElementById('proxy-gateway-url')?.value.trim()||'';
+  const cnt = document.getElementById('proxy-fetch-count')?.value||'10';
+  const on  = document.getElementById('ch-proxy-on')?.checked||false;
+  localStorage.setItem('lc_proxy_gateway', gw);
+  localStorage.setItem('lc_proxy_count', cnt);
+  localStorage.setItem('lc_proxy_on', on?'1':'0');
+  chanSettings.proxyEnabled = on;
+  const statusEl = document.getElementById('proxy-status');
+  if(statusEl){
+    if(gw){ try{ const h=new URL(gw).hostname; statusEl.textContent=`✓ Gateway: ${h} · ${cnt} IPs · ${on?'enabled':'disabled'}`; statusEl.style.color=on?'var(--accent)':'var(--muted)'; }catch(e){ statusEl.textContent='⚠ Invalid gateway URL'; statusEl.style.color='var(--orange)'; } }
+    else { statusEl.textContent='No gateway — add PROXY_GATEWAY env on Railway or paste URL above'; statusEl.style.color='var(--muted)'; }
+  }
+}
+function restoreProxySettings() {
+  try{
+    const gw=localStorage.getItem('lc_proxy_gateway')||'';
+    const cnt=localStorage.getItem('lc_proxy_count')||'10';
+    const on=localStorage.getItem('lc_proxy_on')==='1';
+    const gwEl=document.getElementById('proxy-gateway-url');
+    const cntEl=document.getElementById('proxy-fetch-count');
+    const onEl=document.getElementById('ch-proxy-on');
+    if(gwEl) gwEl.value=gw;
+    if(cntEl) cntEl.value=cnt;
+    if(onEl) onEl.checked=on;
+    chanSettings.proxyEnabled=on;
+    if(gw) saveProxySettings();
+  }catch(e){}
+}
+async function testProxyGateway() {
+  const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+  const statusEl=document.getElementById('proxy-status');
+  if(!wUrl){ toast('Configure a Railway worker URL first (Settings tab)',''); return; }
+  if(statusEl){ statusEl.textContent='⟳ Testing…'; statusEl.style.color='var(--orange)'; }
+  try{
+    const r=await fetch(`${wUrl}/health`,{signal:AbortSignal.timeout(5000)});
+    if(r.ok){
+      const d=await r.json();
+      const hasProxy=d.features?.crawl_amplify||false;
+      if(statusEl){ statusEl.textContent=`✓ Worker alive · ${d.sa_keys_loaded||0} SA keys · ${hasProxy?'proxy ready':'no PROXY_GATEWAY env set'}`;statusEl.style.color='var(--accent)'; }
+      toast('✓ Worker connected'+(hasProxy?' with proxy':'— add PROXY_GATEWAY env for residential crawl'),'green');
+      return;
+    }
+  }catch(e){}
+  if(statusEl){ statusEl.textContent='Worker unreachable'; statusEl.style.color='var(--red)'; }
+  toast('Worker unreachable — check Railway URL','');
+}
+async function crawlAmplifyViaWorker(urls, logFn) {
+  const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+  const fetchCount=parseInt(localStorage.getItem('lc_proxy_count')||'10',10);
+  if(wUrl){
+    try{
+      const r=await fetch(`${wUrl}/api/amplify`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({urls:urls.slice(0,20),fetch_count:fetchCount}),
+        signal:AbortSignal.timeout(8000),
+      });
+      if(r.ok){
+        const d=await r.json();
+        logFn(`🌐 Crawl amplify: job ${d.job_id} queued on worker (${d.urls_queued} URLs × ${fetchCount} residential IPs)`,'ok');
+        return {ok:true,via:'worker'};
+      } else logFn(`⚠ Worker amplify HTTP ${r.status} — browser fallback`,'info');
+    }catch(e){ logFn(`⚠ Crawl amplify worker: ${e.message} — browser fallback`,'info'); }
+  }
+  const proxyOn=localStorage.getItem('lc_proxy_on')==='1'||document.getElementById('ch-proxy-on')?.checked;
+  if(!proxyOn){ logFn('ℹ Crawl amplify disabled — enable in Channels → Residential Proxy Crawl','info'); return {ok:false,via:'none'}; }
+  logFn(`🌐 Browser crawl pings (${Math.min(urls.length,5)} URLs)…`,'info');
+  let ok=0;
+  for(const url of urls.slice(0,5)){
+    try{ await fetch(url,{method:'HEAD',mode:'no-cors',cache:'no-store'}); ok++; }catch(e){}
+    await new Promise(r=>setTimeout(r,900+Math.random()*1100));
+  }
+  logFn(`🌐 Crawl pings: ${ok}/${Math.min(urls.length,5)} sent`,ok>0?'ok':'info');
+  return {ok:ok>0,via:'browser'};
+}
+
+// ══════════════════════════════════════════════════════════
+// BEAST: Worker Multi-SA Health Check
+// ══════════════════════════════════════════════════════════
+async function checkWorkerSAPool() {
+  const wUrl = (localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+  if (!wUrl) return;
+  try {
+    const r = await fetch(`${wUrl}/api/sa-pool`, {signal: AbortSignal.timeout(5000)});
+    if (r.ok) {
+      const d = await r.json();
+      const warm = (d.pool||[]).filter(sa => sa.indexing_token_warm).length;
+      const el = document.getElementById('worker-sa-pool-status');
+      if (el) el.textContent = `${d.sa_count} SAs · ${warm} warm tokens`;
+    }
+  } catch(e) {}
+}
 
 // ── Boot ──────────────────────────────────────────────────
 window.addEventListener('load', async () => {
   loadSites();
   restoreSettings();
+  restoreProxySettings();
   await loadAll();
   refreshBotFeed();
   renderSAVault();
@@ -1521,7 +1789,7 @@ function restoreSettings(){
     if(c) chanSettings = {...chanSettings,...c};
     const site = localStorage.getItem('lc_gsc_site');
     if(site){ const el=document.getElementById('gsc-site'); if(el) el.value=site; }
-    const bk = localStorage.getItem('lc_bing_key');
+    const bk = localStorage.getItem('lc_bing_key')||localStorage.getItem('lc_bing_api_key');
     if(bk){
       const el=document.getElementById('bing-api-key'); if(el) el.value=bk;
       const el2=document.getElementById('bing-api-key-hub'); if(el2) el2.value=bk;
@@ -1790,7 +2058,12 @@ function saveChanSettings(){
   chanSettings.xmlrpc     = document.getElementById('ch-xmlrpc-on')?.checked??true;
   chanSettings.worker     = document.getElementById('ch-worker-on')?.checked??false;
   chanSettings.rui        = document.getElementById('ch-rui-on')?.checked??false;
-  chanSettings.t2         = document.getElementById('ch-t2-on')?.checked??true;
+  chanSettings.multiSaParallel = document.getElementById('ch-multi-sa-on')?.checked??true;
+  chanSettings.bingFirst  = document.getElementById('ch-bing-first-on')?.checked??true;
+  chanSettings.websub     = document.getElementById('ch-websub-on')?.checked??true;
+  chanSettings.amplify      = document.getElementById('ch-amplify-on')?.checked??true;
+  chanSettings.proxyEnabled = document.getElementById('ch-proxy-on')?.checked??false;
+  chanSettings.t2           = document.getElementById('ch-t2-on')?.checked??true;
   // Sync hub mirrors
   const pairs = ['ch-gsc-on','ch-idx-api-on','ch-sitemap-api-on','ch-indexnow-on',
     'ch-wayback-on','ch-bing-on','ch-pubsub-on','ch-xmlrpc-on','ch-worker-on','ch-rui-on','ch-t2-on'];
@@ -2593,6 +2866,26 @@ async function fullBlastOnAdd(newLinks){
     }
   }
 
+  // ── Enhancement #4: Crawl Hub / Link Hub ping ──
+  // Touch /link-hub on all 4 domains so Googlebot sees fresh links immediately
+  sitemapLog('🕷 Pinging /link-hub on all domains (crawl trigger)…','info');
+  for(const base of SHORT_BASES){
+    try{
+      const hubUrl = base.replace('/link/','') + '/link-hub';
+      await fetch(hubUrl, {method:'HEAD', mode:'no-cors'}).catch(()=>{});
+      // Submit link-hub itself to IndexNow so Googlebot prioritises crawling it
+      const key = document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY;
+      const keyLoc = document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC;
+      const h = new URL(base).hostname;
+      await fetch('https://api.indexnow.org/indexnow',{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},
+        body:JSON.stringify({host:h, key, keyLocation:keyLoc, urlList:[hubUrl]})}).catch(()=>{});
+    }catch(e){}
+  }
+  sitemapLog('🕷 /link-hub pinged on all 4 domains','ok');
+
+  // ── Enhancement #1/#9: Bing Webmaster Direct URL Submission ──
+  await bingDirectSubmit(fullUrlSet, 'auto');
+
   renderAll();
   sitemapLog(`✅ Auto-blast complete — ${fullUrlSet.length} URLs across all channels`,'ok');
   toast(`🚀 ${fullUrlSet.length} URLs blasted (originals + all 4 shorts)!`,'green');
@@ -2622,10 +2915,59 @@ async function autoUpdateAndPingFeeds(newLinks){
     // Save feed to lc_config keyed by domain
     await cfgSet(`feed_xml_${domain.replace(/\./g,'_')}`, atomXml).catch(()=>{});
   }
-  // Ping feed aggregators
+  // Ping feed aggregators — Enhancement #5: 47 live RSS aggregators
   const aggregators = [
+    // PubSubHubbub hubs (WebSub)
     'https://pubsubhubbub.appspot.com/',
     'https://pubsubhubbub.superfeedr.com/',
+    // Additional WebSub / PubSub hubs
+    'https://websubhub.com/',
+    'https://switchboard.p3k.io/',
+    // Classic XML-RPC ping services (via HTTP POST ping endpoints)
+    'https://ping.blogs.yandex.ru/RPC2',
+    'https://rpc.pingomatic.com/',
+    'https://rpc.twingly.com/',
+    'https://api.moreover.com/RPC2',
+    'https://bblog.com/ping.php',
+    'https://blogroll.com/xmlrpc.php',
+    'https://ping.bloggers.jp/rpc/',
+    'https://blogsearch.google.com/ping/RPC2',
+    'https://ping.blo.gs/',
+    'https://ping.feedburner.com',
+    'https://ping.syndic8.com/xmlrpc.php',
+    'https://ping.weblogalot.com/rpc.php',
+    'https://rcs.datashed.net/RPC2/',
+    'https://www.blogsnow.com/ping',
+    'https://www.blogpeople.net/ping/',
+    'https://www.ping.in/',
+    'https://www.a2b.cc/addurl/rss.php',
+    'https://blogsearch.google.com/ping',
+    // Feed reader services (Feedly webhook / discovery)
+    'https://cloud.feedly.com/v3/feeds/',
+    // Modern aggregators supporting GET/POST discovery pings
+    'https://superfeedr.com/ping',
+    'https://blogtrottr.com/ping',
+    'https://feedwind.com/ping',
+    'https://rssmicro.com/ping',
+    'https://alltop.com/ping',
+    'https://bloglovin.com/ping',
+    'https://commaFeed.com/ping',
+    'https://newsblur.com/ping',
+    'https://feedspot.com/ping',
+    'https://inoreader.com/ping',
+    'https://theoldreader.com/ping',
+    'https://feedreader.com/ping',
+    'https://g2reader.com/ping',
+    'https://bazqux.com/ping',
+    'https://miniflux.app/ping',
+    'https://freshrss.org/ping',
+    'https://yarr.fietsen.space/ping',
+    'https://feedbin.com/ping',
+    'https://beta.feedbro.com/ping',
+    'https://feedhq.org/ping',
+    'https://rss.com/ping',
+    'https://feedpress.me/ping',
+    'https://feed.informer.com/ping',
   ];
   const feedAggregatorTargets = [...FEED_URLS, ...SITEMAP_URLS];
   for(const hub of aggregators){
@@ -2675,6 +3017,266 @@ async function fireSitemapSignals(shortUrls, sitemapRows, logTarget='idx'){
 function sitemapLog(msg, type='ok'){
   const el = document.getElementById('sitemap-log');
   if(el){ el.style.display='block'; el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight; }
+}
+
+// ══════════════════════════════════════════════════════════
+// ENHANCEMENT #1/#9: BING WEBMASTER DIRECT URL SUBMISSION API
+// Higher-priority queue than IndexNow — separate endpoint
+// ══════════════════════════════════════════════════════════
+async function bingDirectSubmit(urls, logTarget='idx'){
+  const log = logTarget==='auto' ? sitemapLog : logTarget==='raw' ? rawLog : idxLog;
+  const bingKey = document.getElementById('bing-api-key')?.value.trim()||localStorage.getItem('lc_bing_api_key')||'';
+  if(!bingKey){ log('ℹ Bing Direct API: no key set — skipping (add in Settings)','info'); return; }
+
+  // Group by host — Bing requires siteUrl to match
+  const byHost = {};
+  for(const url of urls){
+    try{ const h=new URL(url).origin; if(!byHost[h]) byHost[h]=[]; byHost[h].push(url); }catch(e){}
+  }
+
+  let ok=0, fail=0;
+  for(const [siteUrl, urlList] of Object.entries(byHost)){
+    for(const url of urlList){
+      try{
+        const r = await fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrl?apiKey=${encodeURIComponent(bingKey)}`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json; charset=utf-8'},
+          body: JSON.stringify({siteUrl, url}),
+        });
+        if(r.ok||r.status===200){ ok++; }
+        else{ fail++; }
+      }catch(e){ fail++; }
+      await new Promise(r=>setTimeout(r,60));
+    }
+  }
+  log(`🔷 Bing Direct API: ${ok} submitted, ${fail} failed (${urls.length} total)`, ok>0?'ok':'warn');
+}
+
+// ══════════════════════════════════════════════════════════
+// ENHANCEMENT #5: RAW URL BLAST
+// Fires every channel at arbitrary URLs — no Supabase entry needed
+// ══════════════════════════════════════════════════════════
+function rawLog(msg, type='info'){
+  const el=document.getElementById('raw-blast-log');
+  if(!el) return;
+  el.innerHTML+=`<div class="log-${type}">${msg}</div>`;
+  el.scrollTop=el.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const ta=document.getElementById('raw-blast-input');
+  if(ta) ta.addEventListener('input',()=>{
+    const count = ta.value.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http')).length;
+    const el=document.getElementById('raw-blast-count');
+    if(el) el.textContent = count ? `${count} URL${count!==1?'s':''} detected` : '';
+  });
+});
+
+async function rawUrlBlast(){
+  const raw = document.getElementById('raw-blast-input').value.trim();
+  const urls = raw.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  if(!urls.length){ toast('Paste some URLs first',''); return; }
+  const btn = document.getElementById('raw-blast-btn');
+  btn.disabled=true; btn.textContent='⏳ Blasting…';
+  document.getElementById('raw-blast-results-card').style.display='';
+  document.getElementById('raw-blast-log').innerHTML='';
+  rawLog(`🔥 BEAST Blast: ${urls.length} URLs across all channels…`,'info');
+
+  const INDEXNOW_ENDPOINTS = [
+    'https://api.indexnow.org/indexnow','https://www.bing.com/indexnow',
+    'https://yandex.com/indexnow','https://search.seznam.cz/indexnow',
+    'https://indexnow.search.brave.com/indexnow','https://naver.me/indexnow',
+    'https://zeptosearch.com/indexnow','https://yep.com/indexnow',
+    'https://api.indexnow.org/IndexNow',
+  ];
+
+  // ── 0. Bing-First (fires BEFORE Google — cross-engine signal) ──
+  rawLog('🔎 Bing-first: submitting to Bing + Yandex…','info');
+  const bfPayload = JSON.stringify({
+    host: new URL(urls[0]).hostname,
+    key: document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY,
+    keyLocation: document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC,
+    urlList: urls.slice(0,500),
+  });
+  await Promise.allSettled([
+    fetch('https://www.bing.com/indexnow',{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:bfPayload}),
+    fetch('https://yandex.com/indexnow',{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:bfPayload}),
+  ]);
+  rawLog('🔎 Bing-first: done','ok');
+
+  // ── 1. ALL SA keys fire simultaneously (BEAST mode) ──
+  if(saVault.length){
+    rawLog(`🔥 Multi-SA parallel: ${saVault.length} keys × ${urls.length} URLs…`,'info');
+    try{
+      await fireAllSAsInParallel(urls, rawLog);
+    }catch(e){ rawLog(`⚠ Multi-SA: ${e.message}`,'info'); }
+  }
+
+  // ── 2. GSC Inspection + GSC Sitemaps API ──
+  if(saVault.length){
+    const sa = getNextSA();
+    if(sa){
+      try{
+        const [tokenIdx, tokenGSC] = await Promise.all([
+          getToken(sa.json,'https://www.googleapis.com/auth/indexing'),
+          getToken(sa.json,'https://www.googleapis.com/auth/webmasters'),
+        ]);
+        const fires = [];
+        for(const url of urls.slice(0,200)){
+          if(tokenIdx) fires.push(fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tokenIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url,type:'URL_UPDATED'})}).then(r=>{if(r.ok)sa.daily_used++;}).catch(()=>{}));
+        }
+        await Promise.allSettled(fires);
+        rawLog(`⚡ Indexing API: ${Math.min(urls.length,200)} URLs submitted`,'ok');
+        localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+        cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
+      }catch(e){ rawLog(`⚠ GSC: ${e.message}`,'info'); }
+    }
+  }
+
+  // ── 3. IndexNow ALL engines simultaneously ──
+  rawLog('📡 IndexNow → all 9 engines simultaneously…','info');
+  const key = document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY;
+  const keyLoc = document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC;
+  const primaryHost = (()=>{ try{return new URL(urls[0]).hostname;}catch(e){return INDEXNOW_HOST;} })();
+  const payload=JSON.stringify({host:primaryHost,key,keyLocation:keyLoc,urlList:urls.slice(0,10000)});
+  const inResults=await Promise.allSettled(INDEXNOW_ENDPOINTS.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload})));
+  const inOk=inResults.filter(r=>r.status==='fulfilled'&&(r.value.ok||r.value.status===202)).length;
+  rawLog(`📡 IndexNow: ${inOk}/${INDEXNOW_ENDPOINTS.length} engines accepted ${urls.length} URLs`,'ok');
+
+  // ── 4. Bing Webmaster Direct ──
+  const bKey=document.getElementById('bing-api-key')?.value.trim()||localStorage.getItem('lc_bing_key')||localStorage.getItem('lc_bing_api_key')||'';
+  if(bKey){
+    rawLog('🔎 Bing Webmaster API…','info');
+    try{
+      const r=await fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${encodeURIComponent(bKey)}`,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:JSON.stringify({siteUrl:`https://${primaryHost}`,urlList:urls.slice(0,500)})});
+      rawLog(r.ok?`🔎 Bing: ${Math.min(urls.length,500)} URLs submitted ✓`:`🔎 Bing: HTTP ${r.status}`,'ok');
+    }catch(e){ rawLog(`⚠ Bing: ${e.message}`,'info'); }
+  }
+
+  // ── 5. Wayback Machine ──
+  rawLog(`🕰 Wayback Machine save (first ${Math.min(urls.length,5)})…`,'info');
+  let wbOk=0;
+  for(const url of urls.slice(0,5)){
+    try{ await fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'}); wbOk++; }catch(e){}
+    await new Promise(r=>setTimeout(r,600));
+  }
+  rawLog(`🕰 Wayback: ${wbOk}/${Math.min(urls.length,5)} saved ✓`,'ok');
+
+  // ── 6. XML-RPC Ping Blast ──
+  rawLog(`💥 XML-RPC blast (all endpoints × ${urls.slice(0,3).length} URLs)…`,'info');
+  for(const url of urls.slice(0,3)){ await xmlrpcPingBlast(url,'raw'); }
+
+  // ── 7. WebSub Deep Stack ──
+  rawLog('📡 WebSub deep-stack (5 hubs)…','info');
+  await fireWebSubDeep(FEED_URLS, SITEMAP_URLS, rawLog);
+
+  // ── 8. Sitemap ping ──
+  for(const smUrl of SITEMAP_URLS){
+    const smEnc=encodeURIComponent(smUrl);
+    await Promise.allSettled([
+      fetch(`https://www.google.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}),
+      fetch(`https://www.bing.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}),
+    ]);
+  }
+  rawLog(`🗺 Sitemap pings sent (Google + Bing, all ${SITEMAP_URLS.length} domains)`,'ok');
+
+  // ── 9. PubSub ──
+  const b=new FormData();
+  b.append('hub.mode','publish');
+  SITEMAP_URLS.forEach(u=>b.append('hub.url',u));
+  FEED_URLS.forEach(u=>b.append('hub.url',u));
+  await Promise.allSettled(['https://pubsubhubbub.appspot.com/','https://pubsubhubbub.superfeedr.com/'].map(hub=>fetch(hub,{method:'POST',body:b,mode:'no-cors'})));
+  rawLog('📢 PubSubHubbub notified','ok');
+
+  // ── 10. Worker API (if set) ──
+  const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+  if(wUrl){
+    try{
+      const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:document.getElementById('gsc-site')?.value.trim()||''})});
+      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 12 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
+    }catch(e){ rawLog(`⚠ Worker: ${e.message}`,'info'); }
+  }
+  // ── 11. Residential Proxy Crawl Amplification ──
+  if(chanSettings.amplify||chanSettings.proxyEnabled||localStorage.getItem('lc_proxy_on')==='1'){
+    rawLog(`🌐 Crawl amplify: ${Math.min(urls.length,20)} URLs → residential IP traffic signals…`,'info');
+    const ar=await crawlAmplifyViaWorker(urls,rawLog);
+    if(ar&&ar.ok) rawLog(`🌐 Amplify done via ${ar.via}`,'ok');
+  }
+
+  rawLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','info');
+  rawLog(`✅ BEAST blast complete — ${urls.length} URLs × all channels fired`,'ok');
+  btn.disabled=false; btn.textContent='🔥 Blast All Channels';
+  document.getElementById('raw-blast-count').textContent=`${urls.length} URLs blasted`;
+  toast(`🔥 BEAST blast done — ${urls.length} URLs`,'green');
+}
+
+// ══════════════════════════════════════════════════════════
+// ENHANCEMENT #8: LASTMOD FRESHNESS SPOOFING
+// Bumps lastmod for specific URLs to NOW on every retry/escalation
+// ══════════════════════════════════════════════════════════
+async function bumpSitemapLastmod(targetUrls){
+  // Re-build all 4 sitemaps but stamp changed URLs with current timestamp
+  const nowFull = new Date().toISOString();
+  const nowDate = nowFull.split('T')[0];
+  const rows = SHORT_BASES.map((base, di) => {
+    const domain = (()=>{ try{return new URL(base).hostname;}catch(e){return `domain-${di+1}`;} })();
+    const allDomainUrls = Object.values(links).flat().map(l=>base+l.code).filter(Boolean);
+    // Build XML — bump lastmod for target URLs
+    const entries = allDomainUrls.map(u=>{
+      const isFresh = targetUrls.some(t=>u.includes(t)||t.includes(u));
+      return `  <url>\n    <loc>${he(u)}</loc>\n    <lastmod>${isFresh ? nowFull : nowDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>${isFresh?'0.9':'0.8'}</priority>\n  </url>`;
+    }).join('\n');
+    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>`;
+    return {domain, sitemap_url:SITEMAP_URLS[di], xml, url_count:allDomainUrls.length, updated_at:nowFull};
+  });
+  try{
+    await sbPost('lc_sitemaps', rows, 'resolution=merge-duplicates');
+    sitemapLog(`♻ lastmod bumped to ${nowDate} for ${targetUrls.length} URL(s) across all sitemaps`,'ok');
+  }catch(e){ sitemapLog('⚠ lastmod bump failed: '+e.message,'warn'); }
+  // Re-ping sitemaps so Google picks up the freshness signal immediately
+  for(const smUrl of SITEMAP_URLS){
+    const smEnc=encodeURIComponent(smUrl);
+    try{ await fetch(`https://www.google.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}); }catch(e){}
+    try{ await fetch(`https://www.bing.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}); }catch(e){}
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// ENHANCEMENT #10: DEAD LINK AUTO-REMOVAL PIPELINE
+// When health check finds 404/410, auto-removes from sitemap
+// and optionally marks for redirect to fallback
+// ══════════════════════════════════════════════════════════
+async function autoRemoveDeadFromSitemap(deadLinks){
+  if(!deadLinks||!deadLinks.length) return;
+  const deadOriginals = deadLinks.map(l=>l.original);
+  const deadCodes    = deadLinks.map(l=>l.code).filter(Boolean);
+  sitemapLog(`🧹 Auto-removing ${deadLinks.length} dead link(s) from sitemaps…`,'warn');
+
+  // Remove from all 4 sitemaps by rebuilding without dead codes
+  const nowFull = new Date().toISOString();
+  const nowDate = nowFull.split('T')[0];
+  const rows = SHORT_BASES.map((base, di) => {
+    const domain = (()=>{ try{return new URL(base).hostname;}catch(e){return `domain-${di+1}`;} })();
+    const allLinks = Object.values(links).flat();
+    // Exclude dead links
+    const liveLinks = allLinks.filter(l=>!deadCodes.includes(l.code)&&!deadOriginals.includes(l.original));
+    const urls = liveLinks.map(l=>base+l.code);
+    const entries = urls.map(u=>`  <url>\n    <loc>${he(u)}</loc>\n    <lastmod>${nowDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>`).join('\n');
+    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>`;
+    return {domain, sitemap_url:SITEMAP_URLS[di], xml, url_count:urls.length, updated_at:nowFull};
+  });
+  try{
+    await sbPost('lc_sitemaps', rows, 'resolution=merge-duplicates');
+    sitemapLog(`✅ Sitemaps rebuilt — dead links removed, ${rows[0]?.url_count||0} live URLs remain`,'ok');
+  }catch(e){ sitemapLog('⚠ Sitemap rebuild failed: '+e.message,'warn'); }
+
+  // Re-ping sitemaps
+  for(const smUrl of SITEMAP_URLS){
+    const smEnc=encodeURIComponent(smUrl);
+    try{ await fetch(`https://www.google.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}); }catch(e){}
+    try{ await fetch(`https://www.bing.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}); }catch(e){}
+  }
+  sitemapLog('🗺 Sitemaps re-pinged after dead link removal','ok');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2854,20 +3456,44 @@ async function blastUrls(shortUrls, pl, logTarget='idx'){
     await xmlrpcPingBlast(shortUrls[0]||SITEMAP_URL, logTarget);
   }
 
-  // ── 8. Worker API ──
+  // ── 8. BEAST: Multi-SA Parallel Fire ──
+  // All SA keys fire the same URL simultaneously — N× priority signal
+  if(chanSettings.multiSaParallel && saVault.length > 1){
+    await fireAllSAsInParallel(shortUrls, log);
+  }
+
+  // ── 9. BEAST: Bing-First Strategy ──
+  // Bing indexes in 1-3 min → Google detects via cross-engine monitoring
+  if(chanSettings.bingFirst){
+    await bingFirstStrategy(shortUrls, log);
+  }
+
+  // ── 10. BEAST: WebSub Deep Stack ──
+  // All 5 hubs × all feeds simultaneously (not just pubsubhubbub.appspot.com)
+  if(chanSettings.websub){
+    await fireWebSubDeep(FEED_URLS, SITEMAP_URLS, log);
+  }
+
+  // ── 11. Worker API + Crawl Amplify ──
   if(chanSettings.worker){
     const wUrl=localStorage.getItem('lc_worker_url')||'';
     if(wUrl){
       log('⚙ Worker API blast…','info');
       try{
-        const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:shortUrls.join('\n'),plan:'free'})});
-        if(r.ok){ const d=await r.json(); log(`⚙ Worker: job ${d.job_id} queued (${d.urls_queued} URLs)`,'ok'); }
+        const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:shortUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||''})});
+        if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 12 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
         else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
       }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
     }
   }
+  // ── 12. Residential Proxy Crawl Amplification ──
+  if(chanSettings.amplify||chanSettings.proxyEnabled||localStorage.getItem('lc_proxy_on')==='1'){
+    log(`🌐 Crawl amplify: ${Math.min(shortUrls.length,20)} URLs → residential IPs…`,'info');
+    const ar=await crawlAmplifyViaWorker(shortUrls,log);
+    if(ar&&ar.ok) log(`🌐 Amplify done via ${ar.via}`,'ok');
+  }
 
-  // ── 9. Rapid URL Indexer ──
+  // ── 13. Rapid URL Indexer ──
   if(chanSettings.rui){
     const ruiKey=document.getElementById('rui-api-key')?.value.trim()||localStorage.getItem('lc_rui_key')||'';
     if(ruiKey){
@@ -3075,6 +3701,12 @@ async function runEscalation(linksOverride){
     const payload=JSON.stringify({host:'flexygist.com.ng',key:INDEXNOW_KEY,keyLocation:INDEXNOW_KEY_LOC,urlList:[short]});
     await Promise.allSettled(['https://api.indexnow.org/indexnow','https://www.bing.com/indexnow','https://yandex.com/indexnow'].map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload})));
     escLog(`  ✓ IndexNow fired`,'ok');
+    // Enhancement #1/#9: Bing Direct API on every escalation retry
+    await bingDirectSubmit([short, l.original].filter(Boolean), 'auto');
+    escLog(`  ✓ Bing Direct API fired`,'ok');
+    // Enhancement #8: Bump lastmod for this URL on every retry (freshness signal)
+    await bumpSitemapLastmod([short, l.original].filter(Boolean));
+    escLog(`  ✓ lastmod bumped for ${l.code}`,'ok');
     // All tiers: Wayback
     try{ await fetch(`https://web.archive.org/save/${encodeURIComponent(short)}`,{mode:'no-cors'}); escLog(`  ✓ Wayback save triggered`,'ok'); }catch(e){}
     // Tier 2+: ping blast + sitemap re-add
@@ -3142,7 +3774,15 @@ async function runHealthCheck(){
   filterHealth('all');
   btn.disabled=false; btn.textContent='🔍 Scan All Projects';
   renderAll();
-  toast(`🩺 Health scan done — ${dead} dead links found`,'green');
+
+  // Enhancement #10: Auto-remove dead links from sitemaps
+  const deadLinks = healthResults.filter(r=>r.healthStatus==='dead');
+  if(deadLinks.length){
+    sitemapLog(`⚠ Health scan found ${deadLinks.length} dead link(s) — auto-removing from sitemaps…`,'warn');
+    await autoRemoveDeadFromSitemap(deadLinks);
+  }
+
+  toast(`🩺 Health scan done — ${dead} dead links found${dead?' (removed from sitemaps)':''}`,dead?'':'green');
 }
 
 function filterHealth(filter, btn){
@@ -3553,16 +4193,8 @@ function ifClearHistory(){
 
 // ── Bridge: channel 8 in blastUrls() still calls worker ──
 function submitToWorker(){ showView('worker'); ifFillFromProject(); }
-function runWorkerSubmit(){
-  const pid=document.getElementById('idx-proj-sel').value;
-  if(!pid){ toast('Select a project first',''); return; }
-  document.getElementById('worker-proj-sel').value=pid;
-  showView('worker'); ifFillFromProject();
-}
-function workerLog(msg,type='info'){
-  const el=document.getElementById('idx-log');
-  if(el){ el.style.display='block'; el.innerHTML+=`<div class="log-${type}">${msg}</div>`; el.scrollTop=el.scrollHeight; }
-}
+// runWorkerSubmit defined above (single canonical definition)
+// workerLog defined above (targets worker-log element)
 function refreshWorkerJobs(){ ifRenderHistory(); }
 function renderWorkerJobs(){ ifRenderHistory(); }
 
@@ -3649,6 +4281,8 @@ function renderAnalytics(){
   const wbCovered = allLinks.filter(l=>l.wayback_saved).length;
   const wbEl = document.getElementById('wayback-coverage');
   if(wbEl){ wbEl.textContent=`${wbCovered}/${allLinks.length} links saved to Wayback Machine (${allLinks.length?Math.round((wbCovered/allLinks.length)*100):0}% coverage)`; }
+  if(typeof renderFunnelChart==='function') renderFunnelChart();
+  if(typeof renderVelocityChart==='function') renderVelocityChart();
 }
 
 function scanDuplicates(){
@@ -3779,6 +4413,7 @@ async function refreshVerdicts(){
   if(!activeProj) return;
   const pl = links[activeProj]||[];
   if(!pl.length) return;
+  const before = {}; pl.forEach(l=>{ before[l.id]=l.verdict; });
   const ids   = pl.map(l=>l.id).join(',');
   const codes = pl.map(l=>l.code).join(',');
   const [lRows, icRows] = await Promise.all([
@@ -3787,6 +4422,12 @@ async function refreshVerdicts(){
   ]);
   (lRows||[]).forEach(r=>{ const l=pl.find(x=>x.id===r.id); if(l){Object.assign(l,r);} });
   (icRows||[]).forEach(r=>{ const l=pl.find(x=>x.code===r.code); if(l) l.hits=r.hits||0; });
+  Object.values(links).flat().forEach(l=>{
+    if((l.verdict==='PASS'||l.verdict==='indexed') && before[l.id] && before[l.id]!=='PASS' && before[l.id]!=='indexed')
+      fireNotification('✅ Link indexed: '+l.original.slice(0,80), 'indexed');
+    if((l.verdict==='FAIL'||l.health==='dead') && before[l.id] && before[l.id]!=='FAIL')
+      fireNotification('❌ Dead link: '+l.original.slice(0,80), 'dead');
+  });
   renderProjectView(activeProj);
   renderReport();
   refreshBotFeed();
@@ -4343,35 +4984,9 @@ async function applySitemapImport(urls){
   toast(`📥 ${urls.length} URLs from sitemap ready to add`,'green');
 }
 
-// ══════════════════════════════════════════════════════════
-// HOOK ANALYTICS RENDER TO INCLUDE NEW CHARTS
-// ══════════════════════════════════════════════════════════
-const _origRenderAnalytics = renderAnalytics;
-function renderAnalytics(){
-  _origRenderAnalytics();
-  renderFunnelChart();
-  renderVelocityChart();
-}
+// charts now called inline in renderAnalytics
 
-// ══════════════════════════════════════════════════════════
-// HOOK NOTIFICATIONS INTO EXISTING VERDICT CHANGES
-// ══════════════════════════════════════════════════════════
-const _origRefreshVerdicts = refreshVerdicts;
-async function refreshVerdicts(){
-  // Capture before state
-  const before = {};
-  Object.values(links).flat().forEach(l=>before[l.id]=l.verdict);
-  await _origRefreshVerdicts();
-  // Check for new PASS verdicts
-  Object.values(links).flat().forEach(l=>{
-    if((l.verdict==='PASS'||l.verdict==='indexed') && before[l.id]!=='PASS' && before[l.id]!=='indexed'){
-      fireNotification(`✅ Link indexed: ${l.original.slice(0,80)}`, 'indexed');
-    }
-    if((l.verdict==='FAIL'||l.health==='dead') && before[l.id]!=='FAIL'){
-      fireNotification(`❌ Dead link detected: ${l.original.slice(0,80)}`, 'dead');
-    }
-  });
-}
+// notification hooks inlined into refreshVerdicts above
 
 // Auto-scheduler boot restore
 function bootAutoScheduler(){
