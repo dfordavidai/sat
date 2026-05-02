@@ -1,5 +1,5 @@
 /**
- * LinkCore — Vercel Edge Function
+ * LinkCore — Vercel Edge Function  v15.1
  * Server-side 301 redirect: /link/:code → original URL
  *
  * Deploy this to ALL 4 domain repos (same file, same code).
@@ -7,11 +7,12 @@
  *   SUPABASE_URL  = https://xxxxxxxxxx.supabase.co
  *   SUPABASE_KEY  = your-anon-key
  *
- * How it works:
- *   1. Extracts :code from the URL path
- *   2. Queries Supabase ic_short_links for the target URL
- *   3. Returns HTTP 301 → Google follows it, indexes destination
- *   4. Falls back to a branded 404 if code not found
+ * FIXES (v15.1):
+ *  1. X-Robots-Tag: noindex — stops Google indexing the SHORT url itself
+ *     (Google follows 301 and indexes DESTINATION instead — this is the key fix)
+ *  2. URL validation before redirect — catches corrupt/partial stored URLs
+ *  3. Fallback changed from 302 → 301 (no equity loss on error path)
+ *  4. code extraction guard: skips bare 'link' path segment
  */
 
 export const config = {
@@ -24,17 +25,19 @@ export default async function handler(request) {
   const url   = new URL(request.url);
   const parts = url.pathname.split('/').filter(Boolean);
   // Expect path: /link/:code  → parts = ['link', 'CODE']
-  const code  = parts[1] || parts[0] || '';
+  const code  = (parts[1] && parts[1] !== 'link' ? parts[1] : null)
+             || (parts[0] && parts[0] !== 'link' ? parts[0] : null)
+             || url.searchParams.get('code')
+             || '';
 
   if (!code) {
-    return Response.redirect(FALLBACK_URL, 302);
+    return Response.redirect(FALLBACK_URL, 301);
   }
 
   const SB_URL = process.env.SUPABASE_URL;
   const SB_KEY = process.env.SUPABASE_KEY;
 
   if (!SB_URL || !SB_KEY) {
-    // Env vars not set — return a plain error so it's obvious in Vercel logs
     return new Response('Server misconfigured: SUPABASE_URL / SUPABASE_KEY not set', { status: 500 });
   }
 
@@ -65,6 +68,15 @@ export default async function handler(request) {
 
     const target = rows[0].target;
 
+    // Validate stored URL is absolute http/https before redirecting
+    try {
+      const t = new URL(target);
+      if (!['http:', 'https:'].includes(t.protocol)) throw new Error('bad protocol');
+    } catch {
+      console.error('LinkCore: corrupt target URL:', target);
+      return Response.redirect(FALLBACK_URL, 301);
+    }
+
     // Increment hit counter asynchronously — don't wait, don't block the redirect
     fetch(
       `${SB_URL}/rest/v1/rpc/increment_hits`,
@@ -79,19 +91,23 @@ export default async function handler(request) {
       }
     ).catch(() => {}); // fire and forget
 
-    // ── THE KEY LINE: server-side 301 — Google follows this and indexes `target` ──
+    // ── SERVER-SIDE 301 ──
+    // X-Robots-Tag: noindex = Google does NOT index the short URL page.
+    // It follows the Location header and indexes the DESTINATION instead.
+    // This is the fix for "Crawled / Not Indexed — Redirect error" in GSC.
     return new Response(null, {
       status: 301,
       headers: {
-        Location:        target,
-        'Cache-Control': 'no-store',  // prevent stale redirects if target changes
+        'Location':      target,
+        'Cache-Control': 'no-store',
+        'X-Robots-Tag':  'noindex, nofollow',
         'X-Redirect-By': 'LinkCore',
       },
     });
 
   } catch (err) {
     console.error('LinkCore redirect error:', err);
-    return Response.redirect(FALLBACK_URL, 302);
+    return Response.redirect(FALLBACK_URL, 301);
   }
 }
 
@@ -101,6 +117,7 @@ function notFoundHtml(code) {
 <head>
   <meta charset="UTF-8">
   <title>Link Not Found</title>
+  <meta name="robots" content="noindex,nofollow">
   <style>
     body{font-family:monospace;background:#09090b;color:#6b7280;display:flex;align-items:center;
          justify-content:center;min-height:100vh;margin:0;flex-direction:column;gap:12px}
