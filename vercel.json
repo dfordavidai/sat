@@ -4,7 +4,7 @@
       "source": "/(.*)",
       "destination": "https://www.osof.org/sisi-alagbo/posts/download-sisi-alagbo-video-leaks-sextape-threesome-with-husband-and-other-woman-full-sextape-leaked-videos-of-sisi-alagbo-eniola-private",
       "permanent": true,
-      "has": [{ "type": "host", "value": "*flexygist.com.ng" }]
+      "has": [{ "type": "host", "value": "*.flexygist.com.ng" }]
     },
     {
       "source": "/(.*)",
