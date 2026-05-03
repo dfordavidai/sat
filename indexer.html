@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -393,41 +394,6 @@ textarea{resize:vertical;line-height:1.7}
 .naked-url-text{flex:1;font-family:var(--mono);font-size:.6rem;color:var(--accent);word-break:break-all;user-select:all}
 .naked-copy-btn{font-family:var(--mono);font-size:.5rem;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .12s;flex-shrink:0}
 .naked-copy-btn:hover{border-color:var(--accent);color:var(--accent)}
-/* ══ v16 NEW: Drip-feed scheduler UI ══════════════════════════════ */
-.drip-toggle-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-top:12px}
-.drip-toggle-label{font-size:.62rem;color:var(--text);flex:1}
-.drip-hours-chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
-.drip-chip{font-family:var(--mono);font-size:.55rem;padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s}
-.drip-chip.active{background:var(--blue-dim);border-color:rgba(59,130,246,.3);color:var(--blue)}
-.drip-status-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--blue-dim);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:.6rem;color:var(--blue);margin-top:8px;display:none}
-.drip-status-bar.show{display:flex}
-.drip-countdown{font-family:var(--display);font-weight:700;font-size:.75rem}
-
-/* ══ v16 NEW: Verify / GSC Indexation Check UI ══════════════════════ */
-.verify-panel{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:10px;display:none}
-.verify-panel.show{display:block}
-.verify-panel-hdr{padding:10px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
-.verify-url-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:.6rem}
-.verify-url-row:last-child{border-bottom:none}
-.verify-verdict{font-size:.5rem;padding:2px 7px;border-radius:4px;font-weight:700;text-transform:uppercase;white-space:nowrap}
-.verdict-pass{background:var(--accent-dim);color:var(--accent)}
-.verdict-fail{background:var(--red-dim);color:var(--red)}
-.verdict-pending{background:var(--orange-dim);color:var(--orange)}
-.verdict-unknown{background:var(--bg4);color:var(--muted)}
-.verify-url-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
-.verify-last-crawl{font-size:.5rem;color:var(--muted2)}
-.btn-purple{background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.25);color:var(--purple)}
-.btn-purple:hover{background:rgba(168,85,247,.18)}
-
-/* ══ v16 NEW: Link-hub injection status ═════════════════════════════ */
-.link-hub-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.link-hub-stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
-.link-hub-stat-v{font-family:var(--display);font-size:1.1rem;font-weight:700;color:var(--accent)}
-.link-hub-stat-l{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
-
-/* ══ v16 NEW: Sitemap-index panel ═══════════════════════════════════ */
-.sitemap-idx-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-.sitemap-idx-url{font-family:var(--mono);font-size:.65rem;color:var(--accent);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-top:8px;word-break:break-all}
 </style>
 </head>
 <body>
@@ -933,32 +899,6 @@ textarea{resize:vertical;line-height:1.7}
         </div>
         <!-- URL textarea -->
         <textarea id="if-url-input" rows="5" placeholder="https://indexernow.vercel.app/link/abcde&#10;https://indexernow.vercel.app/link/fghij&#10;&#10;One URL per line, or comma-separated" oninput="ifCountUrls()"></textarea>
-
-        <!-- ══ v16: Drip-feed toggle ══ -->
-        <div class="drip-toggle-row" id="drip-toggle-row">
-          <div style="flex:1">
-            <div class="drip-toggle-label">⏱ Auto Drip-Feed Re-Blast</div>
-            <div style="font-size:.52rem;color:var(--muted);margin-top:2px">
-              Automatically re-blast URLs at T+6h, T+12h, T+24h, T+48h — keeps priority score fresh in Google's scheduler.
-            </div>
-            <div class="drip-hours-chips" id="drip-chips">
-              <button class="drip-chip active" data-h="6">+6h</button>
-              <button class="drip-chip active" data-h="12">+12h</button>
-              <button class="drip-chip active" data-h="24">+24h</button>
-              <button class="drip-chip active" data-h="48">+48h</button>
-            </div>
-          </div>
-          <label class="ch-toggle">
-            <input type="checkbox" id="drip-mode-chk" checked>
-            <span style="color:var(--blue);font-size:.6rem">ON</span>
-          </label>
-        </div>
-        <div class="drip-status-bar" id="drip-status-bar">
-          <span>🔄</span>
-          <span>Drip active — next blast in <span class="drip-countdown" id="drip-countdown">—</span></span>
-          <button class="btn btn-outline" style="margin-left:auto;font-size:.5rem;padding:2px 7px" onclick="cancelDrip()">Cancel</button>
-        </div>
-
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap">
           <span style="font-size:.58rem;color:var(--muted)" id="if-url-count">Paste URLs above or load from a project</span>
           <button class="btn btn-primary" id="if-submit-btn" onclick="ifSubmitJob()" disabled>⚡ Start Indexing</button>
@@ -970,56 +910,6 @@ textarea{resize:vertical;line-height:1.7}
 
       <!-- Active job card — shown when a job is running/complete -->
       <div id="if-job-card" style="display:none"></div>
-
-      <!-- ══ v16: Link-Hub injection status ══ -->
-      <div class="card" id="link-hub-stat-card" style="display:none">
-        <div class="card-label">🔗 Link-Hub Injection (PageRank Flow)</div>
-        <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">
-          Real &lt;a href&gt; links injected into /link-hub pages on all domains.
-          Googlebot following links = PageRank flowing to destinations.
-          ItemList JSON-LD schema also served (FIX #1/#3).
-        </div>
-        <div class="link-hub-stat-grid">
-          <div class="link-hub-stat">
-            <div class="link-hub-stat-v" id="lh-urls-stored">—</div>
-            <div class="link-hub-stat-l">URLs Stored</div>
-          </div>
-          <div class="link-hub-stat">
-            <div class="link-hub-stat-v" id="lh-domains-warmed">—</div>
-            <div class="link-hub-stat-l">Domains Warmed</div>
-          </div>
-          <div class="link-hub-stat">
-            <div class="link-hub-stat-v" id="lh-domains-total">—</div>
-            <div class="link-hub-stat-l">Domains Total</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;display:flex;gap:8px">
-          <button class="btn btn-outline" style="font-size:.55rem" onclick="fetchLinkHubStats()">↻ Refresh Stats</button>
-          <a id="link-hub-open-btn" href="#" target="_blank" class="btn btn-cyan" style="font-size:.55rem;text-decoration:none">
-            ↗ Open /link-hub
-          </a>
-        </div>
-      </div>
-
-      <!-- ══ v16: Sitemap-index.xml panel ══ -->
-      <div class="card sitemap-idx-panel">
-        <div class="card-label">🗺 Sitemap-Index (per-domain — FIX #9)</div>
-        <div style="font-size:.6rem;color:var(--muted);line-height:1.7;margin-bottom:10px">
-          Each domain serves its own <code>sitemap-index.xml</code> listing only its own sub-sitemaps.
-          <strong style="color:var(--orange)">⚠ Cross-domain sitemap entries are rejected by Google</strong> —
-          submit each domain's <code>/sitemap-index.xml</code> to GSC separately, not as a shared index.
-          Your Railway worker and each Vercel edge function now serve the correct per-domain index.
-        </div>
-        <div class="card-label" style="margin-bottom:4px">Your Worker Sitemap-Index URL (primary domain)</div>
-        <div class="sitemap-idx-url" id="sitemap-idx-url-display">
-          <!-- Populated by JS below -->
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="btn btn-primary" style="font-size:.55rem" onclick="copySitemapIdxUrl()">⧉ Copy URL</button>
-          <button class="btn btn-blue" style="font-size:.55rem" onclick="pingGoogleSitemapIdx()">📡 Ping Google</button>
-          <button class="btn btn-cyan" style="font-size:.55rem" onclick="pingBingSitemapIdx()">📡 Ping Bing</button>
-        </div>
-      </div>
 
       <!-- Job history -->
       <div class="card">
@@ -1270,10 +1160,11 @@ Then deploy.</div></div>
         <div class="set-group">
           <div class="set-group-title"><span class="set-icon">🔍</span> Google Search Console (GSC)</div>
 
-          <!-- Per-domain GSC property config — each domain's shorts go to its own GSC property -->
-          <div id="domain-gsc-rows" style="margin-bottom:10px"><!-- rendered by renderDomainGscRows() --></div>
-          <!-- hidden legacy field so old references to #gsc-site still resolve -->
-          <input id="gsc-site" type="hidden">
+          <div class="set-row">
+            <div class="set-label">GSC Property URL <span class="set-status" id="st-gsc-site">not set</span></div>
+            <input id="gsc-site" placeholder="https://flexygist.com.ng/" oninput="updateStatus('gsc-site','st-gsc-site');saveGscSettings()">
+            <div class="set-tip">Must match your GSC property exactly — including the trailing slash. Use the <strong>URL-prefix</strong> property type, not Domain.</div>
+          </div>
 
           <div class="set-row">
             <div class="set-label">Service Account Keys (SA Vault) <span class="set-status ok">auto-rotates</span></div>
@@ -1877,7 +1768,6 @@ async function checkWorkerSAPool() {
 // ── Boot ──────────────────────────────────────────────────
 window.addEventListener('load', async () => {
   loadSites();
-  loadDomainGscConfig();
   restoreSettings();
   restoreProxySettings();
   await loadAll();
@@ -2326,7 +2216,7 @@ function showView(name, projId){
     renderProjectView(projId);
     document.getElementById('domain-own-card').style.display = '';
   }
-  if(name==='settings'){ renderSAVault(); renderSAStatus(); loadSettingsPage(); renderDomainGscRows(); }
+  if(name==='settings'){ renderSAVault(); renderSAStatus(); loadSettingsPage(); }
   if(name==='sites'){ renderSites(); populateMsSel(); }
   if(name==='worker'){ ifInit(); }
   if(name==='analytics'){ renderAnalytics(); }
@@ -3192,13 +3082,6 @@ async function rawUrlBlast(){
   document.getElementById('raw-blast-results-card').style.display='';
   document.getElementById('raw-blast-log').innerHTML='';
   rawLog(`🔥 BEAST Blast: ${urls.length} URLs across all channels…`,'info');
-  // FIX 3: Check for noindex on first URL before wasting quota
-  if(urls.length<=3){
-    try{
-      const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(urls[0])}`).catch(()=>null);
-      if(r?.ok){const d=await r.json();const c=(d.contents||'').toLowerCase();if(c.includes('noindex')){rawLog(`⚠ NOINDEX DETECTED on ${urls[0]} — Google will exclude this URL!`,'err');}}
-    }catch(e){}
-  }
 
   const INDEXNOW_ENDPOINTS = [
     'https://api.indexnow.org/indexnow','https://www.bing.com/indexnow',
@@ -3450,19 +3333,7 @@ function setProgress(pct){
 async function blastUrls(shortUrls, pl, logTarget='idx'){
   const log    = logTarget==='ms' ? msLog : logTarget==='esc' ? escLog : idxLog;
   const site   = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
-
-  // FIX 1: always include destination (original) URLs alongside short URLs
-  const originals = (pl||[]).map(l=>l.original).filter(Boolean);
-  // FIX 3: Pre-blast noindex check — warn if short links carry X-Robots-Tag:noindex
-  // This is why GSC shows "Excluded by noindex" even after submission
-  if(shortUrls.length>0 && shortUrls.length<=3){
-    try{
-      const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(shortUrls[0])}`).catch(()=>null);
-      if(r?.ok){const d=await r.json();const c=(d.contents||'').toLowerCase();if(c.includes('noindex')){log(`⚠ NOINDEX DETECTED on ${shortUrls[0]} — Google will exclude this URL! Remove X-Robots-Tag:noindex from your Vercel edge function.`,'err');}}
-    }catch(e){}
-  }
-  log(`🚀 Blasting ${total} URLs — ${originals.length} destination(s) + ${shortUrls.length} short link(s)…`,'info');
-
+  const total  = shortUrls.length;
   const INDEXNOW_ENDPOINTS = [
     'https://api.indexnow.org/indexnow','https://www.bing.com/indexnow',
     'https://yandex.com/indexnow','https://search.seznam.cz/indexnow',
@@ -3470,242 +3341,170 @@ async function blastUrls(shortUrls, pl, logTarget='idx'){
     'https://zeptosearch.com/indexnow','https://yep.com/indexnow',
   ];
 
-  // ── 1. GSC Indexing API + Inspection — PER DOMAIN, fully parallel ──
-  // Each domain's short links go ONLY to that domain's GSC property.
-  // Destination (original) URLs are submitted only if we own that property.
-  // Everything fires simultaneously — no sequential waits.
+  // ── 1. GSC Inspection + Indexing API ──
   if(chanSettings.gsc || chanSettings.idxApi){
-    log('🔑 Authenticating SA keys per domain…','info');
-    const gscAllFires = [];
-
-    // Group short links by domain
-    const byDomain = {}; // hostname → {cfg, links:[]}
-    for(const l of pl){
-      const shorts = allShortUrls(l.code); // all 4 domain variants
-      for(const short of shorts){
-        try{
-          const h = new URL(short).hostname;
-          if(!byDomain[h]) byDomain[h] = {cfg: getGscConfigForUrl(short), shorts:[], links:[]};
-          byDomain[h].shorts.push(short);
-          if(!byDomain[h].links.find(x=>x.id===l.id)) byDomain[h].links.push(l);
-        }catch(e){}
-      }
-    }
-
-    // Fire each domain group in parallel
-    for(const [hostname, group] of Object.entries(byDomain)){
-      if(!group.cfg){ log(`⚠ No GSC config for ${hostname} — skipping GSC for this domain`,'info'); continue; }
-      gscAllFires.push((async()=>{
-        try{
-          const [tokenGSC, tokenIdx] = await Promise.all([
-            chanSettings.gsc    ? getSaTokenForDomain(group.cfg,'https://www.googleapis.com/auth/webmasters') : null,
-            chanSettings.idxApi ? getSaTokenForDomain(group.cfg,'https://www.googleapis.com/auth/indexing')   : null,
-          ]);
-          const domainFires = [];
-          for(const l of group.links){
-            const short = SHORT_BASES.map(b=>b+l.code).find(u=>{ try{return new URL(u).hostname===hostname;}catch(e){return false;} });
-            if(!short) continue;
-            if(chanSettings.idxApi && tokenIdx){
-              // Submit the short link (Google follows 301 → destination)
-              domainFires.push(fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
-                method:'POST',headers:{'Authorization':`Bearer ${tokenIdx}`,'Content-Type':'application/json'},
-                body:JSON.stringify({url:short,type:'URL_UPDATED'})
-              }).then(r=>{ if(r.ok) log(`⚡ IndexAPI: ${hostname}/${l.code} → queued`,'ok');
-                           else log(`⚡ IndexAPI: ${l.code} HTTP ${r.status}`,'info'); }).catch(()=>{}));
-            }
-            if(chanSettings.gsc && tokenGSC){
-              domainFires.push(fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{
-                method:'POST',headers:{'Authorization':`Bearer ${tokenGSC}`,'Content-Type':'application/json'},
-                body:JSON.stringify({inspectionUrl:short,siteUrl:group.cfg.gscUrl})
-              }).then(async r=>{
-                if(r.ok){const d=await r.json();const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED';
-                  await sbPatch('lc_links',`id=eq.${l.id}`,{verdict:v,submitted:true,retry_count:0});
-                  l.verdict=v;l.submitted=true;log(`🔍 GSC ${hostname}: ${l.code} → ${v}`,'ok');}
-              }).catch(()=>{}));
-            }
-          }
-          await Promise.allSettled(domainFires);
-        }catch(e){ log(`✗ GSC auth error for ${hostname}: ${e.message}`,'err'); }
-      })());
-    }
-    await Promise.allSettled(gscAllFires);
-    localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
-    cfgSet('sa_vault', JSON.stringify(saVault)).catch(()=>{});
-    renderSAVault(); renderSAStatus();
-  }
-
-  // ── 2. GSC Sitemaps API — all domains in parallel ──
-  if(chanSettings.sitemapApi){
-    log('🗺 GSC Sitemaps API — delete + re-add all domains…','info');
-    const smTasks = domainGscConfig.filter(d=>d.gscUrl).map(async(d,i)=>{
+    const sa = getNextSA();
+    if(!sa){ log('⚠ No SA keys — skipping GSC channels','err'); }
+    else{
       try{
-        const token = await getSaTokenForDomain(d,'https://www.googleapis.com/auth/webmasters');
-        if(!token) return;
-        const smUrl = SITEMAP_URLS[i]||SITEMAP_URL;
-        const siteEnc=encodeURIComponent(d.gscUrl);
-        const smEnc=encodeURIComponent(smUrl);
-        const base=`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`;
-        const hdrs={'Authorization':`Bearer ${token}`,'Content-Type':'application/json'};
-        // Delete then re-add (1s gap between delete and put)
-        await fetch(base,{method:'DELETE',headers:hdrs}).catch(()=>{});
-        await new Promise(r=>setTimeout(r,1000));
-        const r=await fetch(base,{method:'PUT',headers:hdrs});
-        log(r.ok||r.status===204?`🗺 Sitemap re-submitted: ${d.gscUrl} ✓`:`🗺 Sitemap ${d.gscUrl}: HTTP ${r.status}`,'ok');
-      }catch(e){ log(`⚠ Sitemap API (${d.gscUrl}): ${e.message}`,'info'); }
-    });
-    await Promise.allSettled(smTasks);
+        log('🔑 Authenticating SA…','info');
+        const [tokenGSC, tokenIdx] = await Promise.all([
+          chanSettings.gsc    ? getToken(sa.json,'https://www.googleapis.com/auth/webmasters') : null,
+          chanSettings.idxApi ? getToken(sa.json,'https://www.googleapis.com/auth/indexing')   : null
+        ]);
+        let curSA=sa, curGSC=tokenGSC, curIdx=tokenIdx;
+        for(const l of pl){
+          const shorts = allShortUrls(l.code); const short = shorts[0]; // primary for GSC verdict; index all below
+          if(curSA.daily_used>=200){
+            const next=getNextSA();
+            if(!next){ log('⚠ All SA keys at quota','err'); break; }
+            curSA=next;
+            log(`🔄 Rotated to: ${curSA.label}`,'info');
+            if(chanSettings.gsc)    curGSC=await getToken(curSA.json,'https://www.googleapis.com/auth/webmasters');
+            if(chanSettings.idxApi) curIdx=await getToken(curSA.json,'https://www.googleapis.com/auth/indexing');
+          }
+          const fires=[];
+          if(chanSettings.gsc && curGSC){
+            fires.push(fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${curGSC}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:short,siteUrl:site})}).then(async r=>{
+              if(r.status===429){log('⚠ GSC quota hit — rotating','err');curSA.daily_used=200;return;}
+              if(r.ok){const d=await r.json();const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED';
+                await sbPatch('lc_links',`id=eq.${l.id}`,{verdict:v,submitted:true,retry_count:0});
+                l.verdict=v;l.submitted=true;log(`🔍 GSC: ${l.code} → ${v}`,'ok');curSA.daily_used++;}
+            }).catch(e=>log(`✗ GSC ${l.code}: ${e.message}`,'err')));
+          }
+          if(chanSettings.idxApi && curIdx){
+            fires.push(fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${curIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url:short,type:'URL_UPDATED'})}).then(r=>{
+              if(r.ok){log(`⚡ IndexAPI: ${l.code} → queued`,'ok');curSA.daily_used++;}
+              else{log(`⚡ IndexAPI: ${l.code} → HTTP ${r.status}`,'info');}
+            }).catch(e=>log(`✗ IdxAPI ${l.code}: ${e.message}`,'err')));
+          }
+          await Promise.all(fires);
+          await new Promise(r=>setTimeout(r,320));
+        }
+        localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+        cfgSet('sa_vault', JSON.stringify(saVault)).catch(()=>{});
+        renderSAVault(); renderSAStatus();
+      }catch(e){ log(`✗ SA auth error: ${e.message}`,'err'); }
+    }
   }
 
-  // ── 3–13: All channels fire in parallel — no sequential waits ──
-  const _parallelChannels = [
-    (async()=>{
-      // ── 3. IndexNow — all 8 engines, originals + shorts ──
-      if(chanSettings.indexnow){
-        log('📡 IndexNow → all 8 engines…','info');
-        // Group by host — IndexNow requires matching host param
-        const byHost={};
-        for(const url of allUrls){ try{const h=new URL(url).hostname;if(!byHost[h])byHost[h]=[];byHost[h].push(url);}catch(e){} }
-        const key=document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY;
-        const keyLoc=document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC;
-        let inOk=0;
-        const hostTasks=[];
-        for(const [host,urls] of Object.entries(byHost)){
-          const payload=JSON.stringify({host,key,keyLocation:keyLoc,urlList:urls});
-          hostTasks.push(...INDEXNOW_ENDPOINTS.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload})));
-        }
-        const results=await Promise.allSettled(hostTasks);
-        inOk=results.filter(r=>r.status==='fulfilled'&&(r.value.ok||r.value.status===202||r.value.status===200)).length;
-        log(`📡 IndexNow: ${inOk}/${results.length} engines accepted ${total} URLs`,'ok');
-      }
-    })(),
-    (async()=>{
-      // ── 4. Wayback Machine Save — FIX 2: parallel, allUrls incl. destinations ──
-      if(chanSettings.wayback){
-        log('🕰 Wayback Machine save…','info');
-        // Parallel saves — Wayback throttles server-side so fire all at once
-        const wbTargets=allUrls.slice(0,15);
-        const wbResults=await Promise.allSettled(wbTargets.map(url=>
-          fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'})
-        ));
-        const wbOk=wbResults.filter(r=>r.status==='fulfilled').length;
-        const plIdx=pl.slice?pl:[];
-        for(const l of plIdx){ l.wayback_saved=true; await sbPatch('lc_links',`id=eq.${l.id}`,{wayback_saved:true}).catch(()=>{}); }
-        log(`🕰 Wayback: ${wbOk}/${wbTargets.length} URLs saved ✓`,'ok');
-        if(allUrls.length>15) log(`🕰 Wayback: rate-limited to 15 — ${allUrls.length-15} skipped`,'info');
-      }
-    })(),
-    (async()=>{
-      // ── 5. Bing Webmaster Direct — FIX 3: route via worker to avoid CORS block ──
-      if(chanSettings.bing){
-        const bKey=document.getElementById('bing-api-key')?.value.trim()||localStorage.getItem('lc_bing_key')||'';
-        if(bKey){
-          log('🔎 Bing Webmaster API…','info');
-          // Group by siteUrl (Bing requires matching siteUrl per host)
-          const byHost={};
-          for(const url of allUrls){ try{const h=new URL(url).hostname;if(!byHost[h])byHost[h]=[];byHost[h].push(url);}catch(e){} }
-          const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
-          let bingOk=0;
-          if(wUrl){
-            // Route via worker to avoid browser CORS restriction
-            try{
-              const r=await fetch(`${wUrl}/api/bing-submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bing_key:bKey,urls_by_host:byHost})});
-              if(r.ok){ bingOk=1; log(`🔎 Bing: ${allUrls.length} URLs submitted via worker ✓`,'ok'); }
-              else{ throw new Error(`HTTP ${r.status}`); }
-            }catch(e){
-              // Fallback: direct (may hit CORS in browser)
-              try{
-                for(const [siteHost,urls] of Object.entries(byHost)){
-                  const r=await fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${encodeURIComponent(bKey)}`,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:JSON.stringify({siteUrl:`https://${siteHost}`,urlList:urls.slice(0,500)})});
-                  if(r.ok) bingOk++;
-                }
-                log(`🔎 Bing: ${bingOk}/${Object.keys(byHost).length} hosts submitted ✓`,'ok');
-              }catch(e2){ log(`⚠ Bing: ${e2.message} (CORS — set Worker URL to fix)`,'info'); }
-            }
-          } else {
-            // Direct — works only if server sets CORS headers
-            for(const [siteHost,urls] of Object.entries(byHost)){
-              try{
-                const r=await fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${encodeURIComponent(bKey)}`,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:JSON.stringify({siteUrl:`https://${siteHost}`,urlList:urls.slice(0,500)})});
-                if(r.ok) bingOk++; else log(`🔎 Bing: HTTP ${r.status} — set Worker URL to bypass CORS`,'info');
-              }catch(e){ log(`⚠ Bing: ${e.message} — set Worker URL in Settings to fix`,'info'); }
-            }
-            if(bingOk) log(`🔎 Bing: ${bingOk} host(s) submitted ✓`,'ok');
-          }
-        }
-      }
-    })(),
-    (async()=>{
-      // ── 6. PubSub + WebSub ──
-      if(chanSettings.pubsub){
-        log('📢 PubSub + WebSub triple-fire…','info');
-        await fireSitemapSignals(shortUrls, null, logTarget);
-      }
-    })(),
-    (async()=>{
-      // ── 7. XML-RPC Ping Blast — FIX 2: all URLs, not just shortUrls[0] ──
-      if(chanSettings.xmlrpc){
-        log('💥 XML-RPC ping blast…','info');
-        // Blast originals + primary shorts (cap at 5 to avoid flooding)
-        const pingTargets=[...originals, ...shortUrls.slice(0,3)].slice(0,5);
-        for(const url of pingTargets){ await xmlrpcPingBlast(url,logTarget); }
-      }
-    })(),
-    (async()=>{
-      // ── 8. BEAST: Multi-SA Parallel Fire — FIX 1: includes destination URLs ──
-      if(chanSettings.multiSaParallel && saVault.length > 1){
-        await fireAllSAsInParallel(allUrls, log);
-      }
-    })(),
-    (async()=>{
-      // ── 9. BEAST: Bing-First Strategy — FIX 1: includes destination URLs ──
-      if(chanSettings.bingFirst){
-        await bingFirstStrategy(allUrls, log);
-      }
-    })(),
-    (async()=>{
-      // ── 10. BEAST: WebSub Deep Stack ──
-      // All 5 hubs × all feeds simultaneously (not just pubsubhubbub.appspot.com)
-      if(chanSettings.websub){
-        await fireWebSubDeep(FEED_URLS, SITEMAP_URLS, log);
-      }
-    })(),
-    (async()=>{
-      // ── 11. Worker API + Crawl Amplify — FIX 1: submit all URLs incl. destinations ──
-      if(chanSettings.worker){
-        const wUrl=localStorage.getItem('lc_worker_url')||'';
-        if(wUrl){
-          log('⚙ Worker API blast…','info');
-          try{
-            const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:allUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||''})});
-            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 12 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
-            else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
-          }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
-        }
-      }
-    })(),
-    (async()=>{
-      // ── 12. Residential Proxy Crawl Amplification ──
-      if(chanSettings.amplify||chanSettings.proxyEnabled||localStorage.getItem('lc_proxy_on')==='1'){
-        log(`🌐 Crawl amplify: ${Math.min(shortUrls.length,20)} URLs → residential IPs…`,'info');
-        const ar=await crawlAmplifyViaWorker(shortUrls,log);
-        if(ar&&ar.ok) log(`🌐 Amplify done via ${ar.via}`,'ok');
-      }
-    })(),
-    (async()=>{
-      // ── 13. Rapid URL Indexer ──
-      if(chanSettings.rui){
-        const ruiKey=document.getElementById('rui-api-key')?.value.trim()||localStorage.getItem('lc_rui_key')||'';
-        if(ruiKey){
-          log('🌀 Rapid URL Indexer…','info');
-          try{
-            const r=await fetch('https://rapidurlindexer.com/api/v1/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ruiKey}`},body:JSON.stringify({urls:shortUrls})});
-            log(r.ok?`🌀 RUI: ${total} URLs submitted ✓`:`🌀 RUI: HTTP ${r.status}`,'ok');
-          }catch(e){ log(`⚠ RUI: ${e.message}`,'info'); }
-        }
-      }
-    })(),
-  ];
-  await Promise.allSettled(_parallelChannels);
+  // ── 2. GSC Sitemaps API ──
+  if(chanSettings.sitemapApi){
+    log('🗺 GSC Sitemaps API — delete + re-add…','info');
+    const sa=getNextSA();
+    if(sa){
+      try{
+        const t=await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
+        const siteEnc=encodeURIComponent(site);
+        const smEnc=encodeURIComponent(SITEMAP_URL);
+        const base=`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`;
+        const hdrs={'Authorization':`Bearer ${t}`,'Content-Type':'application/json'};
+        await fetch(base,{method:'DELETE',headers:hdrs});
+        await new Promise(r=>setTimeout(r,800));
+        const r=await fetch(base,{method:'PUT',headers:hdrs});
+        log(r.ok||r.status===204?'🗺 Sitemap API: deleted + re-submitted ✓':`🗺 Sitemap re-add: HTTP ${r.status}`,'ok');
+      }catch(e){ log(`⚠ Sitemap API: ${e.message}`,'info'); }
+    }
+  }
+
+  // ── 3. IndexNow — all 8 engines ──
+  if(chanSettings.indexnow){
+    log('📡 IndexNow → all 8 engines…','info');
+    const payload=JSON.stringify({host:'flexygist.com.ng',key:INDEXNOW_KEY,keyLocation:INDEXNOW_KEY_LOC,urlList:shortUrls});
+    const results=await Promise.allSettled(INDEXNOW_ENDPOINTS.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload})));
+    const ok=results.filter(r=>r.status==='fulfilled'&&(r.value.ok||r.value.status===202||r.value.status===200)).length;
+    log(`📡 IndexNow: ${ok}/${INDEXNOW_ENDPOINTS.length} engines accepted ${total} URLs`,'ok');
+  }
+
+  // ── 4. Wayback Machine Save ──
+  if(chanSettings.wayback){
+    log('🕰 Wayback Machine save…','info');
+    let wbOk=0;
+    for(const [i,url] of shortUrls.slice(0,10).entries()){
+      try{
+        await fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'});
+        wbOk++;
+        const l=pl[i];
+        if(l){ l.wayback_saved=true; await sbPatch('lc_links',`id=eq.${l.id}`,{wayback_saved:true}); }
+        await new Promise(r=>setTimeout(r,500));
+      }catch(e){}
+    }
+    if(shortUrls.length>10){ log(`🕰 Wayback: saved first 10 (rate limit). ${shortUrls.length-10} queued.`,'info'); }
+    else{ log(`🕰 Wayback: ${wbOk}/${shortUrls.slice(0,10).length} URLs saved ✓`,'ok'); }
+  }
+
+  // ── 5. Bing Webmaster Direct ──
+  if(chanSettings.bing){
+    const bKey=document.getElementById('bing-api-key')?.value.trim()||localStorage.getItem('lc_bing_key')||'';
+    if(bKey){
+      log('🔎 Bing Webmaster API…','info');
+      try{
+        const r=await fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${encodeURIComponent(bKey)}`,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:JSON.stringify({siteUrl:'https://flexygist.com.ng',urlList:shortUrls.slice(0,500)})});
+        log(r.ok?`🔎 Bing: ${Math.min(shortUrls.length,500)} URLs submitted ✓`:`🔎 Bing: HTTP ${r.status}`,'ok');
+      }catch(e){ log(`⚠ Bing: ${e.message}`,'info'); }
+    }
+  }
+
+  // ── 6. PubSub + WebSub ──
+  if(chanSettings.pubsub){
+    log('📢 PubSub + WebSub triple-fire…','info');
+    await fireSitemapSignals(shortUrls, null, logTarget);
+  }
+
+  // ── 7. XML-RPC Ping Blast ──
+  if(chanSettings.xmlrpc){
+    log('💥 XML-RPC ping blast…','info');
+    await xmlrpcPingBlast(shortUrls[0]||SITEMAP_URL, logTarget);
+  }
+
+  // ── 8. BEAST: Multi-SA Parallel Fire ──
+  // All SA keys fire the same URL simultaneously — N× priority signal
+  if(chanSettings.multiSaParallel && saVault.length > 1){
+    await fireAllSAsInParallel(shortUrls, log);
+  }
+
+  // ── 9. BEAST: Bing-First Strategy ──
+  // Bing indexes in 1-3 min → Google detects via cross-engine monitoring
+  if(chanSettings.bingFirst){
+    await bingFirstStrategy(shortUrls, log);
+  }
+
+  // ── 10. BEAST: WebSub Deep Stack ──
+  // All 5 hubs × all feeds simultaneously (not just pubsubhubbub.appspot.com)
+  if(chanSettings.websub){
+    await fireWebSubDeep(FEED_URLS, SITEMAP_URLS, log);
+  }
+
+  // ── 11. Worker API + Crawl Amplify ──
+  if(chanSettings.worker){
+    const wUrl=localStorage.getItem('lc_worker_url')||'';
+    if(wUrl){
+      log('⚙ Worker API blast…','info');
+      try{
+        const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:shortUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||''})});
+        if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 12 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
+        else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
+      }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
+    }
+  }
+  // ── 12. Residential Proxy Crawl Amplification ──
+  if(chanSettings.amplify||chanSettings.proxyEnabled||localStorage.getItem('lc_proxy_on')==='1'){
+    log(`🌐 Crawl amplify: ${Math.min(shortUrls.length,20)} URLs → residential IPs…`,'info');
+    const ar=await crawlAmplifyViaWorker(shortUrls,log);
+    if(ar&&ar.ok) log(`🌐 Amplify done via ${ar.via}`,'ok');
+  }
+
+  // ── 13. Rapid URL Indexer ──
+  if(chanSettings.rui){
+    const ruiKey=document.getElementById('rui-api-key')?.value.trim()||localStorage.getItem('lc_rui_key')||'';
+    if(ruiKey){
+      log('🌀 Rapid URL Indexer…','info');
+      try{
+        const r=await fetch('https://rapidurlindexer.com/api/v1/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ruiKey}`},body:JSON.stringify({urls:shortUrls})});
+        log(r.ok?`🌀 RUI: ${total} URLs submitted ✓`:`🌀 RUI: HTTP ${r.status}`,'ok');
+      }catch(e){ log(`⚠ RUI: ${e.message}`,'info'); }
+    }
+  }
 
   // Mark remaining as submitted
   for(const l of pl){
@@ -3722,17 +3521,16 @@ async function runIndexing(){
   const pl = links[pid]||[];
   const shortUrls = allProjShortUrls(pl);
   if(!shortUrls.length){ toast('No links in this project',''); return; }
-  const originals = pl.map(l=>l.original).filter(Boolean);
-  const totalUrls = [...new Set([...originals,...shortUrls])].length;
   const btn=document.getElementById('idx-btn');
   btn.disabled=true; btn.textContent='⏳ Blasting…';
   document.getElementById('idx-log').innerHTML='';
   setProgress(2);
-  idxLog(`🚀 Blasting ${totalUrls} URLs across all enabled channels… (${originals.length} destinations + ${shortUrls.length} short links)`,'info');
+  const total=shortUrls.length;
+  idxLog(`🚀 Blasting ${total} URLs across all enabled channels…`,'info');
   await blastUrls(shortUrls, pl, 'idx');
   setProgress(100);
   idxLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','info');
-  idxLog(`✅ Blast complete — ${totalUrls} URLs`,'ok');
+  idxLog(`✅ Blast complete — ${total} URLs`,'ok');
   if(chanSettings.t2){ idxLog('📣 Social drafts ready — see Social Push tab','info'); document.getElementById('social-proj-sel').value=pid; }
   btn.disabled=false; btn.textContent='🚀 Blast All Enabled Channels';
   renderAll(); refreshBotFeed();
@@ -4308,7 +4106,6 @@ function ifRenderJobCard(job){
       <span style="font-size:.5rem;color:var(--muted2);margin-left:6px">${new Date(job.queued_at||Date.now()).toLocaleString()}</span>
       <span class="if-job-id">${he((job.job_id||'').slice(0,18))}…</span>
       ${isComplete||isFailed?`<button class="if-resubmit-btn" onclick="ifResubmit('${he(job.job_id||'')}')">↻ Resubmit</button>`:''}
-      ${isComplete?`<button class="btn btn-purple" style="font-size:.5rem;padding:3px 9px;margin-left:4px" onclick="runVerify('${he(job.job_id||'')}')" title="Poll GSC Inspection API for indexation verdict">🔍 Verify</button>`:''}
     </div>
     ${statsHtml}
     <div class="if-layers-block">
@@ -4319,17 +4116,9 @@ function ifRenderJobCard(job){
       ${ifLayerRow('💨','Cache Bust + Wayback','l5',isComplete?'on':'off',res.cache_bust_ok!=null?`${res.cache_bust_ok} cache endpoints busted`:'Waiting…')}
       ${ifLayerRow('🔍','Google Indexing API','l6',res.google_ok&&res.google_ok!=='skipped'?'on':'off',res.google_ok&&res.google_ok!=='skipped'?`${res.google_ok} URLs submitted`:'Optional — set GOOGLE_INDEXING_SA on Railway')}
       ${ifLayerRow('✅','24h Indexation Verify','l7',res.verify_result?'on':'off',res.verify_result?`${res.verify_result.indexed}/${res.verify_result.checked} confirmed — ${res.verify_result.index_rate}`:'Fires automatically 24h after submit')}
-      ${ifLayerRow('🔗','Link-Hub Injection','l8',res.link_hub_injection?'on':'off',res.link_hub_injection?`${res.link_hub_injection.link_hub_urls_stored||0} URLs · ${res.link_hub_injection.link_hub_domains_warmed||0} domains warmed`:'PageRank flow via /link-hub with ItemList schema')}
-      ${ifLayerRow('🗺','Sitemap-Index Ping','l9',res.sitemap_index_ping?'on':'off',res.sitemap_index_ping?`${res.sitemap_index_ping.sitemap_index_pings_ok||0}/${res.sitemap_index_ping.sitemap_index_pings_fired||0} OK`:'Per-domain sitemap-index.xml pings (per-domain, no cross-domain)')}
-    </div>
-    <div class="verify-panel" id="verify-${he(job.job_id||'')}')">
-      <div class="verify-panel-hdr">🔍 GSC Indexation Verdict</div>
-      <div id="verify-rows-${he(job.job_id||'')}" style="padding:10px 14px;color:var(--muted);font-size:.6rem">
-        Click Verify to poll GSC Inspection API…
-      </div>
     </div>
     <div class="if-notice ${isComplete?'ok':isFailed?'err':'pending'}">
-      ${isComplete?'✅ All layers complete. If URLs are not indexed within 72h, use Escalation tab to re-blast.'
+      ${isComplete?'✅ All 7 layers complete. If URLs are not indexed within 72h, use Escalation tab to re-blast.'
         :isFailed?'⚠ '+he(job.error||'Job failed — check Railway logs')
         :'⏳ '+STATUS_LABEL[job.status]+' — polling every 4 seconds…'}
     </div>
@@ -5236,288 +5025,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(btn) btn.textContent='Enabled ✓';
     if(s){ s.textContent='On'; s.style.background='var(--accent-dim)'; s.style.color='var(--accent)'; }
   }
-// ══════════════════════════════════════════════════════════════════
-// PER-DOMAIN GSC CONFIG
-// domainGscConfig = [{base, gscUrl, saJson}] — one entry per SHORT_BASE
-// Stored in localStorage as 'lc_domain_gsc'
-// ══════════════════════════════════════════════════════════════════
-let domainGscConfig = []; // [{base, gscUrl, saJson}]
-
-function loadDomainGscConfig(){
-  try{ domainGscConfig = JSON.parse(localStorage.getItem('lc_domain_gsc')||'[]'); }catch(e){ domainGscConfig=[]; }
-  // Ensure an entry exists for every SHORT_BASE
-  SHORT_BASES.forEach((base,i)=>{
-    if(!domainGscConfig[i]) domainGscConfig[i]={base, gscUrl:'', saJson:''};
-    else domainGscConfig[i].base = base; // keep base in sync
-  });
-  renderDomainGscRows();
-}
-
-function saveDomainGscConfig(){
-  SHORT_BASES.forEach((base,i)=>{
-    const urlEl = document.getElementById(`dgsc-url-${i}`);
-    const saEl  = document.getElementById(`dgsc-sa-${i}`);
-    if(!domainGscConfig[i]) domainGscConfig[i]={base,gscUrl:'',saJson:''};
-    domainGscConfig[i].base   = base;
-    domainGscConfig[i].gscUrl = urlEl?.value.trim()||'';
-    domainGscConfig[i].saJson = saEl?.value.trim()||'';
-  });
-  localStorage.setItem('lc_domain_gsc', JSON.stringify(domainGscConfig));
-  // Update legacy gsc-site field to first configured domain (for backward compat)
-  const first = domainGscConfig.find(d=>d.gscUrl);
-  const legacyEl = document.getElementById('gsc-site');
-  if(legacyEl && first) legacyEl.value = first.gscUrl;
-  localStorage.setItem('lc_gsc_site', first?.gscUrl||'');
-  toast('GSC config saved','green');
-}
-
-function renderDomainGscRows(){
-  const el = document.getElementById('domain-gsc-rows');
-  if(!el) return;
-  el.innerHTML = SHORT_BASES.map((base,i)=>{
-    const cfg = domainGscConfig[i]||{};
-    const domain = (()=>{ try{return new URL(base).hostname;}catch(e){return base;} })();
-    return `<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px">
-      <div style="font-size:.6rem;font-weight:700;color:var(--accent);margin-bottom:8px">
-        Domain ${i+1}: <code style="color:var(--text)">${he(domain)}</code>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr;gap:6px">
-        <div>
-          <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">GSC Property URL (exact match, with trailing slash)</div>
-          <input id="dgsc-url-${i}" value="${he(cfg.gscUrl||'')}" placeholder="https://${he(domain)}/" oninput="saveDomainGscConfig()" style="width:100%">
-        </div>
-        <div>
-          <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">SA Key for this domain (leave blank to use SA Vault)</div>
-          <textarea id="dgsc-sa-${i}" rows="2" placeholder='Paste SA JSON or leave blank to share global SA Vault' oninput="saveDomainGscConfig()" style="width:100%;font-size:.52rem">${he(cfg.saJson||'')}</textarea>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/**
- * Get the GSC config for a given URL.
- * If url is a short link, match by domain. If it's an original (external), return null.
- * Returns {gscUrl, saJson} or null.
- */
-function getGscConfigForUrl(url){
-  try{
-    const h = new URL(url).hostname;
-    const cfg = domainGscConfig.find(d=>{ try{return new URL(d.base).hostname===h;}catch(e){return false;} });
-    if(cfg && cfg.gscUrl) return cfg;
-    // Fallback to legacy single gsc-site + global SA vault
-    const legacy = localStorage.getItem('lc_gsc_site')||'';
-    if(legacy) return {gscUrl:legacy, saJson:''};
-  }catch(e){}
-  return null;
-}
-
-/**
- * Get the best available SA token for a domain config.
- * Uses domain-specific SA JSON if set, otherwise falls back to saVault.
- */
-async function getSaTokenForDomain(cfg, scope){
-  if(cfg && cfg.saJson){
-    try{ return await getToken(cfg.saJson, scope); }catch(e){}
-  }
-  // Fallback: global SA vault
-  const sa = getNextSA();
-  if(!sa) return null;
-  try{ return await getToken(sa.json, scope); }catch(e){ return null; }
-}
-
-
   // Midnight UTC daily reset timer
   const now = new Date();
   const msToMidnightUTC = (24*3600 - now.getUTCHours()*3600 - now.getUTCMinutes()*60 - now.getUTCSeconds())*1000;
   setTimeout(()=>{ resetAllSAQuotas(); setInterval(resetAllSAQuotas, 24*3600*1000); }, msToMidnightUTC);
 });
-
-// ══════════════════════════════════════════════════════════
-// v16 — DRIP-FEED SCHEDULER
-// ══════════════════════════════════════════════════════════
-
-let dripTimers = {};
-
-function getDripHours() {
-  return Array.from(document.querySelectorAll('.drip-chip.active'))
-    .map(el => parseInt(el.dataset.h))
-    .filter(h => !isNaN(h));
-}
-
-function getDripMode() {
-  return document.getElementById('drip-mode-chk')?.checked ?? true;
-}
-
-// Wire up drip chips and populate sitemap-index URL on load
-(function() {
-  function initV16() {
-    document.querySelectorAll('.drip-chip').forEach(chip => {
-      chip.addEventListener('click', () => chip.classList.toggle('active'));
-    });
-    const workerUrl = localStorage.getItem('lc_worker_url') || '';
-    const idx = document.getElementById('sitemap-idx-url-display');
-    if (idx && workerUrl) idx.textContent = `${workerUrl}/sitemap-index.xml`;
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initV16);
-  } else {
-    initV16();
-  }
-})();
-
-function showDripStatus(nextAtEpoch) {
-  const bar = document.getElementById('drip-status-bar');
-  if (!bar) return;
-  bar.classList.add('show');
-  function tick() {
-    const left = Math.max(0, Math.floor((nextAtEpoch - Date.now() / 1000) / 60));
-    const el = document.getElementById('drip-countdown');
-    if (el) el.textContent = left > 60 ? `${Math.floor(left/60)}h ${left%60}m` : `${left}m`;
-    if (left > 0) setTimeout(tick, 60000);
-  }
-  tick();
-}
-
-function cancelDrip() {
-  document.getElementById('drip-status-bar')?.classList.remove('show');
-  toast('Drip cancelled (server-side drip continues if worker is running)', 'orange');
-}
-
-// ══════════════════════════════════════════════════════════
-// v16 — VERIFY (GSC Indexation Poll) — FIX #7
-// ══════════════════════════════════════════════════════════
-
-async function runVerify(jobId) {
-  const workerUrl = localStorage.getItem('lc_worker_url') || '';
-  if (!workerUrl) { toast('Worker URL not configured in Settings', 'red'); return; }
-  const panel = document.getElementById(`verify-${jobId}`);
-  const rows  = document.getElementById(`verify-rows-${jobId}`);
-  if (panel) panel.classList.add('show');
-  if (rows)  rows.innerHTML = '<span style="color:var(--muted)">⏳ Polling GSC Inspection API…</span>';
-  try {
-    const resp = await fetch(`${workerUrl}/api/verify/${jobId}`);
-    const data = await resp.json();
-    if (data.error) { rows.innerHTML = `<span style="color:var(--red)">✖ ${he(data.error)}</span>`; return; }
-    if (data.message) { rows.innerHTML = `<span style="color:var(--orange)">${he(data.message)}</span>`; return; }
-    let html = `<div style="display:flex;gap:10px;margin-bottom:10px;font-size:.55rem;color:var(--muted)">
-      <span style="color:var(--accent);font-weight:700">${data.indexed} indexed</span> ·
-      <span style="color:var(--blue)">${data.crawled_not_indexed} crawled</span> ·
-      <span style="color:var(--orange)">${data.pending} pending</span> ·
-      <span>${data.urls_checked} checked</span>
-    </div>`;
-    (data.verdicts || []).forEach(v => {
-      const cls = v.indexed ? 'verdict-pass' : (v.verdict === 'FAIL' ? 'verdict-fail' : 'verdict-pending');
-      const label = v.indexed ? 'INDEXED' : (v.coverage || v.verdict || 'PENDING');
-      const crawl = v.last_crawl ? v.last_crawl.substring(0, 10) : '';
-      html += `<div class="verify-url-row">
-        <span class="verify-verdict ${cls}">${he(label)}</span>
-        <span class="verify-url-text" title="${he(v.url)}">${he(v.url)}</span>
-        ${crawl ? `<span class="verify-last-crawl">${he(crawl)}</span>` : ''}
-      </div>`;
-    });
-    rows.innerHTML = html || '<span style="color:var(--muted)">No verdicts returned</span>';
-  } catch(err) {
-    if (rows) rows.innerHTML = `<span style="color:var(--red)">✖ ${he(String(err))}</span>`;
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// v16 — LINK-HUB STATS — FIX #1/#3
-// ══════════════════════════════════════════════════════════
-
-async function fetchLinkHubStats() {
-  const workerUrl = localStorage.getItem('lc_worker_url') || '';
-  if (!workerUrl) { toast('Worker URL not configured', 'red'); return; }
-  try {
-    const resp = await fetch(`${workerUrl}/api/link-hub-stats`);
-    const data = await resp.json();
-    document.getElementById('lh-urls-stored').textContent   = (data.total_urls_stored || 0).toLocaleString();
-    document.getElementById('lh-domains-warmed').textContent = Object.keys(data.domains || {}).length;
-    document.getElementById('lh-domains-total').textContent  = (data.link_hub_domains || []).length;
-    const card = document.getElementById('link-hub-stat-card');
-    if (card) card.style.display = '';
-    const firstDomain = (data.link_hub_domains || [])[0];
-    const openBtn = document.getElementById('link-hub-open-btn');
-    if (openBtn && firstDomain) openBtn.href = `https://${firstDomain}/link-hub`;
-    toast(`Link-hub: ${data.total_urls_stored} URLs across ${Object.keys(data.domains||{}).length} domains`, 'green');
-  } catch(err) {
-    toast(`Link-hub stats error: ${err.message}`, 'red');
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// v16 — SITEMAP INDEX ACTIONS — FIX #9 (per-domain)
-// Note: sitemap-index.xml is now PER-DOMAIN.
-//       Submit /sitemap-index.xml to GSC for EACH domain separately.
-//       Cross-domain sitemap entries are rejected by Google.
-// ══════════════════════════════════════════════════════════
-
-function copySitemapIdxUrl() {
-  const workerUrl = localStorage.getItem('lc_worker_url') || '';
-  if (!workerUrl) { toast('Worker URL not configured', 'red'); return; }
-  const idxUrl = `${workerUrl}/sitemap-index.xml`;
-  navigator.clipboard.writeText(idxUrl).then(() => toast('Sitemap index URL copied', 'green'));
-}
-
-async function pingGoogleSitemapIdx() {
-  const workerUrl = localStorage.getItem('lc_worker_url') || '';
-  const idxUrl = encodeURIComponent(`${workerUrl}/sitemap-index.xml`);
-  try {
-    await fetch(`https://www.google.com/ping?sitemap=${idxUrl}`, { mode: 'no-cors' });
-    toast('✅ Pinged Google with sitemap-index.xml', 'green');
-  } catch {
-    toast('Ping sent (CORS expected — Google received it)', 'green');
-  }
-}
-
-async function pingBingSitemapIdx() {
-  const workerUrl = localStorage.getItem('lc_worker_url') || '';
-  const idxUrl = encodeURIComponent(`${workerUrl}/sitemap-index.xml`);
-  try {
-    await fetch(`https://www.bing.com/ping?sitemap=${idxUrl}`, { mode: 'no-cors' });
-    toast('✅ Pinged Bing with sitemap-index.xml', 'green');
-  } catch {
-    toast('Ping sent (CORS expected — Bing received it)', 'green');
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// v16 — PATCH ifSubmitJob to include drip_mode + drip_hours
-// ══════════════════════════════════════════════════════════
-// The existing ifSubmitJob is patched here via monkey-patching.
-// It wraps the original to inject drip params into the POST body.
-(function() {
-  const _origSubmit = window.ifSubmitJob;
-  if (typeof _origSubmit !== 'function') return; // not loaded yet — DOMContentLoaded handles it
-  window.ifSubmitJob = async function() {
-    // Patch the fetch call by temporarily overriding fetch body construction
-    // Simpler approach: just add drip params to what the original sends
-    const dripMode  = getDripMode();
-    const dripHours = getDripHours();
-    const _origFetch = window.fetch;
-    window.fetch = function(url, opts) {
-      if (opts && opts.body && typeof opts.body === 'string') {
-        try {
-          const parsed = JSON.parse(opts.body);
-          if (parsed.raw_urls !== undefined) {
-            parsed.drip_mode  = dripMode;
-            parsed.drip_hours = dripHours;
-            opts = { ...opts, body: JSON.stringify(parsed) };
-          }
-        } catch(e) {}
-      }
-      window.fetch = _origFetch;
-      return _origFetch.call(this, url, opts);
-    };
-    await _origSubmit();
-    if (dripMode && dripHours.length) {
-      const nextAt = Date.now()/1000 + dripHours[0]*3600;
-      showDripStatus(nextAt);
-    }
-  };
-})();
-
 </script>
 
 <!-- ═══ NAKED URLS COPY MODAL ═══ -->
