@@ -428,6 +428,46 @@ textarea{resize:vertical;line-height:1.7}
 /* ══ v16 NEW: Sitemap-index panel ═══════════════════════════════════ */
 .sitemap-idx-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
 .sitemap-idx-url{font-family:var(--mono);font-size:.65rem;color:var(--accent);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-top:8px;word-break:break-all}
+
+/* ══ v17 NEW: Score rings ══════════════════════════════════════════ */
+.psi-rings{display:flex;flex-wrap:wrap;gap:12px;padding:12px 14px}
+.psi-ring-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:64px}
+.psi-ring{position:relative;width:60px;height:60px;flex-shrink:0}
+.psi-ring svg{transform:rotate(-90deg)}
+.psi-ring-bg{fill:none;stroke:var(--bg3);stroke-width:5}
+.psi-ring-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.psi-ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:.75rem;font-weight:700}
+.psi-ring-name{font-size:.48rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;text-align:center}
+.psi-cwv{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px;border-top:1px solid var(--border);padding-top:10px}
+.psi-cwv-item{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;display:flex;flex-direction:column;gap:1px;flex:1;min-width:80px}
+.psi-cwv-k{font-size:.42rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.psi-cwv-v{font-size:.65rem;font-weight:700;color:var(--text)}
+
+/* ══ v17 NEW: Diagnosis panel ══════════════════════════════════════ */
+.diag-panel{background:var(--bg);border:1px solid rgba(245,158,11,.25);border-radius:10px;overflow:hidden;margin-bottom:4px}
+.diag-hdr{padding:9px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);border-bottom:1px solid rgba(245,158,11,.15);display:flex;align-items:center;gap:7px}
+.diag-body{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.diag-issue{display:flex;align-items:flex-start;gap:8px;font-size:.6rem;color:var(--text);line-height:1.6}
+.diag-fix{font-size:.58rem;color:var(--accent);margin-left:20px;line-height:1.6}
+.diag-ok{display:flex;align-items:center;gap:8px;font-size:.6rem;color:var(--accent)}
+
+/* ══ v17 NEW: Crawl history ════════════════════════════════════════ */
+.ch-hist-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:.58rem;cursor:pointer;transition:border-color .15s}
+.ch-hist-row:hover{border-color:var(--border2)}
+.ch-hist-verdict{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ch-hist-date{color:var(--muted2);font-size:.5rem;flex-shrink:0}
+.ch-hist-change{font-size:.5rem;padding:1px 5px;border-radius:3px;white-space:nowrap}
+.ch-hist-change.improved{background:var(--accent-dim);color:var(--accent)}
+.ch-hist-change.worsened{background:var(--red-dim);color:var(--red)}
+.ch-hist-change.same{background:var(--bg3);color:var(--muted)}
+
+/* ══ v17 NEW: Smart scheduler retry interval chips ════════════════ */
+.sched-interval-row{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.sched-chip{font-family:var(--mono);font-size:.55rem;padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s}
+.sched-chip.active{background:rgba(6,182,212,.12);border-color:rgba(6,182,212,.3);color:var(--cyan)}
+.sched-stats-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sched-stat-pill{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.55rem;flex:1;min-width:80px;text-align:center}
+.sched-stat-pill .sv{font-family:var(--display);font-size:.9rem;font-weight:700;display:block}
 </style>
 </head>
 <body>
@@ -748,17 +788,32 @@ textarea{resize:vertical;line-height:1.7}
         </div>
         <div class="card">
           <div class="card-label">⏱ Auto-Retry Scheduler</div>
-          <div style="font-size:.62rem;color:var(--muted);margin-bottom:12px">Automatically escalates NEUTRAL links at 48h / 72h / 96h — no manual clicks needed.</div>
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:12px">Automatically escalates NEUTRAL links — no manual clicks needed. Configurable retry windows.</div>
           <label class="auto-sched-toggle">
             <input type="checkbox" id="auto-sched-on" onchange="toggleAutoScheduler()">
             <span>Enable automatic escalation for all projects</span>
             <span id="sched-status-badge" style="margin-left:auto;font-size:.52rem;color:var(--muted2)">Disabled</span>
           </label>
           <div id="sched-next-run" style="font-size:.58rem;color:var(--cyan);display:none;margin-bottom:8px">⟳ Scheduler running — checks every 30 min</div>
-          <div style="font-size:.58rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;line-height:1.9">
-            <div>📌 48h: GSC + IndexNow + Wayback re-fire</div>
-            <div>📌 72h: + XML-RPC ping blast + Sitemaps + RUI</div>
-            <div>📌 96h: + Social drafts + manual review flag</div>
+          <div style="font-size:.55rem;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.08em">Retry windows — blast NEUTRAL after:</div>
+          <div class="sched-interval-row">
+            <button class="sched-chip active" data-h="12" onclick="toggleSchedChip(this)">12h</button>
+            <button class="sched-chip active" data-h="24" onclick="toggleSchedChip(this)">24h</button>
+            <button class="sched-chip active" data-h="48" onclick="toggleSchedChip(this)">48h</button>
+            <button class="sched-chip active" data-h="72" onclick="toggleSchedChip(this)">72h</button>
+            <button class="sched-chip active" data-h="96" onclick="toggleSchedChip(this)">96h</button>
+          </div>
+          <div class="sched-stats-row" id="sched-stats-row">
+            <div class="sched-stat-pill"><span class="sv" id="ss-neutral" style="color:var(--blue)">0</span>NEUTRAL</div>
+            <div class="sched-stat-pill"><span class="sv" id="ss-queued" style="color:var(--orange)">0</span>Due Now</div>
+            <div class="sched-stat-pill"><span class="sv" id="ss-pass" style="color:var(--accent)">0</span>Indexed</div>
+          </div>
+          <div style="font-size:.58rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;line-height:1.9;margin-top:8px">
+            <div>📌 12h: First re-check — GSC + IndexNow re-fire</div>
+            <div>📌 24h: GSC + Indexing API + Wayback</div>
+            <div>📌 48h: + XML-RPC ping blast + Sitemaps + RUI</div>
+            <div>📌 72h: + Social drafts</div>
+            <div>📌 96h: + manual review flag</div>
           </div>
           <div id="sched-log" style="font-size:.58rem;color:var(--muted);margin-top:8px;display:none"></div>
         </div>
@@ -1538,7 +1593,8 @@ Then deploy.</div></div>
   <div class="modal crawl-modal">
     <div class="modal-title">
       <span style="font-size:1.1rem">🔍</span><span>Crawl Details</span>
-      <button class="btn btn-outline" style="margin-left:auto;font-size:.55rem;padding:3px 9px" onclick="closeModal('modal-crawl')">✕ Close</button>
+      <button class="btn btn-cyan" style="font-size:.55rem;padding:4px 11px;margin-left:auto" id="crawl-resubmit-btn" onclick="crawlModalResubmit()" title="Re-blast this URL through all indexing channels">🔁 Re-submit URL</button>
+      <button class="btn btn-outline" style="font-size:.55rem;padding:3px 9px;margin-left:6px" onclick="closeModal('modal-crawl')">✕ Close</button>
     </div>
     <div class="crawl-url-bar" id="crawl-url-bar">—</div>
     <div class="crawl-body-layout" id="crawl-body-layout">
@@ -1551,6 +1607,11 @@ Then deploy.</div></div>
         </div>
         <div class="crawl-meta-mini" id="crawl-meta-mini" style="display:none"></div>
         <a class="open-orig-btn" id="open-orig-btn" href="#" target="_blank" style="display:none">↗ Open Original Page</a>
+        <!-- Crawl History -->
+        <div id="crawl-hist-panel" style="display:none">
+          <div style="font-size:.5rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:8px 0 5px">📜 Crawl History</div>
+          <div id="crawl-hist-list" style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto"></div>
+        </div>
       </div>
       <div class="crawl-sections" id="crawl-sections">
         <div class="crawl-loading"><div class="spin">⟳</div><div>Loading crawl data…</div></div>
@@ -4719,25 +4780,6 @@ function toast(msg,type){
 // ══════════════════════════════════════════════════════════
 // CRAWL DETAILS MODAL
 // ══════════════════════════════════════════════════════════
-async function openCrawlDetails(shortUrl, originalUrl){
-  document.getElementById('modal-crawl').classList.add('open');
-  const urlBar = document.getElementById('crawl-url-bar');
-  urlBar.innerHTML = `<span>Short:</span> ${he(shortUrl)} &nbsp;→&nbsp; <span>Original:</span> ${he(originalUrl.slice(0,70))}${originalUrl.length>70?'…':''}`;
-  const sections = document.getElementById('crawl-sections');
-  sections.innerHTML = `<div class="crawl-loading"><div class="spin">⟳</div><div>Querying Google Search Console…</div></div>`;
-  loadPagePreview(originalUrl);
-  const sa   = getNextSA();
-  const site = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
-  if(!sa){ sections.innerHTML=`<div class="crawl-no-sa"><div class="ns-icon">🔑</div><div style="margin-bottom:8px;color:var(--text);font-size:.72rem">Service Account Required</div><div>Add SA keys in <strong style="color:var(--accent)">Settings</strong> tab.</div></div>`; return; }
-  try{
-    const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
-    const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})});
-    if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
-    const data = await r.json();
-    renderCrawlDetails(sections, data?.inspectionResult||{}, shortUrl, originalUrl);
-  }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
-}
-
 function loadPagePreview(url){
   const wrap   = document.getElementById('cpf-img-wrap');
   const metaEl = document.getElementById('crawl-meta-mini');
@@ -4776,17 +4818,18 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl){
   const vLabel  = verdict==='PASS'?'Indexed': verdict==='NEUTRAL'?'Crawled / Not Indexed': verdict==='FAIL'?'Not Indexed (Error)':'Unknown / Pending';
   let html=`<div class="crawl-verdict-banner ${vClass}">
     <span class="cvb-icon">${vIcon}</span>
-    <div><div class="cvb-label ${vClass}">${vLabel}</div>${idx.coverageState?`<div class="cvb-sub">${he(idx.coverageState)}</div>`:''}</div>
+    <div><div class="cvb-label ${vClass}">${vLabel}</div>${idx.coverageState?`<div class="cvb-sub">${he(humanCoverageState(idx.coverageState))}</div>`:''}</div>
   </div>
+  ${buildDiagnosisPanel(verdict, idx)}
   <div class="crawl-section">
     <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">📄</span><span style="color:var(--accent)">Index Status</span></div>
     <div class="crawl-section-body">
-      ${kv('Verdict',verdict,vClass)}
-      ${kv('Coverage State',idx.coverageState||'—')}
-      ${kv('Robots.txt',idx.robotsTxtState||'—',robotsColor(idx.robotsTxtState))}
-      ${kv('Indexing State',idx.indexingState||'—',indexingColor(idx.indexingState))}
-      ${kv('Page Fetch',idx.pageFetchState||'—',fetchColor(idx.pageFetchState))}
-      ${kv('Last Crawl',idx.lastCrawlTime?fmtDate(idx.lastCrawlTime):'—',idx.lastCrawlTime?'good':'')}
+      ${kv('Verdict',humanVerdict(verdict),vClass)}
+      ${kv('Coverage',humanCoverageState(idx.coverageState||'—'))}
+      ${kv('Robots.txt',humanRobotsTxt(idx.robotsTxtState||'—'),robotsColor(idx.robotsTxtState))}
+      ${kv('Indexing',humanIndexingState(idx.indexingState||'—'),indexingColor(idx.indexingState))}
+      ${kv('Page Fetch',humanPageFetch(idx.pageFetchState||'—'),fetchColor(idx.pageFetchState))}
+      ${kv('Last Crawl',idx.lastCrawlTime?fmtDate(idx.lastCrawlTime):'Never crawled',idx.lastCrawlTime?'good':'warn')}
       ${kv('Crawled As',idx.crawledAs||'—','blue')}
       ${kv('Google Canonical',idx.googleCanonical?shortUrl===idx.googleCanonical?'✓ Matches':'⚠ '+idx.googleCanonical.slice(0,50):'—',idx.googleCanonical&&idx.googleCanonical===shortUrl?'good':'warn')}
       ${kv('Sitemap',(idx.sitemap&&idx.sitemap.length)?idx.sitemap[0].slice(0,50)+'…':'—')}
@@ -4829,10 +4872,83 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl){
   }
   html+=`<div class="crawl-section" id="psi-section">
     <div class="crawl-section-hdr" style="background:rgba(245,158,11,0.04)"><span class="cs-icon">⚡</span><span style="color:var(--orange)">PageSpeed Scores</span><span style="margin-left:auto;font-size:.48rem;color:var(--muted2)">via Google PSI</span></div>
-    <div class="crawl-section-body" id="psi-body"><div class="crawl-kv"><div class="cv" style="color:var(--muted2);font-size:.6rem">⟳ Loading…</div></div></div>
+    <div id="psi-body"><div style="padding:12px 14px;color:var(--muted2);font-size:.6rem">⟳ Loading…</div></div>
   </div>`;
   container.innerHTML = html;
   if(originalUrl) loadPageSpeedScores(originalUrl);
+}
+
+// ── Human-readable enum translators ──────────────────────────────
+function humanVerdict(v){
+  const m={PASS:'✓ Indexed',NEUTRAL:'Crawled / Not Indexed',FAIL:'Not Indexed (Error)',UNKNOWN:'Unknown / Pending'};
+  return m[v]||v;
+}
+function humanRobotsTxt(s){
+  const m={ROBOTS_TXT_STATE_UNSPECIFIED:'Not checked',ALLOWED:'✓ Allowed',DISALLOWED:'✗ Blocked by robots.txt'};
+  return m[s]||s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+function humanIndexingState(s){
+  const m={INDEXING_STATE_UNSPECIFIED:'Not checked',INDEXING_ALLOWED:'✓ Indexing allowed',BLOCKED_BY_META_TAG:'✗ Blocked by noindex meta',BLOCKED_BY_HTTP_HEADER:'✗ Blocked by X-Robots-Tag',BLOCKED_BY_ROBOTS_TXT:'✗ Blocked by robots.txt'};
+  return m[s]||s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+function humanPageFetch(s){
+  const m={PAGE_FETCH_STATE_UNSPECIFIED:'Not fetched',SUCCESSFUL:'✓ Fetched successfully',SOFT_404:'Soft 404 (page exists but signals not-found)',NOT_FOUND:'404 Not Found',ACCESS_DENIED:'Access Denied (401/403)',SERVER_ERROR:'Server Error (5xx)',REDIRECT_ERROR:'Redirect Error',ACCESS_FORBIDDEN:'Forbidden',BLOCKED_ROBOTS_TXT:'Blocked by robots.txt',INTERNAL_CRAWL_ERROR:'Internal crawl error',INVALID_URL:'Invalid URL'};
+  return m[s]||s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+function humanCoverageState(s){
+  const m={
+    'Submitted and indexed':'✓ Submitted and indexed',
+    'Indexed, not submitted in sitemap':'Indexed (not in sitemap)',
+    'Crawled - currently not indexed':'Crawled — not indexed yet',
+    'Discovered - currently not indexed':'Discovered — queued for crawl',
+    'Page with redirect':'Redirect detected',
+    'Excluded by "noindex" tag':'Excluded: noindex tag',
+    'Blocked by robots.txt':'Blocked by robots.txt',
+    'Soft 404':'Soft 404 — page signals empty',
+    'Not found (404)':'404 Not Found',
+    'Alternate page with proper canonical tag':'Canonical points elsewhere',
+    'Duplicate without user-selected canonical':'Duplicate — no canonical set',
+  };
+  return m[s]||s;
+}
+
+// ── Actionable diagnosis panel ────────────────────────────────────
+function buildDiagnosisPanel(verdict, idx){
+  const coverage = idx.coverageState||'';
+  const robots   = idx.robotsTxtState||'';
+  const indexing = idx.indexingState||'';
+  const fetch_   = idx.pageFetchState||'';
+  const lastCrawl= idx.lastCrawlTime;
+  const issues   = [];
+
+  if(robots==='DISALLOWED')
+    issues.push({icon:'🚫',issue:'Blocked by robots.txt',fix:'Remove the Disallow rule from your robots.txt, then request re-indexing in GSC.'});
+  if(indexing==='BLOCKED_BY_META_TAG')
+    issues.push({icon:'🚫',issue:'noindex meta tag detected',fix:'Remove <meta name="robots" content="noindex"> from this page\'s HTML.'});
+  if(indexing==='BLOCKED_BY_HTTP_HEADER')
+    issues.push({icon:'🚫',issue:'X-Robots-Tag: noindex in HTTP header',fix:'Remove the noindex directive from your server\'s HTTP response headers.'});
+  if(fetch_==='SOFT_404')
+    issues.push({icon:'⚠️',issue:'Soft 404 — page returns 200 but looks empty',fix:'Add meaningful content. Google treats thin/empty pages as 404s.'});
+  if(fetch_==='NOT_FOUND'||fetch_==='ACCESS_DENIED'||fetch_==='SERVER_ERROR')
+    issues.push({icon:'❌',issue:`Fetch failed: ${humanPageFetch(fetch_)}`,fix:'Fix the server error / 404 / access block, then use GSC URL Inspection to request re-crawl.'});
+  if(fetch_==='REDIRECT_ERROR')
+    issues.push({icon:'⚠️',issue:'Redirect chain error',fix:'Ensure redirects resolve to a 200 in ≤5 hops with no redirect loops.'});
+
+  if(verdict==='NEUTRAL' && (coverage.includes('not indexed')||coverage.includes('currently not indexed'))){
+    if(!idx.referringUrls||!idx.referringUrls.length)
+      issues.push({icon:'🔗',issue:'No internal links pointing to this page',fix:'Add internal links from indexed pages in your site. Google follows links to discover content.'});
+    issues.push({icon:'📝',issue:'Google crawled it but chose not to index',fix:'Improve content quality (aim for 500+ words). Remove duplicate content. Add structured data. Ensure E-E-A-T signals are present.'});
+  }
+  if(verdict==='NEUTRAL' && coverage.includes('Discovered')){
+    issues.push({icon:'⏳',issue:'Discovered but not yet crawled',fix:'Submit via GSC Sitemaps, fire IndexNow, and add internal links to speed up crawl scheduling.'});
+  }
+  if(!lastCrawl)
+    issues.push({icon:'🕷',issue:'Never been crawled',fix:'Submit sitemap to GSC. Use IndexNow blast. Add internal links. Avoid orphan pages.'});
+
+  if(verdict==='PASS') return `<div class="diag-panel" style="border-color:rgba(0,255,136,.2)"><div class="diag-hdr" style="color:var(--accent)">✅ Why It\'s Indexed</div><div class="diag-body"><div class="diag-ok">✓ Page is indexed and serving in Google search results.</div>${!idx.referringUrls?.length?`<div style="font-size:.58rem;color:var(--muted);margin-top:4px">💡 Tip: Add more internal links to boost crawl frequency and ranking signals.</div>`:''}</div></div>`;
+
+  if(!issues.length) return '';
+  return `<div class="diag-panel"><div class="diag-hdr">🩺 Why isn't this indexed? — Action Required</div><div class="diag-body">${issues.map(i=>`<div><div class="diag-issue">${i.icon} ${he(i.issue)}</div><div class="diag-fix">→ Fix: ${he(i.fix)}</div></div>`).join('')}</div></div>`;
 }
 
 async function loadPageSpeedScores(url){
@@ -4842,26 +4958,48 @@ async function loadPageSpeedScores(url){
       fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=mobile&category=performance&category=accessibility&category=seo`),
       fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=desktop&category=performance&category=seo`)
     ]);
-    if(!mobR.ok&&!deskR.ok){ body.innerHTML=`<div class="crawl-kv"><div class="cv warn">PSI unavailable</div></div>`; return; }
+    if(!mobR.ok&&!deskR.ok){ body.innerHTML=`<div style="padding:12px 14px;color:var(--orange);font-size:.6rem">PSI unavailable — check API key or try again</div>`; return; }
     const score=(data,cat)=>{ const s=data?.lighthouseResult?.categories?.[cat]?.score; return s!=null?Math.round(s*100):null; };
-    const sc=s=>s==null?'':s>=90?'good':s>=50?'warn':'bad';
-    const ss=s=>s==null?'—':s+'';
+    const ringColor=s=>s==null?'var(--muted2)':s>=90?'var(--accent)':s>=50?'var(--orange)':'var(--red)';
     const md=mobR.ok?await mobR.json():null;
     const dd=deskR.ok?await deskR.json():null;
     const fcp=md?.lighthouseResult?.audits?.['first-contentful-paint']?.displayValue||'—';
     const lcp=md?.lighthouseResult?.audits?.['largest-contentful-paint']?.displayValue||'—';
-    const cls=md?.lighthouseResult?.audits?.['cumulative-layout-shift']?.displayValue||'—';
+    const cls_=md?.lighthouseResult?.audits?.['cumulative-layout-shift']?.displayValue||'—';
     const tbt=md?.lighthouseResult?.audits?.['total-blocking-time']?.displayValue||'—';
+    const si=md?.lighthouseResult?.audits?.['speed-index']?.displayValue||'—';
+
+    function ring(label, s){
+      const c = ringColor(s); const v = s==null?'—':s;
+      const r=26, circ=2*Math.PI*r, pct=(s||0)/100, offset=circ*(1-pct);
+      return `<div class="psi-ring-wrap">
+        <div class="psi-ring">
+          <svg width="60" height="60" viewBox="0 0 60 60">
+            <circle class="psi-ring-bg" cx="30" cy="30" r="${r}"/>
+            <circle class="psi-ring-fill" cx="30" cy="30" r="${r}"
+              stroke="${c}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/>
+          </svg>
+          <div class="psi-ring-label" style="color:${c}">${v}</div>
+        </div>
+        <div class="psi-ring-name">${label}</div>
+      </div>`;
+    }
+
     body.innerHTML=`
-      <div class="crawl-kv"><div class="ck">📱 Mobile Perf</div><div class="cv ${sc(score(md,'performance'))}">${ss(score(md,'performance'))}/100</div></div>
-      <div class="crawl-kv"><div class="ck">🖥 Desktop Perf</div><div class="cv ${sc(score(dd,'performance'))}">${ss(score(dd,'performance'))}/100</div></div>
-      <div class="crawl-kv"><div class="ck">♿ Accessibility</div><div class="cv ${sc(score(md,'accessibility'))}">${ss(score(md,'accessibility'))}/100</div></div>
-      <div class="crawl-kv"><div class="ck">🔍 SEO Score</div><div class="cv ${sc(score(md,'seo'))}">${ss(score(md,'seo'))}/100</div></div>
-      <div class="crawl-kv"><div class="ck">⏱ FCP</div><div class="cv">${he(fcp)}</div></div>
-      <div class="crawl-kv"><div class="ck">🖼 LCP</div><div class="cv">${he(lcp)}</div></div>
-      <div class="crawl-kv"><div class="ck">📐 CLS</div><div class="cv">${he(cls)}</div></div>
-      <div class="crawl-kv"><div class="ck">🚧 TBT</div><div class="cv">${he(tbt)}</div></div>`;
-  }catch(e){ if(body) body.innerHTML=`<div class="crawl-kv"><div class="cv warn">PSI failed: ${he(e.message)}</div></div>`; }
+      <div class="psi-rings">
+        ${ring('📱 Mobile',score(md,'performance'))}
+        ${ring('🖥 Desktop',score(dd,'performance'))}
+        ${ring('♿ A11y',score(md,'accessibility'))}
+        ${ring('🔍 SEO',score(md,'seo'))}
+      </div>
+      <div class="psi-cwv" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px">
+        <div class="psi-cwv-item"><div class="psi-cwv-k">FCP</div><div class="psi-cwv-v">${he(fcp)}</div></div>
+        <div class="psi-cwv-item"><div class="psi-cwv-k">LCP</div><div class="psi-cwv-v">${he(lcp)}</div></div>
+        <div class="psi-cwv-item"><div class="psi-cwv-k">CLS</div><div class="psi-cwv-v">${he(cls_)}</div></div>
+        <div class="psi-cwv-item"><div class="psi-cwv-k">TBT</div><div class="psi-cwv-v">${he(tbt)}</div></div>
+        <div class="psi-cwv-item"><div class="psi-cwv-k">Speed Index</div><div class="psi-cwv-v">${he(si)}</div></div>
+      </div>`;
+  }catch(e){ if(body) body.innerHTML=`<div style="padding:12px 14px;color:var(--orange);font-size:.6rem">PSI failed: ${he(e.message)}</div>`; }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -5198,16 +5336,199 @@ async function applySitemapImport(urls){
   toast(`📥 ${urls.length} URLs from sitemap ready to add`,'green');
 }
 
-// charts now called inline in renderAnalytics
+// ══════════════════════════════════════════════════════════
+// v17 — CRAWL HISTORY (localStorage-based per URL)
+// ══════════════════════════════════════════════════════════
+const CRAWL_HIST_KEY = 'lc_crawl_history';
+let _crawlHistoryCache = null;
 
-// notification hooks inlined into refreshVerdicts above
-
-// Auto-scheduler boot restore
-function bootAutoScheduler(){
-  const on = localStorage.getItem('lc_auto_sched')==='1';
-  const cb = document.getElementById('auto-sched-on');
-  if(cb && on){ cb.checked=true; toggleAutoScheduler(); }
+function loadCrawlHistory(){
+  if(_crawlHistoryCache) return _crawlHistoryCache;
+  try{ _crawlHistoryCache = JSON.parse(localStorage.getItem(CRAWL_HIST_KEY)||'{}'); }catch(e){ _crawlHistoryCache={}; }
+  return _crawlHistoryCache;
 }
+
+function saveCrawlResult(shortUrl, verdict, coverageState){
+  const hist = loadCrawlHistory();
+  const key = shortUrl;
+  if(!hist[key]) hist[key]=[];
+  // Dedupe: don't push same verdict consecutively
+  const last = hist[key][hist[key].length-1];
+  if(last && last.verdict===verdict && Date.now()-new Date(last.ts).getTime()<3600000) return;
+  hist[key].push({verdict, coverage:coverageState||'', ts:new Date().toISOString()});
+  // Keep last 20 entries per URL
+  if(hist[key].length>20) hist[key]=hist[key].slice(-20);
+  _crawlHistoryCache=hist;
+  try{ localStorage.setItem(CRAWL_HIST_KEY, JSON.stringify(hist)); }catch(e){}
+}
+
+function renderCrawlHistory(shortUrl){
+  const panel = document.getElementById('crawl-hist-panel');
+  const list  = document.getElementById('crawl-hist-list');
+  if(!panel||!list) return;
+  const hist = loadCrawlHistory();
+  const entries = (hist[shortUrl]||[]).slice().reverse();
+  if(!entries.length){ panel.style.display='none'; return; }
+  panel.style.display='block';
+  const vColor={PASS:'var(--accent)',NEUTRAL:'var(--blue)',FAIL:'var(--red)',UNKNOWN:'var(--muted2)'};
+  list.innerHTML = entries.map((e,i)=>{
+    const prev = entries[i+1];
+    let changeBadge='';
+    if(prev){
+      if(e.verdict!==prev.verdict){
+        const improved=(e.verdict==='PASS'&&prev.verdict!=='PASS')||(e.verdict==='NEUTRAL'&&prev.verdict==='FAIL');
+        changeBadge=`<span class="ch-hist-change ${improved?'improved':'worsened'}">${improved?'↑ '+e.verdict:'↓ '+e.verdict}</span>`;
+      } else {
+        changeBadge=`<span class="ch-hist-change same">same</span>`;
+      }
+    }
+    return `<div class="ch-hist-row">
+      <div class="ch-hist-verdict" style="background:${vColor[e.verdict]||'var(--muted2)'}"></div>
+      <div style="flex:1;font-size:.58rem;color:var(--text)">${humanVerdict(e.verdict)}</div>
+      ${changeBadge}
+      <div class="ch-hist-date">${new Date(e.ts).toLocaleDateString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Re-submit button inside crawl modal ──────────────────────────
+let _crawlModalShortUrl='', _crawlModalOrigUrl='';
+
+async function openCrawlDetails(shortUrl, originalUrl){
+  _crawlModalShortUrl=shortUrl;
+  _crawlModalOrigUrl=originalUrl;
+  const btn=document.getElementById('crawl-resubmit-btn');
+  if(btn){ btn.disabled=false; btn.textContent='🔁 Re-submit URL'; }
+  document.getElementById('modal-crawl').classList.add('open');
+  const urlBar = document.getElementById('crawl-url-bar');
+  urlBar.innerHTML = `<span>Short:</span> ${he(shortUrl)} &nbsp;→&nbsp; <span>Original:</span> ${he(originalUrl.slice(0,70))}${originalUrl.length>70?'…':''}`;
+  const sections = document.getElementById('crawl-sections');
+  sections.innerHTML = `<div class="crawl-loading"><div class="spin">⟳</div><div>Querying Google Search Console…</div></div>`;
+  loadPagePreview(originalUrl);
+  renderCrawlHistory(shortUrl);
+  const sa   = getNextSA();
+  const site = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
+  if(!sa){ sections.innerHTML=`<div class="crawl-no-sa"><div class="ns-icon">🔑</div><div style="margin-bottom:8px;color:var(--text);font-size:.72rem">Service Account Required</div><div>Add SA keys in <strong style="color:var(--accent)">Settings</strong> tab.</div></div>`; return; }
+  try{
+    const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
+    const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})});
+    if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
+    const data = await r.json();
+    const result = data?.inspectionResult||{};
+    // Save to crawl history
+    const verdict = result.indexStatusResult?.verdict||'UNKNOWN';
+    const coverage = result.indexStatusResult?.coverageState||'';
+    saveCrawlResult(shortUrl, verdict, coverage);
+    renderCrawlHistory(shortUrl);
+    renderCrawlDetails(sections, result, shortUrl, originalUrl);
+  }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
+}
+
+async function crawlModalResubmit(){
+  if(!_crawlModalShortUrl){ toast('Open a crawl details panel first',''); return; }
+  const btn=document.getElementById('crawl-resubmit-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Blasting…'; }
+  const sa=getNextSA();
+  const site=document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
+  const shortUrl=_crawlModalShortUrl;
+  const origUrl=_crawlModalOrigUrl;
+  try{
+    const promises=[];
+    if(sa){
+      const [tGSC,tIdx]=await Promise.all([
+        getToken(sa.json,'https://www.googleapis.com/auth/webmasters'),
+        getToken(sa.json,'https://www.googleapis.com/auth/indexing')
+      ]);
+      promises.push(
+        fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${tGSC}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})}),
+        fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url:shortUrl,type:'URL_UPDATED'})})
+      );
+      if(origUrl) promises.push(
+        fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url:origUrl,type:'URL_UPDATED'})})
+      );
+      sa.daily_used=(sa.daily_used||0)+2;
+    }
+    const inPayload=JSON.stringify({host:'flexygist.com.ng',key:INDEXNOW_KEY,keyLocation:INDEXNOW_KEY_LOC,urlList:[shortUrl,origUrl].filter(Boolean)});
+    promises.push(...['https://api.indexnow.org/indexnow','https://www.bing.com/indexnow','https://yandex.com/indexnow'].map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:inPayload})));
+    promises.push(fetch(`https://web.archive.org/save/${encodeURIComponent(shortUrl)}`,{mode:'no-cors'}).catch(()=>{}));
+    await Promise.allSettled(promises);
+    localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+    toast('🔁 Re-submitted — GSC + IndexNow + Wayback fired','green');
+  } catch(e){ toast('Re-submit error: '+e.message,''); }
+  finally{
+    if(btn){ btn.disabled=false; btn.textContent='🔁 Re-submit URL'; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// v17 — SMART SCHEDULER: configurable intervals + stats
+// ══════════════════════════════════════════════════════════
+function toggleSchedChip(btn){
+  btn.classList.toggle('active');
+  saveSchedIntervals();
+}
+function saveSchedIntervals(){
+  const hours = Array.from(document.querySelectorAll('.sched-chip.active')).map(b=>parseInt(b.dataset.h));
+  localStorage.setItem('lc_sched_intervals', JSON.stringify(hours));
+}
+function loadSchedIntervals(){
+  try{ return JSON.parse(localStorage.getItem('lc_sched_intervals')||'[12,24,48,72,96]'); }catch(e){ return [12,24,48,72,96]; }
+}
+function restoreSchedChips(){
+  const saved=loadSchedIntervals();
+  document.querySelectorAll('.sched-chip').forEach(b=>{
+    b.classList.toggle('active', saved.includes(parseInt(b.dataset.h)));
+  });
+}
+function updateSchedStats(){
+  const allLinks=Object.values(links).flat();
+  const now=Date.now();
+  const intervals=loadSchedIntervals();
+  const minH=Math.min(...intervals.filter(h=>h>0))||12;
+  const neutral=allLinks.filter(l=>l.verdict==='NEUTRAL'||l.verdict==='crawled');
+  const pass=allLinks.filter(l=>l.verdict==='PASS'||l.verdict==='indexed');
+  const dueNow=neutral.filter(l=>{
+    const age=(now-new Date(l.added_at||l.submitted_at||0).getTime())/(3600*1000);
+    return age>=minH;
+  });
+  const n=document.getElementById('ss-neutral');
+  const q=document.getElementById('ss-queued');
+  const p=document.getElementById('ss-pass');
+  if(n) n.textContent=neutral.length;
+  if(q) q.textContent=dueNow.length;
+  if(p) p.textContent=pass.length;
+}
+
+// Override checkScheduledLinks to use configurable intervals
+const _origCheckScheduledLinks = checkScheduledLinks;
+async function checkScheduledLinks(){
+  const allLinks = Object.values(links).flat();
+  const now = Date.now();
+  const logEl = document.getElementById('sched-log');
+  const intervals = loadSchedIntervals().sort((a,b)=>a-b); // ascending hours
+  const toRetry = allLinks.filter(l=>{
+    if(!l.submitted || l.verdict==='PASS') return false;
+    const ageH = (now - new Date(l.added_at||l.submitted_at||0).getTime()) / (3600*1000);
+    const rc = l.retry_count||0;
+    // Fire if age > configured interval and we haven't retried this tier yet
+    for(let i=0;i<intervals.length;i++){
+      if(rc===i && ageH > intervals[i]) return true;
+    }
+    return false;
+  });
+  if(!toRetry.length){ updateSchedStats(); return; }
+  if(logEl){ logEl.style.display='block'; logEl.textContent=`⟳ Auto-scheduler: ${toRetry.length} link(s) — firing escalation…`; }
+  await runEscalation(toRetry);
+  if(logEl) logEl.textContent=`✓ Auto-retried ${toRetry.length} link(s) at ${new Date().toLocaleTimeString()}`;
+  fireNotification(`🔁 Auto-retry: ${toRetry.length} NEUTRAL link(s) escalated`, 'auto-retry');
+  updateSchedStats();
+}
+
+// Boot: restore chips and stats
+document.addEventListener('DOMContentLoaded',()=>{
+  restoreSchedChips();
+  updateSchedStats();
+});
 
 // Populate crawl audit project selector
 function populateCrawlAuditSel(){
@@ -5215,6 +5536,13 @@ function populateCrawlAuditSel(){
   if(!sel) return;
   const extras = projects.map(p=>`<option value="${p.id}">${he(p.name)}</option>`).join('');
   sel.innerHTML = `<option value="all">All Projects</option>${extras}`;
+}
+
+// Auto-scheduler boot restore
+function bootAutoScheduler(){
+  const on = localStorage.getItem('lc_auto_sched')==='1';
+  const cb = document.getElementById('auto-sched-on');
+  if(cb && on){ cb.checked=true; toggleAutoScheduler(); }
 }
 
 // ── DOMContentLoaded ──
