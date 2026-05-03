@@ -10,7 +10,7 @@
     {
       "source": "/link/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag",  "value": "noindex, nofollow" },
+        { "key": "X-Robots-Tag",  "value": "noindex" },
         { "key": "Cache-Control", "value": "no-store"          }
       ]
     }
