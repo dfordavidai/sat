@@ -64,7 +64,8 @@ export default async function handler(request) {
             || '';
 
   if (!code) {
-    return Response.redirect(FALLBACK_URL, 301);
+    const domainName = process.env.DOMAIN_NAME || url.hostname;
+    return Response.redirect(`https://${domainName}/link-hub`, 301);
   }
 
   if (!SB_URL || !SB_KEY) {
@@ -89,10 +90,8 @@ export default async function handler(request) {
     const rows = await res.json();
 
     if (!rows || !rows.length || !rows[0].target) {
-      return new Response(notFoundHtml(code), {
-        status: 404,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' },
-      });
+      const domainName = process.env.DOMAIN_NAME || url.hostname;
+      return Response.redirect(`https://${domainName}/link-hub`, 301);
     }
 
     const target = rows[0].target;
@@ -146,7 +145,8 @@ export default async function handler(request) {
 
   } catch (err) {
     console.error('LinkCore redirect error:', err);
-    return Response.redirect(FALLBACK_URL, 301);
+    const domainName = process.env.DOMAIN_NAME || url.hostname;
+    return Response.redirect(`https://${domainName}/link-hub`, 301);
   }
 }
 
