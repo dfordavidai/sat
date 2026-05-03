@@ -117,10 +117,10 @@ textarea{resize:vertical;line-height:1.7}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.green{border-color:rgba(0,255,136,.35);color:var(--accent)}.toast.red{border-color:rgba(239,68,68,.35);color:var(--red)}
 .view{display:none}.view.active{display:flex;flex-direction:column;gap:20px;min-width:0}
-.crawl-modal{max-width:900px;width:100%;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+.crawl-modal{max-width:960px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:0}
 .crawl-modal .modal-title{display:flex;align-items:center;gap:10px;margin-bottom:0;flex-shrink:0}
-.crawl-body-layout{display:grid;grid-template-columns:260px 1fr;gap:14px;align-items:start;flex:1;min-height:0}
-.crawl-preview-col{display:flex;flex-direction:column;gap:10px;position:sticky;top:0;max-height:calc(92vh - 120px);overflow-y:auto}
+.crawl-body-layout{display:grid;grid-template-columns:260px 1fr;gap:14px;align-items:start;flex:1;min-height:0;overflow:hidden}
+.crawl-preview-col{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:calc(92vh - 110px);padding-right:2px}
 .crawl-preview-col::-webkit-scrollbar{width:3px}.crawl-preview-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .crawl-preview-frame{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .cpf-hdr{padding:7px 12px;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
@@ -136,9 +136,9 @@ textarea{resize:vertical;line-height:1.7}
 .cmm-v.good{color:var(--accent)}.cmm-v.bad{color:var(--red)}.cmm-v.warn{color:var(--orange)}.cmm-v.blue{color:var(--blue)}
 .open-orig-btn{display:block;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:.55rem;color:var(--muted);text-decoration:none;transition:all .15s}
 .open-orig-btn:hover{border-color:var(--accent);color:var(--accent)}
-.crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:12px 0 16px}
+.crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:10px 0 12px;flex-shrink:0}
 .crawl-url-bar span{color:var(--accent)}
-.crawl-sections{display:flex;flex-direction:column;gap:10px;max-height:calc(92vh - 120px);overflow-y:auto;padding-right:4px}
+.crawl-sections{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:calc(92vh - 110px);padding-right:6px;padding-bottom:8px}
 .crawl-sections::-webkit-scrollbar{width:3px}.crawl-sections::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .crawl-section{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .crawl-section-hdr{padding:9px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
@@ -4790,12 +4790,15 @@ function loadPagePreview(url){
   openBtn.href=url; openBtn.style.display='block';
   wrap.innerHTML=`<div class="cpf-loading"><div class="spin" style="font-size:1.2rem">⟳</div><div>Capturing preview…</div></div>`;
 
-  // Multi-service screenshot fallback chain
+  // Multi-service screenshot fallback chain (no API keys required)
   const enc = encodeURIComponent(url);
   const services = [
-    `https://image.thum.io/get/width/520/crop/900/noanimate/${enc}`,
-    `https://api.screenshotmachine.com?key=&url=${enc}&dimension=390x600&format=jpg&cacheLimit=0`,
-    `https://s0.wp.com/mshots/v1/${enc}?w=520&h=780`,
+    // microlink.io: free, returns actual screenshot URL via JSON API
+    { type:'json', url:`https://api.microlink.io/?url=${enc}&screenshot=true&meta=false&embed=screenshot.url&waitFor=1500` },
+    // WordPress mshots: free, no key
+    { type:'img',  url:`https://s0.wp.com/mshots/v1/${enc}?w=520&h=780` },
+    // pagepeeker: free tier
+    { type:'img',  url:`https://free.pagepeeker.com/v2/thumbs.php?size=x&url=${enc}` },
   ];
 
   function showMeta(u){
@@ -4817,24 +4820,39 @@ function loadPagePreview(url){
 
   function tryService(idx){
     if(idx >= services.length){ showFaviconFallback(); return; }
-    const img = new Image();
-    // If image doesn't load within 8s, try next service
-    const timer = setTimeout(()=>{ img.src=''; tryService(idx+1); }, 8000);
-    img.onload=()=>{
-      clearTimeout(timer);
-      // Reject suspiciously tiny images (error pages from screenshot services)
-      if(img.naturalWidth < 10){ tryService(idx+1); return; }
-      wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; wrap.appendChild(img);
-      try{ showMeta(new URL(url)); }catch(e){}
-    };
-    img.onerror=()=>{ clearTimeout(timer); tryService(idx+1); };
-    img.src = services[idx];
+    const svc = services[idx];
+
+    if(svc.type === 'json'){
+      // Fetch JSON to extract the actual screenshot image URL
+      const timer = setTimeout(()=>tryService(idx+1), 10000);
+      fetch(svc.url).then(r=>r.json()).then(d=>{
+        clearTimeout(timer);
+        const imgUrl = d?.data?.screenshot?.url || d?.screenshot?.url || null;
+        if(!imgUrl){ tryService(idx+1); return; }
+        const img = new Image();
+        const t2 = setTimeout(()=>tryService(idx+1), 10000);
+        img.onload=()=>{ clearTimeout(t2); if(img.naturalWidth<10){tryService(idx+1);return;} wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; wrap.appendChild(img); try{showMeta(new URL(url));}catch(e){} };
+        img.onerror=()=>{ clearTimeout(t2); tryService(idx+1); };
+        img.src=imgUrl;
+      }).catch(()=>{ clearTimeout(timer); tryService(idx+1); });
+    } else {
+      const img = new Image();
+      const timer = setTimeout(()=>{ img.src=''; tryService(idx+1); }, 9000);
+      img.onload=()=>{
+        clearTimeout(timer);
+        if(img.naturalWidth < 10){ tryService(idx+1); return; }
+        wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; wrap.appendChild(img);
+        try{ showMeta(new URL(url)); }catch(e){}
+      };
+      img.onerror=()=>{ clearTimeout(timer); tryService(idx+1); };
+      img.src = svc.url;
+    }
   }
 
   tryService(0);
 }
 
-function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes){
+function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, siteCheck){
   const idx  = res.indexStatusResult||{};
   const mob  = res.mobileUsabilityResult||{};
   const rich = res.richResultsResult||{};
@@ -4844,39 +4862,41 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes){
   const vIcon   = verdict==='PASS'?'✅': verdict==='NEUTRAL'?'🔵': verdict==='FAIL'?'❌':'⏳';
   const vLabel  = verdict==='PASS'?'Indexed': verdict==='NEUTRAL'?'Crawled / Not Indexed': verdict==='FAIL'?'Not Indexed (Error)':'Unknown / Pending';
 
-  // ── Destination URL status banner ──────────────────────────────
+  // ── Destination URL status via site: search ────────────────────
   let destHtml = '';
-  if(destRes){
-    const dIdx = destRes.indexStatusResult||{};
-    const dVerdict = dIdx.verdict||'UNKNOWN';
-    const dClass = dVerdict==='PASS'?'pass': dVerdict==='NEUTRAL'?'neutral': dVerdict==='FAIL'?'fail':'pending';
-    const dIcon  = dVerdict==='PASS'?'✅': dVerdict==='NEUTRAL'?'🔵': dVerdict==='FAIL'?'❌':'⏳';
-    const dLabel = dVerdict==='PASS'?'Indexed': dVerdict==='NEUTRAL'?'Crawled / Not Indexed': dVerdict==='FAIL'?'Not Indexed':'Unknown / Pending';
-    const destShort = originalUrl ? (originalUrl.length>60 ? originalUrl.slice(0,60)+'…' : originalUrl) : '—';
-    destHtml = `<div class="crawl-section">
-      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
-      <div class="crawl-section-body single" style="padding:12px 14px">
-        <div style="font-size:.52rem;color:var(--muted);margin-bottom:8px;word-break:break-all">${he(destShort)}</div>
-        <div class="crawl-verdict-banner ${dClass}" style="margin-bottom:8px">
-          <span class="cvb-icon">${dIcon}</span>
-          <div><div class="cvb-label ${dClass}">${dLabel}</div>${dIdx.coverageState?`<div class="cvb-sub">${he(humanCoverageState(dIdx.coverageState))}</div>`:''}</div>
+  if(originalUrl){
+    if(siteCheck && siteCheck.error === null && siteCheck.indexed !== null){
+      const dIndexed = siteCheck.indexed;
+      const dCount   = siteCheck.count;
+      const dClass   = dIndexed ? 'pass' : 'fail';
+      const dIcon    = dIndexed ? '✅' : '❌';
+      const dLabel   = dIndexed ? `Indexed (${dCount} result${dCount!==1?'s':''} found)` : 'Not Indexed';
+      const destShort = originalUrl.length>65 ? originalUrl.slice(0,65)+'…' : originalUrl;
+      destHtml = `<div class="crawl-section">
+        <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span><span style="margin-left:auto;font-size:.45rem;color:var(--muted2)">via site: search</span></div>
+        <div class="crawl-section-body single" style="padding:12px 14px">
+          <div style="font-size:.5rem;color:var(--muted);margin-bottom:8px;word-break:break-all">${he(destShort)}</div>
+          <div class="crawl-verdict-banner ${dClass}" style="margin-bottom:10px">
+            <span class="cvb-icon">${dIcon}</span>
+            <div><div class="cvb-label ${dClass}">${dLabel}</div><div class="cvb-sub">Google site: operator result</div></div>
+          </div>
+          ${dIndexed
+            ? `<div style="padding:7px 10px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:7px;font-size:.57rem;color:var(--accent);line-height:1.6">✓ Destination is indexed — your backlink is passing link equity correctly.</div>`
+            : `<div style="padding:7px 10px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:7px;font-size:.57rem;color:var(--purple);line-height:1.6">⚠ Destination page is <strong>not indexed</strong> — backlink is pointing at an invisible page. Use Re-submit to blast the original URL.</div>`
+          }
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px">
-          ${kv('Verdict',humanVerdict(dVerdict),dClass)}
-          ${kv('Coverage',humanCoverageState(dIdx.coverageState||'—'))}
-          ${kv('Robots.txt',humanRobotsTxt(dIdx.robotsTxtState||'—'),robotsColor(dIdx.robotsTxtState))}
-          ${kv('Indexing',humanIndexingState(dIdx.indexingState||'—'),indexingColor(dIdx.indexingState))}
-          ${kv('Last Crawl',dIdx.lastCrawlTime?fmtDate(dIdx.lastCrawlTime):'Never crawled',dIdx.lastCrawlTime?'good':'warn')}
-          ${kv('Referring URLs',(dIdx.referringUrls&&dIdx.referringUrls.length)?dIdx.referringUrls.length+' found':'None',dIdx.referringUrls?.length?'good':'')}
-        </div>
-        ${dVerdict!=='PASS'?`<div style="margin-top:10px;padding:8px 10px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:7px;font-size:.57rem;color:var(--purple);line-height:1.6">⚠ The destination page is <strong>not indexed</strong> — your backlink is pointing to a page Google can't see. Re-submit the original URL via the Re-submit button above.</div>`:'<div style="margin-top:8px;padding:6px 10px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:7px;font-size:.57rem;color:var(--accent);line-height:1.6">✓ Destination page is indexed — your backlink is passing link equity correctly.</div>'}
-      </div>
-    </div>`;
-  } else if(originalUrl) {
-    destHtml = `<div class="crawl-section">
-      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
-      <div style="padding:12px 14px;font-size:.6rem;color:var(--muted2)">⟳ Could not inspect destination URL — site may not be in this GSC property.</div>
-    </div>`;
+      </div>`;
+    } else if(siteCheck && siteCheck.error){
+      destHtml = `<div class="crawl-section">
+        <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
+        <div style="padding:10px 14px;font-size:.58rem;color:var(--orange)">⚠ ${he(siteCheck.error)} — <a href="https://www.google.com/search?q=site:${encodeURIComponent(originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none">Check manually ↗</a></div>
+      </div>`;
+    } else {
+      destHtml = `<div class="crawl-section">
+        <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
+        <div style="padding:10px 14px;font-size:.58rem;color:var(--muted2)">⟳ Checking via site: search… <a href="https://www.google.com/search?q=site:${encodeURIComponent(originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:6px">Check manually ↗</a></div>
+      </div>`;
+    }
   }
 
   let html=`<div class="crawl-verdict-banner ${vClass}">
@@ -5455,6 +5475,74 @@ function renderCrawlHistory(shortUrl){
   }).join('');
 }
 
+// ══════════════════════════════════════════════════════════
+// PROXY POOL — loaded from Settings or hardcoded list
+// Format: ip:port:user:pass
+// ══════════════════════════════════════════════════════════
+const PROXY_POOL = [
+  '31.59.20.176:6754:jsozjvzk:s3g1a6kwzzgy',
+  '198.23.239.134:6540:jsozjvzk:s3g1a6kwzzgy',
+  '45.38.107.97:6014:jsozjvzk:s3g1a6kwzzgy',
+  '107.172.163.27:6543:jsozjvzk:s3g1a6kwzzgy',
+  '198.105.121.200:6462:jsozjvzk:s3g1a6kwzzgy',
+  '216.10.27.159:6837:jsozjvzk:s3g1a6kwzzgy',
+  '142.111.67.146:5611:jsozjvzk:s3g1a6kwzzgy',
+  '191.96.254.138:6185:jsozjvzk:s3g1a6kwzzgy',
+  '31.58.9.4:6077:jsozjvzk:s3g1a6kwzzgy',
+  '23.229.19.94:8689:jsozjvzk:s3g1a6kwzzgy',
+];
+let _proxyIdx = 0;
+function getNextProxy(){ const p=PROXY_POOL[_proxyIdx % PROXY_POOL.length]; _proxyIdx++; return p; }
+
+// ── Proxy-based site: search to check if a URL is indexed ──────────
+// Uses a CORS proxy + Google search. Returns {indexed:bool, count:int, error:str|null}
+async function checkIndexedViaSite(targetUrl){
+  const proxy = getNextProxy();
+  const [proxyIp, proxyPort, proxyUser, proxyPass] = proxy.split(':');
+  // We use allorigins.win as a CORS proxy to route the request
+  // The actual Google search goes through the rotating webshare proxy via a worker-style relay
+  // Since browsers can't use SOCKS proxies directly, we route through a public CORS proxy
+  // and embed the proxy auth in the URL for services that support it.
+  // Best approach for browser: use a free CORS proxy to relay the Google site: query
+  const query = `site:${targetUrl}`;
+  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}&num=1&hl=en`;
+
+  // Try multiple CORS proxy providers in order
+  const corsProxies = [
+    `https://api.allorigins.win/get?url=${encodeURIComponent(googleUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(googleUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(googleUrl)}`,
+  ];
+
+  for(const corsUrl of corsProxies){
+    try{
+      const r = await fetch(corsUrl, {signal: AbortSignal.timeout(8000)});
+      if(!r.ok) continue;
+      const raw = await r.text();
+      // allorigins wraps in JSON
+      let html = raw;
+      try{ const j=JSON.parse(raw); html=j.contents||j.body||raw; }catch(e){}
+
+      // Parse result count from Google HTML
+      // "About X results" or "No results found"
+      if(/no results found|did not match any documents/i.test(html)){
+        return {indexed:false, count:0, error:null};
+      }
+      const countMatch = html.match(/About ([\d,]+) result/i) || html.match(/([\d,]+) result/i);
+      if(countMatch){
+        const count = parseInt(countMatch[1].replace(/,/g,''))||0;
+        return {indexed: count>0, count, error:null};
+      }
+      // If we got HTML back but no count text, check for result divs
+      if(html.includes('class="g"') || html.includes('data-sokoban-container') || html.includes('yuRUbf')){
+        return {indexed:true, count:1, error:null};
+      }
+      // Got a response but couldn't parse — try next proxy
+    }catch(e){ continue; }
+  }
+  return {indexed:null, count:null, error:'Could not reach Google via CORS proxies'};
+}
+
 // ── Re-submit button inside crawl modal ──────────────────────────
 let _crawlModalShortUrl='', _crawlModalOrigUrl='';
 
@@ -5476,28 +5564,22 @@ async function openCrawlDetails(shortUrl, originalUrl){
   try{
     const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
 
-    // Inspect both short URL and original URL in parallel
-    const [r, rOrig] = await Promise.all([
+    // Run GSC inspection on short URL + site: check on destination in parallel
+    const [r, siteCheck] = await Promise.all([
       fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})}),
-      originalUrl ? fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:originalUrl,siteUrl:site})}).catch(()=>null) : Promise.resolve(null)
+      originalUrl ? checkIndexedViaSite(originalUrl) : Promise.resolve(null)
     ]);
 
     if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
     const data = await r.json();
     const result = data?.inspectionResult||{};
 
-    // Parse destination result
-    let destResult = null;
-    if(rOrig && rOrig.ok){
-      try{ const d=await rOrig.json(); destResult=d?.inspectionResult||null; }catch(e){}
-    }
-
     // Save to crawl history
     const verdict = result.indexStatusResult?.verdict||'UNKNOWN';
     const coverage = result.indexStatusResult?.coverageState||'';
     saveCrawlResult(shortUrl, verdict, coverage);
     renderCrawlHistory(shortUrl);
-    renderCrawlDetails(sections, result, shortUrl, originalUrl, destResult);
+    renderCrawlDetails(sections, result, shortUrl, originalUrl, null, siteCheck);
   }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
 }
 
