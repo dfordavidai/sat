@@ -1614,8 +1614,8 @@ const INDEXNOW_HOST    = 'flexygist.com.ng';
 const SB_URL_DEFAULT   = 'https://ydfeubmrlbkddlidhniv.supabase.co';
 const SB_KEY_DEFAULT   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
 // BUG FIX: never snapshot credentials at load time — always resolve live from localStorage
-function getSbUrl(){ return (localStorage.getItem('lc_sb_url')||SB_URL_DEFAULT).replace(/\/$/,''); }
-function getSbKey(){ return localStorage.getItem('lc_sb_key')||SB_KEY_DEFAULT; }
+function getSbUrl(){ const s=localStorage.getItem('lc_sb_url')||''; const ok=s.startsWith('https://')&&s.includes('.supabase.co'); return (ok?s:SB_URL_DEFAULT).replace(/\/$/,''); }
+function getSbKey(){ const s=localStorage.getItem('lc_sb_key')||''; const ok=s.startsWith('eyJ')&&s.length>100; return ok?s:SB_KEY_DEFAULT; }
 function getH(){ const k=getSbKey(); return {'apikey':k,'Authorization':`Bearer ${k}`,'Content-Type':'application/json'}; }
 
 
@@ -2352,7 +2352,8 @@ function switchIdxTab(tab){
 // ══════════════════════════════════════════════════════════
 async function sbGet(path){
   const r = await fetch(`${getSbUrl()}/rest/v1/${path}`,{headers:getH()});
-  return r.ok ? r.json() : [];
+  if(!r.ok){ const t=await r.text(); throw new Error(`sbGet ${path} HTTP ${r.status}: ${t}`); }
+  return r.json();
 }
 async function sbPost(table,data,prefer='resolution=merge-duplicates'){
   const r = await fetch(`${getSbUrl()}/rest/v1/${table}`,{method:'POST',headers:{...getH(),'Prefer':`${prefer},return=representation`},body:JSON.stringify(data)});
@@ -2395,10 +2396,15 @@ async function loadAll(){
     document.getElementById('sb-status').textContent='Connected ✓';
     renderAll();
   }catch(e){
+    console.error('loadAll failed — URL:',getSbUrl(),'KEY prefix:',getSbKey().slice(0,20), 'Error:',e);
+    // If the stored credentials are bad, clear them so defaults take over next reload
+    const storedUrl = localStorage.getItem('lc_sb_url')||'';
+    const storedKey = localStorage.getItem('lc_sb_key')||'';
+    if(storedUrl && !(storedUrl.startsWith('https://')&&storedUrl.includes('.supabase.co'))){ localStorage.removeItem('lc_sb_url'); }
+    if(storedKey && !(storedKey.startsWith('eyJ')&&storedKey.length>100)){ localStorage.removeItem('lc_sb_key'); }
     document.getElementById('sb-status').innerHTML = location.protocol==='file:'
       ? '<span style="color:var(--orange)">⚠ Open via server</span>'
-      : '<span style="color:var(--red)">Offline</span>';
-    console.error('loadAll failed:',e);
+      : `<span style="color:var(--red)" title="${e.message}">Offline — check console</span>`;
   }
 }
 
