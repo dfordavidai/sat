@@ -1,10 +1,10 @@
 {
   "routes": [
-    { "src": "/sitemap.xml",                        "dest": "/api/sitemap"              },
-    { "src": "/feed.xml",                           "dest": "/api/feed"                 },
-    { "src": "/link-hub",                           "dest": "/api/link-hub"             },
-    { "src": "/crawl-hub",                          "dest": "/api/link-hub"             },
-    { "src": "/link/(?<code>[^/]+)",                "dest": "/api/redirect?code=$code"  }
+    { "src": "/sitemap.xml",             "dest": "/api/sitemap"              },
+    { "src": "/feed.xml",                "dest": "/api/feed"                 },
+    { "src": "/link-hub",                "dest": "/api/link-hub"             },
+    { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
+    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  }
   ],
   "headers": [
     {
