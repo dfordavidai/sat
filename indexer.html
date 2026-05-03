@@ -5002,37 +5002,30 @@ function loadPagePreview(url, gscScreenshot){
 // ── Build Destination Index Status for right panel ───────────────
 function buildDestSectionHtml(originalUrl, siteCheck){
   if(!originalUrl) return '';
-  let domain='';
-  try{ domain=new URL(originalUrl).hostname; }catch(e){}
-  const manualLink=`<a href="https://www.google.com/search?q=site:${encodeURIComponent(domain||originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:.5rem;margin-left:6px">↗ verify</a>`;
+  // verify link uses exact URL path
+  const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:4px;font-size:.5rem">↗ verify</a>`;
 
-  let bodyHtml='';
+  let statusHtml='';
   if(!siteCheck || siteCheck.indexed===null){
-    bodyHtml=`<div style="font-size:.58rem;color:var(--muted2);padding:12px 14px">⟳ Checking via site: search…${manualLink}</div>`;
+    statusHtml=`<span style="color:var(--muted2)">⟳ Checking…</span>${verifyLink}`;
   } else if(siteCheck.error){
-    bodyHtml=`<div style="font-size:.58rem;color:var(--orange);padding:12px 14px">⚠ ${he(siteCheck.error)}${manualLink}</div>`;
+    statusHtml=`<span style="color:var(--orange)">⚠ Failed</span>${verifyLink}`;
   } else {
     const indexed=siteCheck.indexed;
     const count=siteCheck.count||0;
-    const dClass=indexed?'pass':'fail';
-    const dIcon=indexed?'✅':'❌';
-    const dLabel=indexed?`Indexed (${count} result${count!==1?'s':''} found)`:'Not Indexed';
-    const tip=indexed
-      ?`<div style="margin-top:8px;padding:7px 10px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:7px;font-size:.55rem;color:var(--accent)">✓ Destination indexed — backlink is passing link equity correctly.</div>`
-      :`<div style="margin-top:8px;padding:7px 10px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:7px;font-size:.55rem;color:var(--purple)">⚠ Destination not indexed — backlink points at an invisible page. Use Re-submit to blast the original URL.</div>`;
-    bodyHtml=`<div style="padding:12px 14px">
-      <div style="font-size:.48rem;color:var(--muted);margin-bottom:8px;word-break:break-all;line-height:1.5">${he(domain)}${manualLink}</div>
-      <div class="crawl-verdict-banner ${dClass}" style="margin:0">
-        <span class="cvb-icon" style="font-size:.9rem">${dIcon}</span>
-        <div><div class="cvb-label ${dClass}" style="font-size:.62rem">${dLabel}</div><div class="cvb-sub">Google site: operator result</div></div>
-      </div>
-      ${tip}
-    </div>`;
+    const color=indexed?'var(--accent)':'var(--red)';
+    const label=indexed?`✅ Indexed (${count} result${count!==1?'s':''})`:'❌ Not Indexed';
+    statusHtml=`<span style="color:${color};font-weight:700">${label}</span>${verifyLink}`;
   }
 
   return `<div class="crawl-section">
     <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
-    ${bodyHtml}
+    <div class="crawl-section-body single">
+      <div class="crawl-kv" style="align-items:center">
+        <div class="ck">site: result</div>
+        <div class="cv" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">${statusHtml}</div>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -5620,8 +5613,8 @@ async function checkIndexedViaSite(targetUrl){
   const workerUrl = localStorage.getItem('lc_worker_url')||'';
   let domain='';
   try{ domain=new URL(targetUrl).hostname; }catch(e){}
-  // Use site:domain for broad domain check (more reliable than full URL)
-  const siteQuery = domain ? `site:${domain}` : `site:${targetUrl}`;
+  // Use site:exact-url for precise page check
+  const siteQuery = `site:${targetUrl}`;
 
   // Method 1: Route through the tool's own Cloudflare Worker (no CORS issues)
   if(workerUrl){
