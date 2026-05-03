@@ -117,11 +117,53 @@ textarea{resize:vertical;line-height:1.7}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.green{border-color:rgba(0,255,136,.35);color:var(--accent)}.toast.red{border-color:rgba(239,68,68,.35);color:var(--red)}
 .view{display:none}.view.active{display:flex;flex-direction:column;gap:20px;min-width:0}
-.crawl-modal{max-width:960px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:0}
+/* ═══ CRAWL MODAL — scroll fix v19 ═══ */
+.crawl-modal{
+  max-width:960px !important;
+  width:100% !important;
+  max-height:92vh !important;
+  height:92vh !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:20px 20px 0 20px !important;
+}
 .crawl-modal .modal-title{display:flex;align-items:center;gap:10px;margin-bottom:0;flex-shrink:0}
-.crawl-body-layout{display:grid;grid-template-columns:260px 1fr;gap:14px;align-items:start;flex:1;min-height:0;overflow:hidden}
-.crawl-preview-col{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:calc(92vh - 110px);padding-right:2px}
-.crawl-preview-col::-webkit-scrollbar{width:3px}.crawl-preview-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:10px 0 10px;flex-shrink:0}
+.crawl-url-bar span{color:var(--accent)}
+.crawl-body-layout{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:14px;
+  align-items:start;
+  flex:1;
+  min-height:0;
+  overflow:visible;
+  padding-bottom:16px;
+}
+.crawl-preview-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow-y:auto;
+  height:calc(92vh - 115px);
+  padding-right:4px;
+  padding-bottom:16px;
+}
+.crawl-preview-col::-webkit-scrollbar{width:3px}
+.crawl-preview-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.crawl-sections{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow-y:scroll;
+  height:calc(92vh - 115px);
+  padding-right:8px;
+  padding-bottom:16px;
+}
+.crawl-sections::-webkit-scrollbar{width:4px}
+.crawl-sections::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.crawl-sections::-webkit-scrollbar-track{background:transparent}
 .crawl-preview-frame{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .cpf-hdr{padding:7px 12px;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
 .cpf-img{width:100%;aspect-ratio:9/16;object-fit:cover;object-position:top;display:block;background:var(--bg3)}
@@ -136,10 +178,6 @@ textarea{resize:vertical;line-height:1.7}
 .cmm-v.good{color:var(--accent)}.cmm-v.bad{color:var(--red)}.cmm-v.warn{color:var(--orange)}.cmm-v.blue{color:var(--blue)}
 .open-orig-btn{display:block;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:.55rem;color:var(--muted);text-decoration:none;transition:all .15s}
 .open-orig-btn:hover{border-color:var(--accent);color:var(--accent)}
-.crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:10px 0 12px;flex-shrink:0}
-.crawl-url-bar span{color:var(--accent)}
-.crawl-sections{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:calc(92vh - 110px);padding-right:6px;padding-bottom:8px}
-.crawl-sections::-webkit-scrollbar{width:3px}.crawl-sections::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .crawl-section{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .crawl-section-hdr{padding:9px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
 .crawl-section-hdr .cs-icon{font-size:.85rem}
@@ -1593,7 +1631,7 @@ Then deploy.</div></div>
 
 <!-- Crawl Details Modal -->
 <div class="modal-bg" id="modal-crawl">
-  <div class="modal crawl-modal">
+  <div class="modal crawl-modal" style="overflow:hidden !important;height:92vh;display:flex;flex-direction:column">
     <div class="modal-title">
       <span style="font-size:1.1rem">🔍</span><span>Crawl Details</span>
       <button class="btn btn-cyan" style="font-size:.55rem;padding:4px 11px;margin-left:auto" id="crawl-resubmit-btn" onclick="crawlModalResubmit()" title="Re-blast this URL through all indexing channels">🔁 Re-submit URL</button>
