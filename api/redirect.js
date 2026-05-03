@@ -1,5 +1,5 @@
 /**
- * LinkCore — Vercel Edge Function  v15.2
+ * LinkCore — Vercel Edge Function  v15.1
  * Server-side 301 redirect: /link/:code → original URL
  *
  * Deploy this to ALL 4 domain repos (same file, same code).
@@ -7,21 +7,24 @@
  *   SUPABASE_URL  = https://xxxxxxxxxx.supabase.co
  *   SUPABASE_KEY  = your-anon-key
  *
- * CHANGES (v15.2):
- *  + Last-Modified header on 301 — Googlebot recrawl trust signal
- *  + ETag header on 301 — enables 304 Not Modified on revisit
- *  + If-None-Match handling — returns 304 when Googlebot revisits unchanged link
+ * FIXES (v15.1):
+ *  1. X-Robots-Tag: noindex — stops Google indexing the SHORT url itself
+ *     (Google follows 301 and indexes DESTINATION instead — this is the key fix)
+ *  2. URL validation before redirect — catches corrupt/partial stored URLs
+ *  3. Fallback changed from 302 → 301 (no equity loss on error path)
+ *  4. code extraction guard: skips bare 'link' path segment
  */
 
 export const config = {
   runtime: 'edge',
 };
 
-const FALLBACK_URL = 'https://flexygist.com.ng/';
+const FALLBACK_URL = 'https://flexygist.com.ng/'; // change per domain if desired
 
 export default async function handler(request) {
   const url   = new URL(request.url);
   const parts = url.pathname.split('/').filter(Boolean);
+  // Expect path: /link/:code  → parts = ['link', 'CODE']
   const code  = (parts[1] && parts[1] !== 'link' ? parts[1] : null)
              || (parts[0] && parts[0] !== 'link' ? parts[0] : null)
              || url.searchParams.get('code')
@@ -40,7 +43,7 @@ export default async function handler(request) {
 
   try {
     const res = await fetch(
-      `${SB_URL}/rest/v1/ic_short_links?code=eq.${encodeURIComponent(code)}&select=target,updated_at&limit=1`,
+      `${SB_URL}/rest/v1/ic_short_links?code=eq.${encodeURIComponent(code)}&select=target&limit=1`,
       {
         headers: {
           apikey:        SB_KEY,
@@ -56,15 +59,16 @@ export default async function handler(request) {
     const rows = await res.json();
 
     if (!rows || !rows.length || !rows[0].target) {
+      // Code not found → branded 404
       return new Response(notFoundHtml(code), {
         status: 404,
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
       });
     }
 
-    const { target, updated_at } = rows[0];
+    const target = rows[0].target;
 
-    // Validate stored URL
+    // Validate stored URL is absolute http/https before redirecting
     try {
       const t = new URL(target);
       if (!['http:', 'https:'].includes(t.protocol)) throw new Error('bad protocol');
@@ -73,34 +77,24 @@ export default async function handler(request) {
       return Response.redirect(FALLBACK_URL, 301);
     }
 
-    // ── HTTP Cache Signals ───────────────────────────────────────────────────
-    // ETag derived from the target URL — stable unless the link destination changes.
-    // Last-Modified from when the link record was last updated in Supabase.
-    // Together these let Googlebot issue a conditional GET on revisit (304),
-    // which signals the link is trustworthy and increases recrawl frequency.
-    const etag         = `"lc-${code}-${Buffer.from(target).toString('base64').slice(0, 16)}"`;
-    const lastModified = updated_at ? new Date(updated_at).toUTCString() : new Date().toUTCString();
-
-    // ── Conditional GET (304) ────────────────────────────────────────────────
-    const ifNoneMatch = request.headers.get('if-none-match');
-    if (ifNoneMatch === etag) {
-      return new Response(null, { status: 304 });
-    }
-
-    // Increment hit counter async — fire and forget
+    // Increment hit counter asynchronously — don't wait, don't block the redirect
     fetch(
       `${SB_URL}/rest/v1/rpc/increment_hits`,
       {
         method:  'POST',
         headers: {
-          apikey:         SB_KEY,
-          Authorization:  `Bearer ${SB_KEY}`,
-          'Content-Type': 'application/json',
+          apikey:          SB_KEY,
+          Authorization:   `Bearer ${SB_KEY}`,
+          'Content-Type':  'application/json',
         },
         body: JSON.stringify({ link_code: code }),
       }
-    ).catch(() => {});
+    ).catch(() => {}); // fire and forget
 
+    // ── SERVER-SIDE 301 ──
+    // X-Robots-Tag: noindex = Google does NOT index the short URL page.
+    // It follows the Location header and indexes the DESTINATION instead.
+    // This is the fix for "Crawled / Not Indexed — Redirect error" in GSC.
     return new Response(null, {
       status: 301,
       headers: {
@@ -108,8 +102,6 @@ export default async function handler(request) {
         'Cache-Control': 'no-store',
         'X-Robots-Tag':  'noindex, nofollow',
         'X-Redirect-By': 'LinkCore',
-        'Last-Modified': lastModified,
-        'ETag':          etag,
       },
     });
 
