@@ -1650,13 +1650,6 @@ Then deploy.</div></div>
         </div>
         <div class="crawl-meta-mini" id="crawl-meta-mini" style="display:none"></div>
         <a class="open-orig-btn" id="open-orig-btn" href="#" target="_blank" style="display:none">↗ Open Original Page</a>
-        <!-- Destination Page Index Status (left column) -->
-        <div id="dest-index-panel" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;overflow:hidden">
-          <div style="font-size:.48rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.1em;padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px">
-            <span>🎯</span><span>Destination Index Status</span><span id="dest-site-badge" style="margin-left:auto;font-size:.42rem;color:var(--muted2)"></span>
-          </div>
-          <div id="dest-index-body" style="padding:10px 12px;font-size:.57rem;line-height:1.7;color:var(--muted)">Checking…</div>
-        </div>
         <!-- Crawl History (left column) -->
         <div id="crawl-hist-panel" style="display:none;margin-top:8px">
           <div style="font-size:.5rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:0 0 5px">📜 Crawl History</div>
@@ -4830,7 +4823,7 @@ function toast(msg,type){
 // ══════════════════════════════════════════════════════════
 // CRAWL DETAILS MODAL
 // ══════════════════════════════════════════════════════════
-function loadPagePreview(url){
+function loadPagePreview(url, gscScreenshot){
   const wrap   = document.getElementById('cpf-img-wrap');
   const metaEl = document.getElementById('crawl-meta-mini');
   const openBtn= document.getElementById('open-orig-btn');
@@ -4973,24 +4966,74 @@ function loadPagePreview(url){
     }catch(e){ tryScreenshots(idx+1); }
   }
 
-  // ── Run: OG image first (fastest), then screenshot services ──
-  tryProxyForOg(0).then(ogUrl=>{
-    if(ogUrl){
-      const img=new Image();
-      const t=setTimeout(()=>{ tryScreenshots(0); }, 9000);
-      img.onload=()=>{
-        clearTimeout(t);
-        if(img.naturalWidth<10){ tryScreenshots(0); return; }
-        wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
-        wrap.appendChild(img);
-        try{ showMeta(new URL(url)); }catch(e){}
-      };
-      img.onerror=()=>{ clearTimeout(t); tryScreenshots(0); };
-      img.src=ogUrl;
-    } else {
-      tryScreenshots(0);
-    }
-  }).catch(()=>tryScreenshots(0));
+  // ── Run: GSC screenshot first (most accurate), then OG image, then screenshot services ──
+  if(gscScreenshot){
+    // GSC gives a direct URL to the actual page screenshot Google took
+    const img=new Image();
+    const t=setTimeout(()=>{ tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0)); }, 10000);
+    img.onload=()=>{
+      clearTimeout(t);
+      if(img.naturalWidth<10){ tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0)); return; }
+      wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
+      wrap.appendChild(img);
+      try{ showMeta(new URL(url)); }catch(e){}
+    };
+    img.onerror=()=>{ clearTimeout(t); tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0)); };
+    img.src=gscScreenshot;
+  } else {
+    tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0));
+  }
+
+  function showOg(ogUrl){
+    const img=new Image();
+    const t=setTimeout(()=>{ tryScreenshots(0); }, 9000);
+    img.onload=()=>{
+      clearTimeout(t);
+      if(img.naturalWidth<10){ tryScreenshots(0); return; }
+      wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
+      wrap.appendChild(img);
+      try{ showMeta(new URL(url)); }catch(e){}
+    };
+    img.onerror=()=>{ clearTimeout(t); tryScreenshots(0); };
+    img.src=ogUrl;
+  }
+}
+
+// ── Build Destination Index Status for right panel ───────────────
+function buildDestSectionHtml(originalUrl, siteCheck){
+  if(!originalUrl) return '';
+  let domain='';
+  try{ domain=new URL(originalUrl).hostname; }catch(e){}
+  const manualLink=`<a href="https://www.google.com/search?q=site:${encodeURIComponent(domain||originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:.5rem;margin-left:6px">↗ verify</a>`;
+
+  let bodyHtml='';
+  if(!siteCheck || siteCheck.indexed===null){
+    bodyHtml=`<div style="font-size:.58rem;color:var(--muted2);padding:12px 14px">⟳ Checking via site: search…${manualLink}</div>`;
+  } else if(siteCheck.error){
+    bodyHtml=`<div style="font-size:.58rem;color:var(--orange);padding:12px 14px">⚠ ${he(siteCheck.error)}${manualLink}</div>`;
+  } else {
+    const indexed=siteCheck.indexed;
+    const count=siteCheck.count||0;
+    const dClass=indexed?'pass':'fail';
+    const dIcon=indexed?'✅':'❌';
+    const dLabel=indexed?`Indexed (${count} result${count!==1?'s':''} found)`:'Not Indexed';
+    const tip=indexed
+      ?`<div style="margin-top:8px;padding:7px 10px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:7px;font-size:.55rem;color:var(--accent)">✓ Destination indexed — backlink is passing link equity correctly.</div>`
+      :`<div style="margin-top:8px;padding:7px 10px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:7px;font-size:.55rem;color:var(--purple)">⚠ Destination not indexed — backlink points at an invisible page. Use Re-submit to blast the original URL.</div>`;
+    bodyHtml=`<div style="padding:12px 14px">
+      <div style="font-size:.48rem;color:var(--muted);margin-bottom:8px;word-break:break-all;line-height:1.5">${he(domain)}${manualLink}</div>
+      <div class="crawl-verdict-banner ${dClass}" style="margin:0">
+        <span class="cvb-icon" style="font-size:.9rem">${dIcon}</span>
+        <div><div class="cvb-label ${dClass}" style="font-size:.62rem">${dLabel}</div><div class="cvb-sub">Google site: operator result</div></div>
+      </div>
+      ${tip}
+    </div>`;
+  }
+
+  return `<div class="crawl-section">
+    <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
+    ${bodyHtml}
+  </div>`;
 }
 
 function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, siteCheck){
@@ -5022,10 +5065,9 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
       ${kv('Last Crawl',idx.lastCrawlTime?fmtDate(idx.lastCrawlTime):'Never crawled',idx.lastCrawlTime?'good':'warn')}
       ${kv('Crawled As',idx.crawledAs||'—','blue')}
       ${kv('Google Canonical',idx.googleCanonical?shortUrl===idx.googleCanonical?'✓ Matches':'⚠ '+idx.googleCanonical.slice(0,50):'—',idx.googleCanonical&&idx.googleCanonical===shortUrl?'good':'warn')}
-      ${kv('Sitemap',(idx.sitemap&&idx.sitemap.length)?idx.sitemap[0].slice(0,50)+'…':'—')}
-      ${kv('Referring URLs',(idx.referringUrls&&idx.referringUrls.length)?idx.referringUrls.length+' found':'None',idx.referringUrls?.length?'good':'')}
     </div>
   </div>
+  ${buildDestSectionHtml(originalUrl, siteCheck)}
   ${destHtml}`;
   // Only add Rich Results if there's actual data (useful, not noise)
   if(rich.verdict||(rich.detectedItems&&rich.detectedItems.length)){
@@ -5034,14 +5076,6 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
       <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.04)"><span class="cs-icon">✨</span><span style="color:var(--purple)">Rich Results</span></div>
       <div class="crawl-section-body ${ri.length?'single':''}">
         ${ri.length?ri.map(i=>`<div class="crawl-kv"><div class="ck">${he(i.richResultType||'Type')}</div><div class="cv blue">${(i.items||[]).length} items</div></div>`).join(''):kv('Status',rich.verdict||'—',rich.verdict==='PASS'?'good':rich.verdict==='FAIL'?'bad':'')}
-      </div>
-    </div>`;
-  }
-  if(idx.referringUrls&&idx.referringUrls.length){
-    html+=`<div class="crawl-section">
-      <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">🔗</span><span style="color:var(--accent)">Referring URLs (${idx.referringUrls.length})</span></div>
-      <div class="crawl-section-body single">
-        ${idx.referringUrls.map(u=>`<div class="crawl-kv"><div class="cv blue"><a href="${he(u)}" target="_blank" style="color:var(--blue);text-decoration:none">${he(u.slice(0,80))}${u.length>80?'…':''}</a></div></div>`).join('')}
       </div>
     </div>`;
   }
@@ -5666,37 +5700,6 @@ async function checkIndexedViaSite(targetUrl){
 }
 
 // ── Re-submit button inside crawl modal ──────────────────────────
-// ── Render Destination Index Status in left column ───────────────
-function renderDestPanel(originalUrl, siteCheck){
-  const panel = document.getElementById('dest-index-panel');
-  const body  = document.getElementById('dest-index-body');
-  const badge = document.getElementById('dest-site-badge');
-  if(!panel||!body) return;
-
-  try{
-    const u = new URL(originalUrl);
-    if(badge) badge.textContent = 'site:'+u.hostname;
-  }catch(e){}
-
-  panel.style.display='block';
-
-  if(!siteCheck || siteCheck.indexed === null){
-    body.innerHTML = `<div style="color:var(--muted2)">⟳ Checking… <a href="https://www.google.com/search?q=site:${encodeURIComponent(originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:4px">Check manually ↗</a></div>`;
-    return;
-  }
-  if(siteCheck.error){
-    body.innerHTML = `<div style="color:var(--orange)">⚠ ${he(siteCheck.error)} — <a href="https://www.google.com/search?q=site:${encodeURIComponent(originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none">Check manually ↗</a></div>`;
-    return;
-  }
-  const indexed = siteCheck.indexed;
-  const count   = siteCheck.count||0;
-  const label   = indexed ? `✅ Indexed (${count} result${count!==1?'s':''} found)` : '❌ Not Indexed';
-  const color   = indexed ? 'var(--accent)' : 'var(--red)';
-  const tip     = indexed
-    ? `<div style="margin-top:6px;font-size:.52rem;color:var(--accent);background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:6px;padding:5px 8px">✓ Destination indexed — backlink is passing link equity.</div>`
-    : `<div style="margin-top:6px;font-size:.52rem;color:var(--purple);background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:6px;padding:5px 8px">⚠ Destination not indexed — backlink points at invisible page. Use Re-submit.</div>`;
-  body.innerHTML = `<div style="color:${color};font-weight:700;font-size:.6rem">${label}</div>${tip}`;
-}
 
 let _crawlModalShortUrl='', _crawlModalOrigUrl='';
 
@@ -5707,15 +5710,18 @@ async function openCrawlDetails(shortUrl, originalUrl){
   if(btn){ btn.disabled=false; btn.textContent='🔁 Re-submit URL'; }
   document.getElementById('modal-crawl').classList.add('open');
   // Reset left-column panels
-  const destPanel = document.getElementById('dest-index-panel');
-  if(destPanel){ destPanel.style.display='none'; }
   const histPanel = document.getElementById('crawl-hist-panel');
   if(histPanel){ histPanel.style.display='none'; }
   const urlBar = document.getElementById('crawl-url-bar');
   urlBar.innerHTML = `<span>Original:</span> ${he(originalUrl.slice(0,90))}${originalUrl.length>90?'…':''}`;
   const sections = document.getElementById('crawl-sections');
   sections.innerHTML = `<div class="crawl-loading"><div class="spin">⟳</div><div>Querying Google Search Console…</div></div>`;
-  loadPagePreview(originalUrl);
+  // Show loading state in preview while GSC loads
+  const wrapEarly = document.getElementById('cpf-img-wrap');
+  if(wrapEarly) wrapEarly.innerHTML=`<div class="cpf-loading"><div class="spin" style="font-size:1.2rem">⟳</div><div>Loading preview…</div></div>`;
+  const openBtnEarly = document.getElementById('open-orig-btn');
+  if(openBtnEarly){ openBtnEarly.href=originalUrl; openBtnEarly.style.display='block'; }
+  // Note: loadPagePreview is called after GSC response so we can use GSC screenshot
   // Note: renderCrawlHistory is called after renderCrawlDetails so DOM elements exist
   const sa   = getNextSA();
   const site = document.getElementById('gsc-site')?.value.trim()||'https://flexygist.com.ng/';
@@ -5733,13 +5739,16 @@ async function openCrawlDetails(shortUrl, originalUrl){
     const data = await r.json();
     const result = data?.inspectionResult||{};
 
+    // Extract GSC screenshot — the real Google-crawled page image
+    const gscScreenshot = result.screenshotUrl || result.screenshot || null;
+    loadPagePreview(originalUrl, gscScreenshot);
+
     // Save to crawl history
     const verdict = result.indexStatusResult?.verdict||'UNKNOWN';
     const coverage = result.indexStatusResult?.coverageState||'';
     saveCrawlResult(shortUrl, verdict, coverage);
     renderCrawlDetails(sections, result, shortUrl, originalUrl, null, siteCheck);
     renderCrawlHistory(shortUrl);
-    renderDestPanel(originalUrl, siteCheck);
   }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
 }
 
