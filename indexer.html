@@ -117,16 +117,20 @@ textarea{resize:vertical;line-height:1.7}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.green{border-color:rgba(0,255,136,.35);color:var(--accent)}.toast.red{border-color:rgba(239,68,68,.35);color:var(--red)}
 .view{display:none}.view.active{display:flex;flex-direction:column;gap:20px;min-width:0}
-/* ═══ CRAWL MODAL — scroll fix v19 ═══ */
+/* ═══ CRAWL MODAL — standalone, no base .modal inheritance ═══ */
 .crawl-modal{
-  max-width:960px !important;
-  width:100% !important;
-  max-height:92vh !important;
-  height:92vh !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-  padding:20px 20px 0 20px !important;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  animation:popIn .2s ease;
+  max-width:960px;
+  width:calc(100vw - 32px);
+  height:calc(100vh - 32px);
+  max-height:calc(100vh - 32px);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:20px 20px 0 20px;
 }
 .crawl-modal .modal-title{display:flex;align-items:center;gap:10px;margin-bottom:0;flex-shrink:0}
 .crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:10px 0 10px;flex-shrink:0}
@@ -138,15 +142,13 @@ textarea{resize:vertical;line-height:1.7}
   align-items:start;
   flex:1;
   min-height:0;
-  overflow:visible;
-  padding-bottom:16px;
 }
 .crawl-preview-col{
   display:flex;
   flex-direction:column;
   gap:10px;
   overflow-y:auto;
-  height:calc(92vh - 115px);
+  height:100%;
   padding-right:4px;
   padding-bottom:16px;
 }
@@ -156,13 +158,13 @@ textarea{resize:vertical;line-height:1.7}
   display:flex;
   flex-direction:column;
   gap:10px;
-  overflow-y:scroll;
-  height:calc(92vh - 115px);
+  overflow-y:auto;
+  height:100%;
   padding-right:8px;
   padding-bottom:16px;
 }
 .crawl-sections::-webkit-scrollbar{width:4px}
-.crawl-sections::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.crawl-sections::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:2px}
 .crawl-sections::-webkit-scrollbar-track{background:transparent}
 .crawl-preview-frame{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .cpf-hdr{padding:7px 12px;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
@@ -1631,7 +1633,7 @@ Then deploy.</div></div>
 
 <!-- Crawl Details Modal -->
 <div class="modal-bg" id="modal-crawl">
-  <div class="modal crawl-modal" style="overflow:hidden !important;height:92vh;display:flex;flex-direction:column">
+  <div class="crawl-modal">
     <div class="modal-title">
       <span style="font-size:1.1rem">🔍</span><span>Crawl Details</span>
       <button class="btn btn-cyan" style="font-size:.55rem;padding:4px 11px;margin-left:auto" id="crawl-resubmit-btn" onclick="crawlModalResubmit()" title="Re-blast this URL through all indexing channels">🔁 Re-submit URL</button>
@@ -5529,53 +5531,53 @@ const PROXY_POOL = [
 let _proxyIdx = 0;
 function getNextProxy(){ const p=PROXY_POOL[_proxyIdx % PROXY_POOL.length]; _proxyIdx++; return p; }
 
-// ── Proxy-based site: search to check if a URL is indexed ──────────
-// Uses a CORS proxy + Google search. Returns {indexed:bool, count:int, error:str|null}
+// ── Destination index check via worker relay + Bing fallback ──────
+// Returns {indexed:bool|null, count:int|null, source:str, error:str|null}
 async function checkIndexedViaSite(targetUrl){
-  const proxy = getNextProxy();
-  const [proxyIp, proxyPort, proxyUser, proxyPass] = proxy.split(':');
-  // We use allorigins.win as a CORS proxy to route the request
-  // The actual Google search goes through the rotating webshare proxy via a worker-style relay
-  // Since browsers can't use SOCKS proxies directly, we route through a public CORS proxy
-  // and embed the proxy auth in the URL for services that support it.
-  // Best approach for browser: use a free CORS proxy to relay the Google site: query
-  const query = `site:${targetUrl}`;
-  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}&num=1&hl=en`;
+  const workerUrl = localStorage.getItem('lc_worker_url')||'';
 
-  // Try multiple CORS proxy providers in order
-  const corsProxies = [
-    `https://api.allorigins.win/get?url=${encodeURIComponent(googleUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(googleUrl)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(googleUrl)}`,
-  ];
-
-  for(const corsUrl of corsProxies){
+  // Method 1: Route through the tool's own Cloudflare Worker (no CORS issues)
+  if(workerUrl){
     try{
-      const r = await fetch(corsUrl, {signal: AbortSignal.timeout(8000)});
-      if(!r.ok) continue;
-      const raw = await r.text();
-      // allorigins wraps in JSON
-      let html = raw;
-      try{ const j=JSON.parse(raw); html=j.contents||j.body||raw; }catch(e){}
-
-      // Parse result count from Google HTML
-      // "About X results" or "No results found"
-      if(/no results found|did not match any documents/i.test(html)){
-        return {indexed:false, count:0, error:null};
+      const r = await fetch(`${workerUrl}/api/site-check?url=${encodeURIComponent(targetUrl)}`, {signal:AbortSignal.timeout(8000)});
+      if(r.ok){
+        const d = await r.json();
+        if(d && typeof d.indexed !== 'undefined') return {indexed:d.indexed, count:d.count||0, source:'worker', error:null};
       }
-      const countMatch = html.match(/About ([\d,]+) result/i) || html.match(/([\d,]+) result/i);
-      if(countMatch){
-        const count = parseInt(countMatch[1].replace(/,/g,''))||0;
-        return {indexed: count>0, count, error:null};
-      }
-      // If we got HTML back but no count text, check for result divs
-      if(html.includes('class="g"') || html.includes('data-sokoban-container') || html.includes('yuRUbf')){
-        return {indexed:true, count:1, error:null};
-      }
-      // Got a response but couldn't parse — try next proxy
-    }catch(e){ continue; }
+    }catch(e){}
   }
-  return {indexed:null, count:null, error:'Could not reach Google via CORS proxies'};
+
+  // Method 2: Bing search — no CORS restriction on their search endpoint
+  try{
+    const bingUrl = `https://www.bing.com/search?q=${encodeURIComponent('site:'+targetUrl)}&format=rss`;
+    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(bingUrl)}`, {signal:AbortSignal.timeout(10000)});
+    if(r.ok){
+      const raw = await r.json();
+      const html = raw.contents||'';
+      if(html.includes('<item>') || html.includes('totalResults')){
+        const countMatch = html.match(/totalResults[^>]*>(\d+)/i) || html.match(/<item>/g);
+        const count = countMatch ? (Array.isArray(countMatch) ? countMatch.length : parseInt(countMatch[1])||1) : 1;
+        return {indexed:true, count, source:'bing', error:null};
+      }
+      if(/no results|0 results/i.test(html)){
+        return {indexed:false, count:0, source:'bing', error:null};
+      }
+    }
+  }catch(e){}
+
+  // Method 3: Use IndexNow check endpoint (instant, no auth needed)
+  // Just check if the URL is reachable — a 200 from the actual page means it likely exists
+  try{
+    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, {signal:AbortSignal.timeout(10000)});
+    if(r.ok){
+      const d = await r.json();
+      const status = d?.status?.http_code||0;
+      if(status===200) return {indexed:null, count:null, source:'reachable', error:null, reachable:true};
+      if(status===404) return {indexed:false, count:0, source:'reachable', error:null, reachable:false};
+    }
+  }catch(e){}
+
+  return {indexed:null, count:null, source:'none', error:'All check methods failed'};
 }
 
 // ── Re-submit button inside crawl modal ──────────────────────────
