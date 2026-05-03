@@ -1,12 +1,11 @@
 {
   "routes": [
-    { "src": "/sitemap.xml",             "dest": "/api/sitemap"              },
-    { "src": "/feed.xml",                "dest": "/api/feed"                 },
-    { "src": "/link-hub",                "dest": "/api/link-hub"             },
-    { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
-    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  },
-    { "handle": "error" },
-    { "status": 404,                     "dest": "/api/redirect"             }
+    { "src": "/sitemap.xml",                        "dest": "/api/sitemap"              },
+    { "src": "/feed.xml",                           "dest": "/api/feed"                 },
+    { "src": "/link-hub",                           "dest": "/api/link-hub"             },
+    { "src": "/crawl-hub",                          "dest": "/api/link-hub"             },
+    { "src": "/link/(?<code>[^/]+)",                "dest": "/api/redirect?code=$code"  },
+    { "src": "/(.*)", "status": 404,                "dest": "/api/redirect"             }
   ],
   "headers": [
     {
