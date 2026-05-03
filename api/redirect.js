@@ -22,9 +22,10 @@ const FALLBACK_URL = 'https://flexygist.com.ng/';
 export default async function handler(request) {
   const url   = new URL(request.url);
   const parts = url.pathname.split('/').filter(Boolean);
-  const code  = (parts[1] && parts[1] !== 'link' ? parts[1] : null)
+  // Query param comes first — vercel.json routes always inject ?code=$code
+  const code  = url.searchParams.get('code')
+             || (parts[1] && parts[1] !== 'link' ? parts[1] : null)
              || (parts[0] && parts[0] !== 'link' ? parts[0] : null)
-             || url.searchParams.get('code')
              || '';
 
   if (!code) {
