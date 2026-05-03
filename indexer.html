@@ -181,26 +181,26 @@ textarea{resize:vertical;line-height:1.7}
 .open-orig-btn{display:block;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:.55rem;color:var(--muted);text-decoration:none;transition:all .15s}
 .open-orig-btn:hover{border-color:var(--accent);color:var(--accent)}
 .crawl-section{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.crawl-section-hdr{padding:9px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
-.crawl-section-hdr .cs-icon{font-size:.85rem}
-.crawl-section-body{padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.crawl-section-hdr{padding:6px 12px;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.crawl-section-hdr .cs-icon{font-size:.75rem}
+.crawl-section-body{padding:7px 12px;display:grid;grid-template-columns:1fr 1fr;gap:3px 10px}
 .crawl-section-body.single{grid-template-columns:1fr}
-.crawl-kv{display:flex;flex-direction:column;gap:2px;padding:5px 0}
-.crawl-kv .ck{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
-.crawl-kv .cv{font-size:.68rem;color:var(--text);word-break:break-all}
+.crawl-kv{display:flex;flex-direction:column;gap:1px;padding:3px 0}
+.crawl-kv .ck{font-size:.46rem;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
+.crawl-kv .cv{font-size:.6rem;color:var(--text);word-break:break-all}
 .crawl-kv .cv.good{color:var(--accent)}.crawl-kv .cv.warn{color:var(--orange)}.crawl-kv .cv.bad{color:var(--red)}.crawl-kv .cv.blue{color:var(--blue)}
 .crawl-loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:.72rem}
 .crawl-loading .spin{display:inline-block;animation:spin 1s linear infinite;font-size:1.4rem;margin-bottom:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .crawl-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:12px 16px;font-size:.68rem;color:var(--red);margin:8px 0}
-.crawl-verdict-banner{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:4px}
+.crawl-verdict-banner{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;margin-bottom:4px}
 .crawl-verdict-banner.pass{background:var(--accent-dim);border:1px solid rgba(0,255,136,.2)}
 .crawl-verdict-banner.neutral{background:var(--blue-dim);border:1px solid rgba(59,130,246,.2)}
 .crawl-verdict-banner.fail{background:var(--red-dim);border:1px solid rgba(239,68,68,.2)}
 .crawl-verdict-banner.pending{background:var(--orange-dim);border:1px solid rgba(245,158,11,.2)}
 /* nested inside a section — remove the outer margin */
 .crawl-section-body .crawl-verdict-banner{margin-bottom:0}
-.cvb-icon{font-size:1.5rem}.cvb-label{font-family:var(--display);font-size:.85rem;font-weight:700}
+.cvb-icon{font-size:1.2rem}.cvb-label{font-family:var(--display);font-size:.75rem;font-weight:700}
 .cvb-label.pass{color:var(--accent)}.cvb-label.neutral{color:var(--blue)}.cvb-label.fail{color:var(--red)}.cvb-label.pending{color:var(--orange)}
 .cvb-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
 .crawl-no-sa{text-align:center;padding:30px 20px;color:var(--muted2);font-size:.68rem}
@@ -4915,6 +4915,8 @@ function loadPagePreview(url, gscScreenshot){
 
   // ── Phase 2: Screenshot services ──
   const SCREENSHOT_SERVICES = [
+    // WordPress mshots — renders full real pages, no key needed, was working before
+    async ()=>{ return `https://s0.wp.com/mshots/v1/${enc}?w=400&h=600`; },
     // Google PSI — real base64 screenshot, no key needed
     async ()=>{
       const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),14000);
@@ -4951,12 +4953,15 @@ function loadPagePreview(url, gscScreenshot){
         try{ showMeta(new URL(url)); }catch(e){}
         return;
       }
-      // For URLs, check they actually load
+      // For URLs, check they actually load — mshots gets extra time (it renders on demand)
+      const isMshots = src.includes('wp.com/mshots');
       const img=new Image();
-      const t=setTimeout(()=>{ img.src=''; tryScreenshots(idx+1); }, 11000);
+      const timeout = isMshots ? 20000 : 11000;
+      const t=setTimeout(()=>{ img.src=''; tryScreenshots(idx+1); }, timeout);
       img.onload=()=>{
         clearTimeout(t);
-        if(img.naturalWidth<10){ tryScreenshots(idx+1); return; }
+        // mshots returns a valid image even if it's still generating, accept it
+        if(!isMshots && img.naturalWidth<10){ tryScreenshots(idx+1); return; }
         wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
         wrap.appendChild(img);
         try{ showMeta(new URL(url)); }catch(e){}
@@ -5643,14 +5648,28 @@ async function checkIndexedViaSite(targetUrl){
       try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
       if(!html) continue;
       // Check for Google "did not match any documents" signals
-      if(/did not match any documents/i.test(html)||/No results found/i.test(html)){
+      if(/did not match any documents/i.test(html)||/No results found/i.test(html)||/your search.*did not match/i.test(html)){
         return {indexed:false, count:0, source:'google-proxy', error:null};
       }
-      // Check for actual result entries
-      const hasResults = html.includes('class="g"') || html.includes('data-sokoban-container') || html.includes('/search?q=related:') || html.includes('class="yuRUbf"') || html.includes('class="tF2Cxc"') || /<h3/i.test(html);
+      // Check for actual result entries — look for known Google SERP HTML patterns
+      const hasResults = (
+        html.includes('class="g"') ||
+        html.includes('data-sokoban-container') ||
+        html.includes('class="yuRUbf"') ||
+        html.includes('class="tF2Cxc"') ||
+        html.includes('class="MjjYud"') ||
+        html.includes('class="kvH3mc"') ||
+        html.includes('/search?q=related:') ||
+        /<h3[^>]*class="[^"]*LC20lb/i.test(html) ||
+        /<div[^>]+data-hveid/i.test(html) ||
+        (/<h3/i.test(html) && html.includes(new URL(targetUrl).hostname))
+      );
       if(hasResults){
-        // Try to extract result count
-        const countMatch = html.match(/About ([\d,]+) results/i) || html.match(/([\d,]+) results/i);
+        // Try to extract result count from various Google formats
+        const countMatch =
+          html.match(/About ([\d,]+) results/i) ||
+          html.match(/([0-9][0-9,]*)\s+results/i) ||
+          html.match(/result-stats[^>]*>[^<]*([\d,]+)/i);
         const count = countMatch ? parseInt(countMatch[1].replace(/,/g,''))||1 : 1;
         return {indexed:true, count, source:'google-proxy', error:null};
       }
