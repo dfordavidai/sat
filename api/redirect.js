@@ -1,6 +1,14 @@
 /**
- * LinkCore — Vercel Edge Function  v16.0
+ * LinkCore — Vercel Edge Function  v17.0
  * Server-side 301 redirect: /link/:code → original URL
+ *
+ * CHANGES vs v16.0:
+ *  1. Removed `nofollow` from X-Robots-Tag on short link redirects.
+ *     `noindex` alone is correct — prevents the short URL from being indexed
+ *     but still allows Google to follow the 301 and pass authority to the
+ *     destination page. `nofollow` was blocking PageRank flow, defeating the
+ *     entire purpose of 301-based indexation boosting.
+ *  2. vercel.json headers updated to match.
  *
  * Deploy this to ALL 4 domain repos (same file, same code).
  * Set these environment variables in each Vercel project:
@@ -136,7 +144,7 @@ export default async function handler(request) {
       headers: {
         'Location':      target,
         'Cache-Control': 'no-store',
-        'X-Robots-Tag':  'noindex, nofollow',
+        'X-Robots-Tag':  'noindex',          // noindex = don't index THIS short URL
         'X-Redirect-By': 'LinkCore-v16',
         // Early Hints — hint Googlebot that /link-hub is the authoritative hub
         'Link':          `<https://${url.hostname}/link-hub>; rel="preload"; as="document"`,
