@@ -5,7 +5,8 @@
     { "src": "/link-hub",                "dest": "/api/link-hub"             },
     { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
     { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  },
-    { "src": "/(.*)",                    "dest": "/api/redirect"             }
+    { "handle": "error" },
+    { "status": 404,                     "dest": "/api/redirect"             }
   ],
   "headers": [
     {
