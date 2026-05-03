@@ -4,7 +4,8 @@
     { "src": "/feed.xml",                "dest": "/api/feed"                 },
     { "src": "/link-hub",                "dest": "/api/link-hub"             },
     { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
-    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  }
+    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  },
+    { "src": "/(.*)",                    "dest": "/api/redirect"             }
   ],
   "headers": [
     {
