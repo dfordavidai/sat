@@ -612,7 +612,7 @@ textarea{resize:vertical;line-height:1.7}
           <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">Auto-updated on every link add. Each domain gets its own sitemap. On add, <strong style="color:var(--accent)">all channels fire automatically</strong> — Indexing API, IndexNow × 8, GSC Inspect, Wayback, XML-RPC × 45, RSS feeds.</div>
           <div id="sitemap-domain-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
           <script>
-          (function(){
+          document.addEventListener('DOMContentLoaded', function(){
             const dl = document.getElementById('sitemap-domain-list');
             if(!dl) return;
             const colors = ['var(--accent)','var(--blue)','var(--orange)','var(--purple)'];
@@ -621,7 +621,7 @@ textarea{resize:vertical;line-height:1.7}
               const sm = SITEMAP_URLS[i];
               dl.innerHTML += `<a href="${sm}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:.5rem;color:${colors[i]};text-decoration:none;font-family:var(--mono)" onclick="event.preventDefault();viewSitemap(${i})"><span style="width:5px;height:5px;border-radius:50%;background:${colors[i]};flex-shrink:0;display:inline-block"></span>${domain}</a>`;
             });
-          })();
+          });
           </script>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-outline" style="font-size:.6rem" onclick="viewSitemap()">👁 Preview XML</button>
