@@ -1650,9 +1650,10 @@ Then deploy.</div></div>
         </div>
         <div class="crawl-meta-mini" id="crawl-meta-mini" style="display:none"></div>
         <a class="open-orig-btn" id="open-orig-btn" href="#" target="_blank" style="display:none">↗ Open Original Page</a>
-        <!-- Crawl History (left column) -->
+        <!-- Index Check History (left column) -->
         <div id="crawl-hist-panel" style="display:none;margin-top:8px">
-          <div style="font-size:.5rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:0 0 5px">📜 Crawl History</div>
+          <div style="font-size:.5rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:0 0 2px">📜 Index Check History</div>
+          <div style="font-size:.44rem;color:var(--muted2);margin-bottom:5px;line-height:1.4">When <em>you</em> checked this URL. "Last Crawl" in Index Status = when Google last crawled it — different thing.</div>
           <div id="crawl-hist-list" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto"></div>
         </div>
       </div>
@@ -4865,170 +4866,124 @@ function loadPagePreview(url, gscScreenshot){
     img.src = src;
   }
 
-  // ── Phase 1: Try to extract og:image from multiple CORS proxies ──
-  const PROXIES = [
-    `https://api.allorigins.win/get?url=${enc}`,
-    `https://corsproxy.io/?${enc}`,
-    `https://api.codetabs.com/v1/proxy?quest=${enc}`,
-  ];
+  // ── Screenshot service waterfall — mshots first (no proxy, no CORS, works reliably) ──
+  // Each entry returns a {src, isData} or null
+  async function tryService(idx){
+    if(idx > 4){ showFaviconFallback(); return; }
 
-  function extractOgImage(html){
-    // Try many attribute orderings for og:image
-    const patterns = [
-      /property=["']og:image["'][^>]+content=["']([^"'\s>]+)["']/i,
-      /content=["']([^"'\s>]+)["'][^>]+property=["']og:image["']/i,
-      /name=["']twitter:image["'][^>]+content=["']([^"'\s>]+)["']/i,
-      /content=["']([^"'\s>]+)["'][^>]+name=["']twitter:image["']/i,
-      /property=["']og:image:secure_url["'][^>]+content=["']([^"'\s>]+)["']/i,
-      /content=["']([^"'\s>]+)["'][^>]+property=["']og:image:secure_url["']/i,
-    ];
-    for(const re of patterns){
-      const m = html.match(re);
-      if(m && m[1] && m[1].length > 5){ return m[1]; }
-    }
-    return null;
-  }
+    let src = null;
+    let isData = false;
 
-  async function tryProxyForOg(proxyIdx){
-    if(proxyIdx >= PROXIES.length) return null;
     try{
-      const ctrl = new AbortController();
-      const t = setTimeout(()=>ctrl.abort(), 8000);
-      const r = await fetch(PROXIES[proxyIdx], {signal:ctrl.signal});
-      clearTimeout(t);
-      if(!r.ok) return tryProxyForOg(proxyIdx+1);
-      let text='';
-      try{
-        const d = await r.json();
-        text = d?.contents || d?.body || '';
-      }catch(e){
-        text = await r.text();
+      if(idx === 0){
+        // mshots: WordPress's free page screenshot CDN — works cross-origin, no key needed
+        // Add cache-bust so it triggers a fresh render instead of serving stale placeholder
+        src = `https://s0.wp.com/mshots/v1/${enc}?w=400&h=600&requeue=1`;
+      } else if(idx === 1){
+        // Thum.io — simple direct image, no key needed
+        src = `https://image.thum.io/get/width/400/crop/600/noanimate/allowJPG/${enc}`;
+      } else if(idx === 2){
+        // Microlink — JSON API returns a real screenshot URL
+        const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),14000);
+        const r=await fetch(`https://api.microlink.io/?url=${enc}&screenshot=true&meta=false`,{signal:ctrl.signal});
+        const d=await r.json();
+        src = d?.data?.screenshot?.url || null;
+      } else if(idx === 3){
+        // Google PSI — returns base64 screenshot from Lighthouse
+        const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),18000);
+        const r=await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${enc}&strategy=mobile&category=performance`,{signal:ctrl.signal});
+        const d=await r.json();
+        src = d?.lighthouseResult?.audits?.['final-screenshot']?.details?.data
+           || d?.lighthouseResult?.audits?.['screenshot-thumbnails']?.details?.items?.slice(-1)[0]?.data
+           || null;
+        if(src) isData = true;
+      } else if(idx === 4){
+        // Urlbox free tier (no key = watermarked but shows real page)
+        src = `https://api.urlbox.io/v1/render/png?url=${enc}&width=400&height=600&thumb_width=400`;
       }
-      const imgUrl = extractOgImage(text);
-      if(imgUrl){
-        const resolved = imgUrl.startsWith('//')? 'https:'+imgUrl : imgUrl.startsWith('/')?`https://${hostname}${imgUrl}`:imgUrl;
-        return resolved;
-      }
-      return tryProxyForOg(proxyIdx+1);
-    }catch(e){ return tryProxyForOg(proxyIdx+1); }
-  }
+    }catch(e){ tryService(idx+1); return; }
 
-  // ── Phase 2: Screenshot services ──
-  const SCREENSHOT_SERVICES = [
-    // WordPress mshots — renders full real pages, no key needed, was working before
-    async ()=>{ return `https://s0.wp.com/mshots/v1/${enc}?w=400&h=600`; },
-    // Google PSI — real base64 screenshot, no key needed
-    async ()=>{
-      const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),14000);
-      const r=await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${enc}&strategy=mobile&category=performance`,{signal:ctrl.signal});
-      const d=await r.json();
-      return d?.lighthouseResult?.audits?.['final-screenshot']?.details?.data
-          || d?.lighthouseResult?.audits?.['screenshot-thumbnails']?.details?.items?.slice(-1)[0]?.data
-          || null;
-    },
-    // Microlink JSON — returns screenshot URL
-    async ()=>{
-      const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),12000);
-      const r=await fetch(`https://api.microlink.io/?url=${enc}&screenshot=true&meta=false&embed=screenshot.url`,{signal:ctrl.signal});
-      const d=await r.json();
-      return d?.data?.screenshot?.url || d?.screenshot?.url || null;
-    },
-    // Thum.io — direct image URL
-    async ()=>{ return `https://image.thum.io/get/width/400/crop/600/noanimate/${enc}`; },
-    // ScreenshotMachine
-    async ()=>{ return `https://api.screenshotmachine.com?key=&url=${enc}&dimension=400x600&format=jpg`; },
-  ];
+    if(!src){ tryService(idx+1); return; }
 
-  async function tryScreenshots(idx){
-    if(idx >= SCREENSHOT_SERVICES.length){ showFaviconFallback(); return; }
-    try{
-      const src = await SCREENSHOT_SERVICES[idx]();
-      if(!src){ tryScreenshots(idx+1); return; }
-      // For data URIs, show directly
-      if(src.startsWith('data:')){
-        const img=document.createElement('img');
-        img.className='cpf-img'; img.alt='Page preview';
-        img.src=src;
-        wrap.innerHTML=''; wrap.appendChild(img);
-        try{ showMeta(new URL(url)); }catch(e){}
-        return;
-      }
-      // For URLs, check they actually load — mshots gets extra time (it renders on demand)
-      const isMshots = src.includes('wp.com/mshots');
-      const img=new Image();
-      const timeout = isMshots ? 20000 : 11000;
-      const t=setTimeout(()=>{ img.src=''; tryScreenshots(idx+1); }, timeout);
-      img.onload=()=>{
-        clearTimeout(t);
-        // mshots returns a valid image even if it's still generating, accept it
-        if(!isMshots && img.naturalWidth<10){ tryScreenshots(idx+1); return; }
-        wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
-        wrap.appendChild(img);
-        try{ showMeta(new URL(url)); }catch(e){}
-      };
-      img.onerror=()=>{ clearTimeout(t); tryScreenshots(idx+1); };
+    // Data URIs (base64) — inject directly
+    if(isData || src.startsWith('data:')){
+      const img=document.createElement('img');
+      img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
       img.src=src;
-    }catch(e){ tryScreenshots(idx+1); }
-  }
+      wrap.innerHTML=''; wrap.appendChild(img);
+      try{ showMeta(new URL(url)); }catch(e){}
+      return;
+    }
 
-  // ── Run: GSC screenshot first (most accurate), then OG image, then screenshot services ──
-  if(gscScreenshot){
-    // GSC gives a direct URL to the actual page screenshot Google took
+    // URL-based — load via Image() with timeout
     const img=new Image();
-    const t=setTimeout(()=>{ tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0)); }, 10000);
+    // mshots & PSI need more time; others get 12s
+    const timeout = (idx===0) ? 22000 : (idx===3) ? 18000 : 12000;
+    const t = setTimeout(()=>{ img.src=''; tryService(idx+1); }, timeout);
     img.onload=()=>{
       clearTimeout(t);
-      if(img.naturalWidth<10){ tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0)); return; }
+      // mshots returns a valid sized image even when rendering — accept it
+      // Other services: reject 1px×1px error placeholders
+      if(idx!==0 && img.naturalWidth < 10){ tryService(idx+1); return; }
       wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
       wrap.appendChild(img);
       try{ showMeta(new URL(url)); }catch(e){}
     };
-    img.onerror=()=>{ clearTimeout(t); tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0)); };
+    img.onerror=()=>{ clearTimeout(t); tryService(idx+1); };
+    img.src = src;
+  }
+
+  // ── Run: GSC screenshot first (real Google render), then service waterfall ──
+  if(gscScreenshot){
+    const img=new Image();
+    const t=setTimeout(()=>tryService(0), 10000);
+    img.onload=()=>{
+      clearTimeout(t);
+      if(img.naturalWidth<10){ tryService(0); return; }
+      wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
+      wrap.appendChild(img);
+      try{ showMeta(new URL(url)); }catch(e){}
+    };
+    img.onerror=()=>{ clearTimeout(t); tryService(0); };
     img.src=gscScreenshot;
   } else {
-    tryProxyForOg(0).then(og=>og?showOg(og):tryScreenshots(0)).catch(()=>tryScreenshots(0));
-  }
-
-  function showOg(ogUrl){
-    const img=new Image();
-    const t=setTimeout(()=>{ tryScreenshots(0); }, 9000);
-    img.onload=()=>{
-      clearTimeout(t);
-      if(img.naturalWidth<10){ tryScreenshots(0); return; }
-      wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; img.style.objectFit='cover';
-      wrap.appendChild(img);
-      try{ showMeta(new URL(url)); }catch(e){}
-    };
-    img.onerror=()=>{ clearTimeout(t); tryScreenshots(0); };
-    img.src=ogUrl;
+    tryService(0);
   }
 }
 
 // ── Build Destination Index Status for right panel ───────────────
 function buildDestSectionHtml(originalUrl, siteCheck){
   if(!originalUrl) return '';
-  // verify link uses exact URL path
   const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:4px;font-size:.5rem">↗ verify</a>`;
 
   let statusHtml='';
-  if(!siteCheck || siteCheck.indexed===null){
+  let noteHtml='';
+  if(!siteCheck || siteCheck.indexed===null && !siteCheck?.error){
     statusHtml=`<span style="color:var(--muted2)">⟳ Checking…</span>${verifyLink}`;
-  } else if(siteCheck.error){
-    statusHtml=`<span style="color:var(--orange)">⚠ Failed</span>${verifyLink}`;
+  } else if(siteCheck.error || siteCheck.indexed===null){
+    statusHtml=`<span style="color:var(--orange)">⚠ Could not determine</span>${verifyLink}`;
+    noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">${he(siteCheck.error||'')}</div>`;
   } else {
     const indexed=siteCheck.indexed;
-    const count=siteCheck.count||0;
+    const count=siteCheck.count;
     const color=indexed?'var(--accent)':'var(--red)';
-    const label=indexed?`✅ Indexed (${count} result${count!==1?'s':''})`:'❌ Not Indexed';
+    // Only show count if we have a confident number; don't show "10 results" from proxy noise
+    const countLabel = (indexed && count!==null && count > 0) ? ` (${count} result${count!==1?'s':''})` : '';
+    const label=indexed?`✅ Indexed${countLabel}`:'❌ Not Indexed';
     statusHtml=`<span style="color:${color};font-weight:700">${label}</span>${verifyLink}`;
+    // Show source + note that count is approximate when from proxy
+    if(indexed && siteCheck.source && siteCheck.source!=='worker'){
+      noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">via ${he(siteCheck.source)} · count is approximate — ↗ verify for exact</div>`;
+    }
   }
 
   return `<div class="crawl-section">
     <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
     <div class="crawl-section-body single">
-      <div class="crawl-kv" style="align-items:center">
+      <div class="crawl-kv">
         <div class="ck">site: result</div>
         <div class="cv" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">${statusHtml}</div>
+        ${noteHtml}
       </div>
     </div>
   </div>`;
@@ -5616,12 +5571,10 @@ function getNextProxy(){ const p=PROXY_POOL[_proxyIdx % PROXY_POOL.length]; _pro
 // Returns {indexed:bool|null, count:int|null, source:str, error:str|null}
 async function checkIndexedViaSite(targetUrl){
   const workerUrl = localStorage.getItem('lc_worker_url')||'';
-  let domain='';
-  try{ domain=new URL(targetUrl).hostname; }catch(e){}
-  // Use site:exact-url for precise page check
+  // Use site:exact-url for precise single-page check
   const siteQuery = `site:${targetUrl}`;
 
-  // Method 1: Route through the tool's own Cloudflare Worker (no CORS issues)
+  // Method 1: Route through the tool's own Cloudflare Worker (most reliable)
   if(workerUrl){
     try{
       const r = await fetch(`${workerUrl}/api/site-check?url=${encodeURIComponent(targetUrl)}`, {signal:AbortSignal.timeout(8000)});
@@ -5632,13 +5585,15 @@ async function checkIndexedViaSite(targetUrl){
     }catch(e){}
   }
 
-  // Method 2: Try Google Custom Search via multiple CORS proxies
+  // Method 2: Google via CORS proxies — parse HTML carefully
+  // NOTE: Google obfuscates counts through proxies. We only trust the count if we
+  // can parse it from result-stats. Otherwise we just confirm indexed:true/false with count:1.
   const CORS_PROXIES = [
     (u)=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
     (u)=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
     (u)=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   ];
-  const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(siteQuery)}&num=5&hl=en`;
+  const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(siteQuery)}&num=10&hl=en&gl=us`;
 
   for(const proxyFn of CORS_PROXIES){
     try{
@@ -5646,37 +5601,50 @@ async function checkIndexedViaSite(targetUrl){
       if(!r.ok) continue;
       let html='';
       try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
-      if(!html) continue;
-      // Check for Google "did not match any documents" signals
-      if(/did not match any documents/i.test(html)||/No results found/i.test(html)||/your search.*did not match/i.test(html)){
-        return {indexed:false, count:0, source:'google-proxy', error:null};
+      if(!html || html.length < 500) continue;
+
+      // Definitive "not indexed" signals
+      if(/did not match any documents/i.test(html) ||
+         /your search.*did not match/i.test(html) ||
+         /No results found for/i.test(html)){
+        return {indexed:false, count:0, source:'google', error:null};
       }
-      // Check for actual result entries — look for known Google SERP HTML patterns
-      const hasResults = (
-        html.includes('class="g"') ||
-        html.includes('data-sokoban-container') ||
-        html.includes('class="yuRUbf"') ||
-        html.includes('class="tF2Cxc"') ||
-        html.includes('class="MjjYud"') ||
-        html.includes('class="kvH3mc"') ||
-        html.includes('/search?q=related:') ||
-        /<h3[^>]*class="[^"]*LC20lb/i.test(html) ||
-        /<div[^>]+data-hveid/i.test(html) ||
-        (/<h3/i.test(html) && html.includes(new URL(targetUrl).hostname))
-      );
+
+      // Count actual result <h3> entries that contain the target domain
+      // This is far more accurate than trusting Google's stated "About X results"
+      let domain='';
+      try{ domain=new URL(targetUrl).hostname; }catch(e){}
+
+      // Count result blocks that match our domain
+      const resultBlockRe = /class="[^"]*(?:yuRUbf|tF2Cxc|LC20lb|MjjYud|kvH3mc)[^"]*"/g;
+      const blocks = (html.match(resultBlockRe)||[]).length;
+      const domainMentions = domain ? (html.match(new RegExp(domain.replace('.','\\.'),'g'))||[]).length : 0;
+
+      const hasResults = blocks > 0 || domainMentions > 2 ||
+        html.includes('class="g"') || html.includes('data-sokoban-container') ||
+        html.includes('/search?q=related:');
+
       if(hasResults){
-        // Try to extract result count from various Google formats
-        const countMatch =
-          html.match(/About ([\d,]+) results/i) ||
-          html.match(/([0-9][0-9,]*)\s+results/i) ||
-          html.match(/result-stats[^>]*>[^<]*([\d,]+)/i);
-        const count = countMatch ? parseInt(countMatch[1].replace(/,/g,''))||1 : 1;
-        return {indexed:true, count, source:'google-proxy', error:null};
+        // Only extract count from result-stats — it's the only reliable place
+        // "About X results" is wildly inaccurate for site: queries through proxies
+        const statsMatch = html.match(/id=["']result-stats["'][^>]*>[^<]*([\d,]+)\s+result/i)
+                        || html.match(/About ([\d,]+) results?\s*\([\d.]+/i);
+        // Use block count as a sanity cap — if parsed count >> blocks, trust blocks
+        let count = 1;
+        if(statsMatch){
+          const parsed = parseInt(statsMatch[1].replace(/,/g,''))||1;
+          // For site:exact-url the real count is almost always 1-3
+          // If proxy returns inflated number (e.g. 10 when only 1 result shows), cap it
+          count = blocks > 0 ? Math.min(parsed, Math.max(blocks, 1)) : parsed;
+        } else if(blocks > 0){
+          count = blocks;
+        }
+        return {indexed:true, count, source:'google', error:null};
       }
     }catch(e){ continue; }
   }
 
-  // Method 3: Bing site: search via multiple proxies (reliable fallback)
+  // Method 3: Bing RSS — cleaner result count, less obfuscation
   const bingUrl = `https://www.bing.com/search?q=${encodeURIComponent(siteQuery)}&format=rss`;
   for(const proxyFn of CORS_PROXIES){
     try{
@@ -5685,10 +5653,12 @@ async function checkIndexedViaSite(targetUrl){
       let html='';
       try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
       if(!html) continue;
-      if(html.includes('<item>') || html.includes('totalResults')){
-        const countMatch = html.match(/totalResults[^>]*>(\d+)/i) || html.match(/<item>/g);
-        const count = countMatch ? (Array.isArray(countMatch) ? countMatch.length : parseInt(countMatch[1])||1) : 1;
-        return {indexed:true, count, source:'bing', error:null};
+      const items = (html.match(/<item>/g)||[]).length;
+      if(items > 0){
+        const totalMatch = html.match(/totalResults[^>]*>(\d+)/i);
+        const total = totalMatch ? parseInt(totalMatch[1])||items : items;
+        // Again cap: items is what we actually see, total from header can be inflated
+        return {indexed:true, count:Math.min(total, Math.max(items,1)), source:'bing', error:null};
       }
       if(/no results|0 results/i.test(html)){
         return {indexed:false, count:0, source:'bing', error:null};
@@ -5696,19 +5666,7 @@ async function checkIndexedViaSite(targetUrl){
     }catch(e){ continue; }
   }
 
-  // Method 4: Page reachability via proxy (last resort — can't determine indexing, just existence)
-  for(const proxyFn of CORS_PROXIES){
-    try{
-      const r = await fetch(proxyFn(targetUrl), {signal:AbortSignal.timeout(8000)});
-      if(!r.ok) continue;
-      let status=0;
-      try{ const d=await r.json(); status=d?.status?.http_code||0; }catch(e){ status=r.status||0; }
-      if(status===200) return {indexed:null, count:null, source:'reachable', error:null, reachable:true};
-      if(status===404) return {indexed:false, count:0, source:'reachable', error:null, reachable:false};
-    }catch(e){ continue; }
-  }
-
-  return {indexed:null, count:null, source:'none', error:'All check methods failed'};
+  return {indexed:null, count:null, source:'none', error:'Check failed — click ↗ verify to check manually'};
 }
 
 // ── Re-submit button inside crawl modal ──────────────────────────
