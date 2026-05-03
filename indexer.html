@@ -105,7 +105,7 @@ textarea{resize:vertical;line-height:1.7}
 .idx-log{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:200px;overflow-y:auto;font-size:10.5px;line-height:1.9;display:none;margin-top:10px}
 .idx-log::-webkit-scrollbar{width:3px}.idx-log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .log-ok{color:var(--accent)}.log-err{color:var(--red)}.log-info{color:var(--muted)}.log-warn{color:var(--orange)}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-bg.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:100%;max-width:460px;animation:popIn .2s ease;max-height:90vh;overflow-y:auto}
 @keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
@@ -4831,12 +4831,12 @@ function loadPagePreview(url){
   // Multi-service screenshot fallback chain (no API keys required)
   const enc = encodeURIComponent(url);
   const services = [
-    // microlink.io: free, returns actual screenshot URL via JSON API
-    { type:'json', url:`https://api.microlink.io/?url=${enc}&screenshot=true&meta=false&embed=screenshot.url&waitFor=1500` },
-    // WordPress mshots: free, no key
-    { type:'img',  url:`https://s0.wp.com/mshots/v1/${enc}?w=520&h=780` },
-    // pagepeeker: free tier
-    { type:'img',  url:`https://free.pagepeeker.com/v2/thumbs.php?size=x&url=${enc}` },
+    // Google PSI returns a real base64 screenshot in its JSON — free, no key
+    { type:'psi', url:`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${enc}&strategy=mobile&category=performance` },
+    // WordPress mshots CDN — free, no key
+    { type:'img', url:`https://s0.wp.com/mshots/v1/${enc}?w=400&h=600` },
+    // microlink.io JSON API — free no-key
+    { type:'json', url:`https://api.microlink.io/?url=${enc}&screenshot=true&meta=false&embed=screenshot.url` },
   ];
 
   function showMeta(u){
@@ -4860,8 +4860,25 @@ function loadPagePreview(url){
     if(idx >= services.length){ showFaviconFallback(); return; }
     const svc = services[idx];
 
-    if(svc.type === 'json'){
-      // Fetch JSON to extract the actual screenshot image URL
+    if(svc.type === 'psi'){
+      // Google PSI embeds a base64 screenshot in lighthouseResult.audits['final-screenshot']
+      const timer = setTimeout(()=>tryService(idx+1), 12000);
+      fetch(svc.url).then(r=>r.json()).then(d=>{
+        clearTimeout(timer);
+        const data64 = d?.lighthouseResult?.audits?.['final-screenshot']?.details?.data
+                    || d?.lighthouseResult?.audits?.['screenshot-thumbnails']?.details?.items?.slice(-1)[0]?.data
+                    || null;
+        if(!data64){ tryService(idx+1); return; }
+        // data64 is already a data: URI
+        wrap.innerHTML='';
+        const img = document.createElement('img');
+        img.className='cpf-img'; img.alt='Page preview';
+        img.src = data64;
+        wrap.appendChild(img);
+        try{ showMeta(new URL(url)); }catch(e){}
+      }).catch(()=>{ clearTimeout(timer); tryService(idx+1); });
+
+    } else if(svc.type === 'json'){
       const timer = setTimeout(()=>tryService(idx+1), 10000);
       fetch(svc.url).then(r=>r.json()).then(d=>{
         clearTimeout(timer);
@@ -4873,6 +4890,7 @@ function loadPagePreview(url){
         img.onerror=()=>{ clearTimeout(t2); tryService(idx+1); };
         img.src=imgUrl;
       }).catch(()=>{ clearTimeout(timer); tryService(idx+1); });
+
     } else {
       const img = new Image();
       const timer = setTimeout(()=>{ img.src=''; tryService(idx+1); }, 9000);
@@ -4958,29 +4976,13 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
     </div>
   </div>
   ${destHtml}`;
-  const mobVerdict=mob.verdict||'—';
-  const mobIssues=mob.issues||[];
-  html+=`<div class="crawl-section">
-    <div class="crawl-section-hdr" style="background:rgba(59,130,246,0.04)"><span class="cs-icon">📱</span><span style="color:var(--blue)">Mobile Usability</span></div>
-    <div class="crawl-section-body ${mobIssues.length?'single':''}">
-      ${mobIssues.length?mobIssues.map(i=>`<div class="crawl-kv"><div class="ck">Issue</div><div class="cv bad">${he(i.issueType||i)}</div></div>`).join(''):kv('Status',mobVerdict==='PASS'?'✓ Mobile Friendly':mobVerdict==='FAIL'?'✗ Issues Found':mobVerdict,mobVerdict==='PASS'?'good':mobVerdict==='FAIL'?'bad':'')}
-    </div>
-  </div>`;
+  // Only add Rich Results if there's actual data (useful, not noise)
   if(rich.verdict||(rich.detectedItems&&rich.detectedItems.length)){
     const ri=rich.detectedItems||[];
     html+=`<div class="crawl-section">
       <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.04)"><span class="cs-icon">✨</span><span style="color:var(--purple)">Rich Results</span></div>
       <div class="crawl-section-body ${ri.length?'single':''}">
         ${ri.length?ri.map(i=>`<div class="crawl-kv"><div class="ck">${he(i.richResultType||'Type')}</div><div class="cv blue">${(i.items||[]).length} items</div></div>`).join(''):kv('Status',rich.verdict||'—',rich.verdict==='PASS'?'good':rich.verdict==='FAIL'?'bad':'')}
-      </div>
-    </div>`;
-  }
-  if(amp.verdict){
-    html+=`<div class="crawl-section">
-      <div class="crawl-section-hdr" style="background:rgba(245,158,11,0.04)"><span class="cs-icon">⚡</span><span style="color:var(--orange)">AMP</span></div>
-      <div class="crawl-section-body">
-        ${kv('AMP Status',amp.verdict||'—',amp.verdict==='PASS'?'good':amp.verdict==='FAIL'?'bad':'')}
-        ${amp.ampUrl?kv('AMP URL',amp.ampUrl.slice(0,50)+'…'):''}
       </div>
     </div>`;
   }
@@ -4992,12 +4994,7 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
       </div>
     </div>`;
   }
-  html+=`<div class="crawl-section" id="psi-section">
-    <div class="crawl-section-hdr" style="background:rgba(245,158,11,0.04)"><span class="cs-icon">⚡</span><span style="color:var(--orange)">PageSpeed Scores</span><span style="margin-left:auto;font-size:.48rem;color:var(--muted2)">via Google PSI</span></div>
-    <div id="psi-body"><div style="padding:12px 14px;color:var(--muted2);font-size:.6rem">⟳ Loading…</div></div>
-  </div>`;
   container.innerHTML = html;
-  if(originalUrl) loadPageSpeedScores(originalUrl);
 }
 
 // ── Human-readable enum translators ──────────────────────────────
