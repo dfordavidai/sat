@@ -117,10 +117,11 @@ textarea{resize:vertical;line-height:1.7}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.green{border-color:rgba(0,255,136,.35);color:var(--accent)}.toast.red{border-color:rgba(239,68,68,.35);color:var(--red)}
 .view{display:none}.view.active{display:flex;flex-direction:column;gap:20px;min-width:0}
-.crawl-modal{max-width:900px;width:100%}
-.crawl-modal .modal-title{display:flex;align-items:center;gap:10px;margin-bottom:0}
-.crawl-body-layout{display:grid;grid-template-columns:260px 1fr;gap:14px;align-items:start}
-.crawl-preview-col{display:flex;flex-direction:column;gap:10px;position:sticky;top:0}
+.crawl-modal{max-width:900px;width:100%;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+.crawl-modal .modal-title{display:flex;align-items:center;gap:10px;margin-bottom:0;flex-shrink:0}
+.crawl-body-layout{display:grid;grid-template-columns:260px 1fr;gap:14px;align-items:start;flex:1;min-height:0}
+.crawl-preview-col{display:flex;flex-direction:column;gap:10px;position:sticky;top:0;max-height:calc(92vh - 120px);overflow-y:auto}
+.crawl-preview-col::-webkit-scrollbar{width:3px}.crawl-preview-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .crawl-preview-frame{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .cpf-hdr{padding:7px 12px;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
 .cpf-img{width:100%;aspect-ratio:9/16;object-fit:cover;object-position:top;display:block;background:var(--bg3)}
@@ -137,7 +138,7 @@ textarea{resize:vertical;line-height:1.7}
 .open-orig-btn:hover{border-color:var(--accent);color:var(--accent)}
 .crawl-url-bar{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:12px 0 16px}
 .crawl-url-bar span{color:var(--accent)}
-.crawl-sections{display:flex;flex-direction:column;gap:10px;max-height:480px;overflow-y:auto;padding-right:4px}
+.crawl-sections{display:flex;flex-direction:column;gap:10px;max-height:calc(92vh - 120px);overflow-y:auto;padding-right:4px}
 .crawl-sections::-webkit-scrollbar{width:3px}.crawl-sections::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .crawl-section{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .crawl-section-hdr{padding:9px 14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
@@ -157,6 +158,8 @@ textarea{resize:vertical;line-height:1.7}
 .crawl-verdict-banner.neutral{background:var(--blue-dim);border:1px solid rgba(59,130,246,.2)}
 .crawl-verdict-banner.fail{background:var(--red-dim);border:1px solid rgba(239,68,68,.2)}
 .crawl-verdict-banner.pending{background:var(--orange-dim);border:1px solid rgba(245,158,11,.2)}
+/* nested inside a section — remove the outer margin */
+.crawl-section-body .crawl-verdict-banner{margin-bottom:0}
 .cvb-icon{font-size:1.5rem}.cvb-label{font-family:var(--display);font-size:.85rem;font-weight:700}
 .cvb-label.pass{color:var(--accent)}.cvb-label.neutral{color:var(--blue)}.cvb-label.fail{color:var(--red)}.cvb-label.pending{color:var(--orange)}
 .cvb-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
@@ -4785,29 +4788,53 @@ function loadPagePreview(url){
   const metaEl = document.getElementById('crawl-meta-mini');
   const openBtn= document.getElementById('open-orig-btn');
   openBtn.href=url; openBtn.style.display='block';
-  const screenshotUrl=`https://image.thum.io/get/width/520/crop/900/noanimate/${encodeURIComponent(url)}`;
-  wrap.innerHTML=`<div class="cpf-loading"><div class="spin" style="font-size:1.2rem">⟳</div><div>Capturing…</div></div>`;
-  const img=new Image();
-  img.onload=()=>{
-    wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; wrap.appendChild(img);
+  wrap.innerHTML=`<div class="cpf-loading"><div class="spin" style="font-size:1.2rem">⟳</div><div>Capturing preview…</div></div>`;
+
+  // Multi-service screenshot fallback chain
+  const enc = encodeURIComponent(url);
+  const services = [
+    `https://image.thum.io/get/width/520/crop/900/noanimate/${enc}`,
+    `https://api.screenshotmachine.com?key=&url=${enc}&dimension=390x600&format=jpg&cacheLimit=0`,
+    `https://s0.wp.com/mshots/v1/${enc}?w=520&h=780`,
+  ];
+
+  function showMeta(u){
     try{
-      const u=new URL(url); metaEl.style.display='flex';
+      metaEl.style.display='flex';
       metaEl.innerHTML=`<div class="cmm-row"><span class="cmm-k">Domain</span><span class="cmm-v blue">${he(u.hostname)}</span></div>
         <div class="cmm-row"><span class="cmm-k">Protocol</span><span class="cmm-v ${u.protocol==='https:'?'good':'warn'}">${he(u.protocol.replace(':',''))}</span></div>
         <div class="cmm-row"><span class="cmm-k">Path</span><span class="cmm-v" style="font-size:.5rem;overflow:hidden;max-width:130px;white-space:nowrap">${he(u.pathname||'/')}</span></div>`;
     }catch(e){}
-  };
-  img.onerror=()=>{
+  }
+
+  function showFaviconFallback(){
     try{
       const u=new URL(url);
-      wrap.innerHTML=`<div class="cpf-error"><img src="https://www.google.com/s2/favicons?domain=${u.hostname}&sz=32" style="width:32px;border-radius:6px;margin-bottom:4px"><div style="color:var(--text);font-size:.65rem;font-weight:700">${he(u.hostname)}</div><div style="font-size:.52rem;margin-top:4px">Screenshot unavailable</div></div>`;
-      metaEl.style.display='flex'; metaEl.innerHTML=`<div class="cmm-row"><span class="cmm-k">Domain</span><span class="cmm-v blue">${he(u.hostname)}</span></div>`;
+      wrap.innerHTML=`<div class="cpf-error"><img src="https://www.google.com/s2/favicons?domain=${u.hostname}&sz=64" style="width:40px;border-radius:8px;margin-bottom:8px"><div style="color:var(--text);font-size:.65rem;font-weight:700">${he(u.hostname)}</div><div style="font-size:.52rem;color:var(--muted);margin-top:4px">Live preview unavailable</div><a href="${he(url)}" target="_blank" style="font-size:.52rem;color:var(--blue);text-decoration:none;margin-top:6px">↗ Open page directly</a></div>`;
+      showMeta(u);
     }catch(e){ wrap.innerHTML='<div class="cpf-error">Preview unavailable</div>'; }
-  };
-  img.src=screenshotUrl;
+  }
+
+  function tryService(idx){
+    if(idx >= services.length){ showFaviconFallback(); return; }
+    const img = new Image();
+    // If image doesn't load within 8s, try next service
+    const timer = setTimeout(()=>{ img.src=''; tryService(idx+1); }, 8000);
+    img.onload=()=>{
+      clearTimeout(timer);
+      // Reject suspiciously tiny images (error pages from screenshot services)
+      if(img.naturalWidth < 10){ tryService(idx+1); return; }
+      wrap.innerHTML=''; img.className='cpf-img'; img.alt='Page preview'; wrap.appendChild(img);
+      try{ showMeta(new URL(url)); }catch(e){}
+    };
+    img.onerror=()=>{ clearTimeout(timer); tryService(idx+1); };
+    img.src = services[idx];
+  }
+
+  tryService(0);
 }
 
-function renderCrawlDetails(container, res, shortUrl, originalUrl){
+function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes){
   const idx  = res.indexStatusResult||{};
   const mob  = res.mobileUsabilityResult||{};
   const rich = res.richResultsResult||{};
@@ -4816,6 +4843,42 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl){
   const vClass  = verdict==='PASS'?'pass': verdict==='NEUTRAL'?'neutral': verdict==='FAIL'?'fail':'pending';
   const vIcon   = verdict==='PASS'?'✅': verdict==='NEUTRAL'?'🔵': verdict==='FAIL'?'❌':'⏳';
   const vLabel  = verdict==='PASS'?'Indexed': verdict==='NEUTRAL'?'Crawled / Not Indexed': verdict==='FAIL'?'Not Indexed (Error)':'Unknown / Pending';
+
+  // ── Destination URL status banner ──────────────────────────────
+  let destHtml = '';
+  if(destRes){
+    const dIdx = destRes.indexStatusResult||{};
+    const dVerdict = dIdx.verdict||'UNKNOWN';
+    const dClass = dVerdict==='PASS'?'pass': dVerdict==='NEUTRAL'?'neutral': dVerdict==='FAIL'?'fail':'pending';
+    const dIcon  = dVerdict==='PASS'?'✅': dVerdict==='NEUTRAL'?'🔵': dVerdict==='FAIL'?'❌':'⏳';
+    const dLabel = dVerdict==='PASS'?'Indexed': dVerdict==='NEUTRAL'?'Crawled / Not Indexed': dVerdict==='FAIL'?'Not Indexed':'Unknown / Pending';
+    const destShort = originalUrl ? (originalUrl.length>60 ? originalUrl.slice(0,60)+'…' : originalUrl) : '—';
+    destHtml = `<div class="crawl-section">
+      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
+      <div class="crawl-section-body single" style="padding:12px 14px">
+        <div style="font-size:.52rem;color:var(--muted);margin-bottom:8px;word-break:break-all">${he(destShort)}</div>
+        <div class="crawl-verdict-banner ${dClass}" style="margin-bottom:8px">
+          <span class="cvb-icon">${dIcon}</span>
+          <div><div class="cvb-label ${dClass}">${dLabel}</div>${dIdx.coverageState?`<div class="cvb-sub">${he(humanCoverageState(dIdx.coverageState))}</div>`:''}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px">
+          ${kv('Verdict',humanVerdict(dVerdict),dClass)}
+          ${kv('Coverage',humanCoverageState(dIdx.coverageState||'—'))}
+          ${kv('Robots.txt',humanRobotsTxt(dIdx.robotsTxtState||'—'),robotsColor(dIdx.robotsTxtState))}
+          ${kv('Indexing',humanIndexingState(dIdx.indexingState||'—'),indexingColor(dIdx.indexingState))}
+          ${kv('Last Crawl',dIdx.lastCrawlTime?fmtDate(dIdx.lastCrawlTime):'Never crawled',dIdx.lastCrawlTime?'good':'warn')}
+          ${kv('Referring URLs',(dIdx.referringUrls&&dIdx.referringUrls.length)?dIdx.referringUrls.length+' found':'None',dIdx.referringUrls?.length?'good':'')}
+        </div>
+        ${dVerdict!=='PASS'?`<div style="margin-top:10px;padding:8px 10px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:7px;font-size:.57rem;color:var(--purple);line-height:1.6">⚠ The destination page is <strong>not indexed</strong> — your backlink is pointing to a page Google can't see. Re-submit the original URL via the Re-submit button above.</div>`:'<div style="margin-top:8px;padding:6px 10px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:7px;font-size:.57rem;color:var(--accent);line-height:1.6">✓ Destination page is indexed — your backlink is passing link equity correctly.</div>'}
+      </div>
+    </div>`;
+  } else if(originalUrl) {
+    destHtml = `<div class="crawl-section">
+      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
+      <div style="padding:12px 14px;font-size:.6rem;color:var(--muted2)">⟳ Could not inspect destination URL — site may not be in this GSC property.</div>
+    </div>`;
+  }
+
   let html=`<div class="crawl-verdict-banner ${vClass}">
     <span class="cvb-icon">${vIcon}</span>
     <div><div class="cvb-label ${vClass}">${vLabel}</div>${idx.coverageState?`<div class="cvb-sub">${he(humanCoverageState(idx.coverageState))}</div>`:''}</div>
@@ -4835,7 +4898,8 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl){
       ${kv('Sitemap',(idx.sitemap&&idx.sitemap.length)?idx.sitemap[0].slice(0,50)+'…':'—')}
       ${kv('Referring URLs',(idx.referringUrls&&idx.referringUrls.length)?idx.referringUrls.length+' found':'None',idx.referringUrls?.length?'good':'')}
     </div>
-  </div>`;
+  </div>
+  ${destHtml}`;
   const mobVerdict=mob.verdict||'—';
   const mobIssues=mob.issues||[];
   html+=`<div class="crawl-section">
@@ -5411,16 +5475,29 @@ async function openCrawlDetails(shortUrl, originalUrl){
   if(!sa){ sections.innerHTML=`<div class="crawl-no-sa"><div class="ns-icon">🔑</div><div style="margin-bottom:8px;color:var(--text);font-size:.72rem">Service Account Required</div><div>Add SA keys in <strong style="color:var(--accent)">Settings</strong> tab.</div></div>`; return; }
   try{
     const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
-    const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})});
+
+    // Inspect both short URL and original URL in parallel
+    const [r, rOrig] = await Promise.all([
+      fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})}),
+      originalUrl ? fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:originalUrl,siteUrl:site})}).catch(()=>null) : Promise.resolve(null)
+    ]);
+
     if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
     const data = await r.json();
     const result = data?.inspectionResult||{};
+
+    // Parse destination result
+    let destResult = null;
+    if(rOrig && rOrig.ok){
+      try{ const d=await rOrig.json(); destResult=d?.inspectionResult||null; }catch(e){}
+    }
+
     // Save to crawl history
     const verdict = result.indexStatusResult?.verdict||'UNKNOWN';
     const coverage = result.indexStatusResult?.coverageState||'';
     saveCrawlResult(shortUrl, verdict, coverage);
     renderCrawlHistory(shortUrl);
-    renderCrawlDetails(sections, result, shortUrl, originalUrl);
+    renderCrawlDetails(sections, result, shortUrl, originalUrl, destResult);
   }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
 }
 
