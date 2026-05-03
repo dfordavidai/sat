@@ -612,7 +612,7 @@ textarea{resize:vertical;line-height:1.7}
           <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">Auto-updated on every link add. Each domain gets its own sitemap. On add, <strong style="color:var(--accent)">all channels fire automatically</strong> — Indexing API, IndexNow × 8, GSC Inspect, Wayback, XML-RPC × 45, RSS feeds.</div>
           <div id="sitemap-domain-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
           <script>
-          document.addEventListener('DOMContentLoaded', function(){
+          (function(){
             const dl = document.getElementById('sitemap-domain-list');
             if(!dl) return;
             const colors = ['var(--accent)','var(--blue)','var(--orange)','var(--purple)'];
@@ -621,7 +621,7 @@ textarea{resize:vertical;line-height:1.7}
               const sm = SITEMAP_URLS[i];
               dl.innerHTML += `<a href="${sm}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:.5rem;color:${colors[i]};text-decoration:none;font-family:var(--mono)" onclick="event.preventDefault();viewSitemap(${i})"><span style="width:5px;height:5px;border-radius:50%;background:${colors[i]};flex-shrink:0;display:inline-block"></span>${domain}</a>`;
             });
-          });
+          })();
           </script>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-outline" style="font-size:.6rem" onclick="viewSitemap()">👁 Preview XML</button>
@@ -1611,13 +1611,9 @@ const FEED_URLS = SHORT_BASES.map(base => {
 const INDEXNOW_KEY     = 'indexcore';
 const INDEXNOW_KEY_LOC = 'https://flexygist.com.ng/indexcore.txt';
 const INDEXNOW_HOST    = 'flexygist.com.ng';
-const SB_URL_DEFAULT   = 'https://ydfeubmrlbkddlidhniv.supabase.co';
-const SB_KEY_DEFAULT   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
-// BUG FIX: never snapshot credentials at load time — always resolve live from localStorage
-function getSbUrl(){ const s=localStorage.getItem('lc_sb_url')||''; const ok=s.startsWith('https://')&&s.includes('.supabase.co'); return (ok?s:SB_URL_DEFAULT).replace(/\/$/,''); }
-function getSbKey(){ const s=localStorage.getItem('lc_sb_key')||''; const ok=s.startsWith('eyJ')&&s.length>100; return ok?s:SB_KEY_DEFAULT; }
-function getH(){ const k=getSbKey(); return {'apikey':k,'Authorization':`Bearer ${k}`,'Content-Type':'application/json'}; }
-
+const SB_URL           = 'https://ydfeubmrlbkddlidhniv.supabase.co';
+const SB_KEY           = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZmV1Ym1ybGJrZGRsaWRobml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTQ4MzMsImV4cCI6MjA5MzE5MDgzM30.VGz8WVrYbohyFPDb-n8YEzHI27RVd9Vt-OYjGyDEyFU';
+const H                = {'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'};
 
 // ══════════════════════════════════════════════════════════
 // SUPABASE CONFIG STORE (lc_config table)
@@ -1627,7 +1623,7 @@ function getH(){ const k=getSbKey(); return {'apikey':k,'Authorization':`Bearer 
 
 async function cfgGet(key, fallback=null){
   try{
-    const r = await fetch(`${getSbUrl()}/rest/v1/lc_config?key=eq.${encodeURIComponent(key)}&select=value`,{headers:getH()});
+    const r = await fetch(`${SB_URL}/rest/v1/lc_config?key=eq.${encodeURIComponent(key)}&select=value`,{headers:H});
     if(!r.ok) throw new Error(r.status);
     const d = await r.json();
     return (d&&d[0]) ? d[0].value : fallback;
@@ -1636,9 +1632,9 @@ async function cfgGet(key, fallback=null){
 
 async function cfgSet(key, value){
   try{
-    await fetch(`${getSbUrl()}/rest/v1/lc_config`,{
+    await fetch(`${SB_URL}/rest/v1/lc_config`,{
       method:'POST',
-      headers:{...getH(),'Prefer':'resolution=merge-duplicates,return=minimal'},
+      headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},
       body: JSON.stringify({key, value: String(value), updated_at: new Date().toISOString()})
     });
   }catch(e){ console.warn('cfgSet failed:',e); }
@@ -1647,9 +1643,9 @@ async function cfgSet(key, value){
 async function cfgSetBatch(obj){
   try{
     const rows = Object.entries(obj).map(([key,value])=>({key, value: typeof value==='string'?value:JSON.stringify(value), updated_at: new Date().toISOString()}));
-    await fetch(`${getSbUrl()}/rest/v1/lc_config`,{
+    await fetch(`${SB_URL}/rest/v1/lc_config`,{
       method:'POST',
-      headers:{...getH(),'Prefer':'resolution=merge-duplicates,return=minimal'},
+      headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},
       body: JSON.stringify(rows)
     });
   }catch(e){ console.warn('cfgSetBatch failed:',e); }
@@ -1657,7 +1653,7 @@ async function cfgSetBatch(obj){
 
 async function cfgGetAll(){
   try{
-    const r = await fetch(`${getSbUrl()}/rest/v1/lc_config?select=key,value`,{headers:getH()});
+    const r = await fetch(`${SB_URL}/rest/v1/lc_config?select=key,value`,{headers:H});
     if(!r.ok) return {};
     const d = await r.json();
     const out = {};
@@ -1954,8 +1950,8 @@ function updateStatus(inputId, statusId){
 
 function loadSettingsPage(){
   // Supabase
-  setVal('cfg-sb-url', localStorage.getItem('lc_sb_url') || SB_URL_DEFAULT);
-  setVal('cfg-sb-key', localStorage.getItem('lc_sb_key') || SB_KEY_DEFAULT);
+  setVal('cfg-sb-url', localStorage.getItem('lc_sb_url') || SB_URL);
+  setVal('cfg-sb-key', localStorage.getItem('lc_sb_key') || SB_KEY);
   // Load remaining settings from Supabase in background, then fill form
   (async ()=>{
     try{
@@ -2115,8 +2111,8 @@ function setConn(id, text, ok){
 async function testSupabase(){
   setConn('conn-supabase','testing…',null);
   try{
-    const url = (document.getElementById('cfg-sb-url')?.value.trim()||SB_URL_DEFAULT);
-    const key = (document.getElementById('cfg-sb-key')?.value.trim()||SB_KEY_DEFAULT);
+    const url = (document.getElementById('cfg-sb-url')?.value.trim()||SB_URL);
+    const key = (document.getElementById('cfg-sb-key')?.value.trim()||SB_KEY);
     const r = await fetch(`${url}/rest/v1/ic_short_links?select=code&limit=1`,
       {headers:{apikey:key,Authorization:`Bearer ${key}`}});
     if(r.ok){ setConn('conn-supabase','connected',true); }
@@ -2351,20 +2347,19 @@ function switchIdxTab(tab){
 // SUPABASE HELPERS
 // ══════════════════════════════════════════════════════════
 async function sbGet(path){
-  const r = await fetch(`${getSbUrl()}/rest/v1/${path}`,{headers:getH()});
-  if(!r.ok){ const t=await r.text(); throw new Error(`sbGet ${path} HTTP ${r.status}: ${t}`); }
-  return r.json();
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`,{headers:H});
+  return r.ok ? r.json() : [];
 }
 async function sbPost(table,data,prefer='resolution=merge-duplicates'){
-  const r = await fetch(`${getSbUrl()}/rest/v1/${table}`,{method:'POST',headers:{...getH(),'Prefer':`${prefer},return=representation`},body:JSON.stringify(data)});
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:{...H,'Prefer':`${prefer},return=representation`},body:JSON.stringify(data)});
   if(!r.ok){const t=await r.text();console.error(`sbPost ${table} HTTP ${r.status}:`,t);}
   return r;
 }
 async function sbPatch(table,filter,data){
-  return fetch(`${getSbUrl()}/rest/v1/${table}?${filter}`,{method:'PATCH',headers:{...getH(),'Prefer':'return=minimal'},body:JSON.stringify(data)});
+  return fetch(`${SB_URL}/rest/v1/${table}?${filter}`,{method:'PATCH',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify(data)});
 }
 async function sbDelete(table,filter){
-  return fetch(`${getSbUrl()}/rest/v1/${table}?${filter}`,{method:'DELETE',headers:getH()});
+  return fetch(`${SB_URL}/rest/v1/${table}?${filter}`,{method:'DELETE',headers:H});
 }
 
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -2396,15 +2391,10 @@ async function loadAll(){
     document.getElementById('sb-status').textContent='Connected ✓';
     renderAll();
   }catch(e){
-    console.error('loadAll failed — URL:',getSbUrl(),'KEY prefix:',getSbKey().slice(0,20), 'Error:',e);
-    // If the stored credentials are bad, clear them so defaults take over next reload
-    const storedUrl = localStorage.getItem('lc_sb_url')||'';
-    const storedKey = localStorage.getItem('lc_sb_key')||'';
-    if(storedUrl && !(storedUrl.startsWith('https://')&&storedUrl.includes('.supabase.co'))){ localStorage.removeItem('lc_sb_url'); }
-    if(storedKey && !(storedKey.startsWith('eyJ')&&storedKey.length>100)){ localStorage.removeItem('lc_sb_key'); }
     document.getElementById('sb-status').innerHTML = location.protocol==='file:'
       ? '<span style="color:var(--orange)">⚠ Open via server</span>'
-      : `<span style="color:var(--red)" title="${e.message}">Offline — check console</span>`;
+      : '<span style="color:var(--red)">Offline</span>';
+    console.error('loadAll failed:',e);
   }
 }
 
