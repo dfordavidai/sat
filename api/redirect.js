@@ -140,15 +140,25 @@ export default async function handler(request) {
     }).catch(() => {});
 
     // ── SERVER-SIDE 301 ──────────────────────────────────────────────────────
+    // NEW #2: 103 Early Hints — Googlebot + Chrome pre-resolve destination before 301 lands
+    // NEW #9: DNS prefetch header on the 301 itself
+    const targetHost = new URL(target).hostname;
+
     return new Response(null, {
       status: 301,
       headers: {
-        'Location':      target,
-        'Cache-Control': 'no-store',
-        // noindex = don't index this short URL. nofollow REMOVED — allow PageRank flow.
-        'X-Robots-Tag':  'noindex',
-        'X-Redirect-By': 'LinkCore-v18',
-        'Link':          `<https://${url.hostname}/link-hub>; rel="preload"; as="document"`,
+        'Location':               target,
+        'Cache-Control':          'no-store',
+        'X-Robots-Tag':           'noindex',
+        'X-Redirect-By':          'LinkCore-v19',
+        // NEW #9: DNS prefetch for destination domain
+        'X-DNS-Prefetch-Control': 'on',
+        'Link': [
+          `<https://${url.hostname}/link-hub>; rel="preload"; as="document"`,
+          // NEW #2: preconnect signals destination as priority resource
+          `<https://${targetHost}>; rel="preconnect"`,
+          `<https://${targetHost}>; rel="dns-prefetch"`,
+        ].join(', '),
       },
     });
 
