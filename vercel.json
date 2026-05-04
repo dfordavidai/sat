@@ -3,6 +3,7 @@
     { "src": "/sitemap.xml",             "dest": "/api/sitemap"              },
     { "src": "/sitemap-index.xml",       "dest": "/api/sitemap-index"        },
     { "src": "/sitemap_index.xml",       "dest": "/api/sitemap-index"        },
+    { "src": "/sitemap-links.xml",       "dest": "/api/sitemap-links"        },
     { "src": "/feed.xml",                "dest": "/api/feed"                 },
     { "src": "/link-hub",                "dest": "/api/link-hub"             },
     { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
