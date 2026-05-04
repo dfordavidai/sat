@@ -1,14 +1,6 @@
 /**
- * LinkCore — Vercel Edge Function  v17.0
+ * LinkCore — Vercel Edge Function  v18.0
  * Server-side 301 redirect: /link/:code → original URL
- *
- * CHANGES vs v16.0:
- *  1. Removed `nofollow` from X-Robots-Tag on short link redirects.
- *     `noindex` alone is correct — prevents the short URL from being indexed
- *     but still allows Google to follow the 301 and pass authority to the
- *     destination page. `nofollow` was blocking PageRank flow, defeating the
- *     entire purpose of 301-based indexation boosting.
- *  2. vercel.json headers updated to match.
  *
  * Deploy this to ALL 4 domain repos (same file, same code).
  * Set these environment variables in each Vercel project:
@@ -127,9 +119,9 @@ export default async function handler(request) {
       }
     ).catch(() => {});
 
-    // FIX #1: Fire background link-hub warm to keep it fresh in CDN
-    // This is fire-and-forget — doesn't block the redirect
     const domainName = process.env.DOMAIN_NAME || url.hostname;
+
+    // ── Background: link-hub CDN warm (keep Googlebot path fresh) ───────────
     fetch(`https://${domainName}/link-hub`, {
       headers: {
         'User-Agent':    'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
@@ -137,16 +129,25 @@ export default async function handler(request) {
       },
     }).catch(() => {});
 
+    // ── Background: Speed-index methods 4+5+6 for the destination URL ───────
+    // Fire crawl-ping for the destination — non-blocking, never delays the 301.
+    // Triggers PubSubHubbub (method 4), AMP Cache (method 5),
+    // and Googlebot UA sim (method 6) all in parallel on the server side.
+    fetch(`https://${domainName}/api/crawl-ping`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ url: target }),
+    }).catch(() => {});
+
     // ── SERVER-SIDE 301 ──────────────────────────────────────────────────────
-    // FIX #9 adjacent: Early Hints via Link header — tells Googlebot what to prefetch
     return new Response(null, {
       status: 301,
       headers: {
         'Location':      target,
         'Cache-Control': 'no-store',
-        'X-Robots-Tag':  'noindex',          // noindex = don't index THIS short URL
-        'X-Redirect-By': 'LinkCore-v16',
-        // Early Hints — hint Googlebot that /link-hub is the authoritative hub
+        // noindex = don't index this short URL. nofollow REMOVED — allow PageRank flow.
+        'X-Robots-Tag':  'noindex',
+        'X-Redirect-By': 'LinkCore-v18',
         'Link':          `<https://${url.hostname}/link-hub>; rel="preload"; as="document"`,
       },
     });
