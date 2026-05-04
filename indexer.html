@@ -518,7 +518,7 @@ textarea{resize:vertical;line-height:1.7}
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-logo">⚡</div>
-      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v15 · 301 Edge Redirects · Auto-blast</div></div>
+      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v18 · 16-Layer BEAST · Auto-blast</div></div>
     </div>
     <div class="sb-label">Views</div>
     <button class="sb-btn active" onclick="showView('dashboard')"><span class="dot"></span> Dashboard</button>
@@ -667,7 +667,7 @@ textarea{resize:vertical;line-height:1.7}
 
     <div class="view" id="view-indexing">
       <div class="page-hdr">
-        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">Auto-blast on add · GSC Indexing API · IndexNow × 8 · Bing Direct API · Wayback · XML-RPC × 45 · RSS/Atom + 47 Aggregators · Link Hub Crawl Trigger · lastmod Freshness</div></div>
+        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">16-layer BEAST blast · GSC Request Indexing · Google Discover Ping · Drip-Feed Re-blast · Link-Hub PageRank · IndexNow × 8 · XML-RPC × 80 · Crawl Amplify · Wayback</div></div>
         <div class="hdr-btns"><button class="btn btn-outline" onclick="showView('dashboard')">← Back</button></div>
       </div>
       <div class="idx-tabs">
@@ -682,13 +682,90 @@ textarea{resize:vertical;line-height:1.7}
           <div class="card-label">Select Project</div>
           <select id="idx-proj-sel" onchange="updateIdxPreview()"><option value="">— Choose a project —</option></select>
           <div style="margin-top:10px;font-size:.62rem;color:var(--muted)" id="idx-preview">Select a project to see how many short links will be submitted.</div>
+
+          <!-- Plan toggle (mirrors IndexForce) -->
+          <div class="plan-row" style="margin-top:12px">
+            <button class="plan-pill active" id="idx-plan-free" onclick="idxSetPlan('free')">Free — 100 URLs</button>
+            <button class="plan-pill" id="idx-plan-pro" onclick="idxSetPlan('pro')">⚡ Pro — 10,000 URLs</button>
+          </div>
+
+          <!-- Drip-feed toggle (mirrors IndexForce) -->
+          <div class="drip-toggle-row" style="margin-top:10px" id="idx-drip-row">
+            <div style="flex:1">
+              <div class="drip-toggle-label">⏱ Auto Drip-Feed Re-Blast</div>
+              <div style="font-size:.52rem;color:var(--muted);margin-top:2px">Re-blasts via Worker at T+6h, T+12h, T+24h, T+48h — keeps priority score fresh in Google's scheduler.</div>
+              <div class="drip-hours-chips" id="idx-drip-chips">
+                <button class="drip-chip active" data-h="6">+6h</button>
+                <button class="drip-chip active" data-h="12">+12h</button>
+                <button class="drip-chip active" data-h="24">+24h</button>
+                <button class="drip-chip active" data-h="48">+48h</button>
+              </div>
+            </div>
+            <label class="ch-toggle">
+              <input type="checkbox" id="idx-drip-mode-chk" checked>
+              <span style="color:var(--blue);font-size:.6rem">ON</span>
+            </label>
+          </div>
+          <div class="drip-status-bar" id="idx-drip-status-bar">
+            <span>🔄</span>
+            <span>Drip active — next blast in <span id="idx-drip-countdown">—</span></span>
+            <button class="btn btn-outline" style="margin-left:auto;font-size:.5rem;padding:2px 7px" onclick="idxCancelDrip()">Cancel</button>
+          </div>
+
           <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <button class="btn btn-primary" id="idx-btn" onclick="runIndexing()" style="flex:1;min-width:200px">🚀 Blast All Enabled Channels</button>
-            <button class="btn btn-cyan" onclick="runWorkerSubmit()" id="worker-idx-btn">⚡ Worker API</button>
+            <button class="btn btn-cyan" onclick="runWorkerSubmit()" id="worker-idx-btn">⚡ Worker BEAST</button>
             <button class="btn btn-outline" style="font-size:.6rem" onclick="switchIdxTab('channels')">⚙ Channels</button>
           </div>
           <div class="prog-wrap" id="idx-progress"><div class="prog-bar" id="idx-prog-bar"></div></div>
           <div class="idx-log" id="idx-log"></div>
+        </div>
+
+        <!-- Link-Hub Injection stats (mirrors IndexForce) -->
+        <div class="card" id="idx-link-hub-stat-card" style="display:none">
+          <div class="card-label">🔗 Link-Hub Injection (PageRank Flow)</div>
+          <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">Real &lt;a href&gt; links injected into /link-hub pages. ItemList + NewsArticle JSON-LD schema — PageRank flows to destination URLs.</div>
+          <div class="link-hub-stat-grid">
+            <div class="link-hub-stat"><div class="link-hub-stat-v" id="idx-lh-urls-stored">—</div><div class="link-hub-stat-l">URLs Stored</div></div>
+            <div class="link-hub-stat"><div class="link-hub-stat-v" id="idx-lh-domains-warmed">—</div><div class="link-hub-stat-l">Domains Warmed</div></div>
+            <div class="link-hub-stat"><div class="link-hub-stat-v" id="idx-lh-domains-total">—</div><div class="link-hub-stat-l">Domains Total</div></div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-outline" style="font-size:.55rem" onclick="idxFetchLinkHubStats()">↻ Refresh Stats</button>
+            <a id="idx-link-hub-open-btn" href="#" target="_blank" class="btn btn-cyan" style="font-size:.55rem;text-decoration:none">↗ Open /link-hub</a>
+          </div>
+        </div>
+
+        <!-- Sitemap-Index panel (mirrors IndexForce) -->
+        <div class="card sitemap-idx-panel">
+          <div class="card-label">🗺 Sitemap-Index (per-domain)</div>
+          <div style="font-size:.6rem;color:var(--muted);line-height:1.7;margin-bottom:10px">Each domain serves its own <code>sitemap-index.xml</code>. <strong style="color:var(--orange)">⚠ Submit each domain separately to GSC</strong> — cross-domain entries are rejected by Google.</div>
+          <div class="sitemap-idx-url" id="idx-sitemap-idx-url-display" style="font-size:.58rem;color:var(--muted2);padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono)">Set Worker URL to see sitemap-index URL</div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" style="font-size:.55rem" onclick="copySitemapIdxUrl()">⧉ Copy URL</button>
+            <button class="btn btn-blue" style="font-size:.55rem" onclick="pingGoogleSitemapIdx()">📡 Ping Google</button>
+            <button class="btn btn-cyan" style="font-size:.55rem" onclick="pingBingSitemapIdx()">📡 Ping Bing</button>
+          </div>
+        </div>
+
+        <!-- Crawl-Ping Direct Fire (mirrors IndexForce) -->
+        <div class="card">
+          <div class="card-label">🎯 Crawl-Ping Direct Fire (M4–M16)</div>
+          <div style="font-size:.6rem;color:var(--muted);margin-bottom:12px;line-height:1.7">Fire all 13 crawl signal methods for any single URL via Vercel Edge (<code>/api/crawl-ping</code>). M4 = PubSubHubbub, M9 = Mobile Friendly Test, M10 = PageSpeed, M11 = IndexNow, M15 = Cloudflare Radar.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <input id="idx-crawl-ping-url" placeholder="https://yoursite.com/your-page" style="flex:1;min-width:200px">
+            <button class="btn btn-primary" onclick="idxFireCrawlPing()">🚀 Fire M4–M16</button>
+          </div>
+          <div id="idx-crawl-ping-log" class="idx-log" style="display:none;max-height:160px"></div>
+        </div>
+
+        <!-- Active Drip Schedules (mirrors IndexForce) -->
+        <div class="card" id="idx-drip-active-card" style="display:none">
+          <div class="card-label">⏱ Active Drip Schedules</div>
+          <div id="idx-drip-active-list" style="font-size:.62rem;color:var(--muted)">Loading…</div>
+          <div style="margin-top:10px">
+            <button class="btn btn-outline" style="font-size:.55rem" onclick="fetchDripStatus()">↻ Refresh Drip Status</button>
+          </div>
         </div>
         <div class="card">
           <div class="card-label">🗺 Live Sitemap</div>
@@ -720,6 +797,16 @@ textarea{resize:vertical;line-height:1.7}
       </div>
       <div class="idx-pane" id="idx-pane-channels">
         <div class="channel-grid">
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🟢</span><span class="ch-title">GSC Request Indexing</span><span class="ch-badge badge-white">NEW #1</span></div>
+            <div class="ch-desc">Dedicated "Request Indexing" API — the actual GSC button exposed via API. ~10 requests/day per property per SA key, spread across all SA keys simultaneously.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-gsc-request-on-hub" checked onchange="syncHubToSettings('ch-gsc-request-on')"> Enable</label>
+          </div>
+          <div class="channel-card">
+            <div class="ch-hdr"><span class="ch-icon">🌐</span><span class="ch-title">Google Discover Ping</span><span class="ch-badge badge-white">NEW #3</span></div>
+            <div class="ch-desc">Pings google.com/ping + bing.com/ping for each domain's sitemap-index.xml, sitemap.xml, sitemap-links.xml and feed.xml simultaneously — separate from IndexNow.</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-discover-on-hub" checked onchange="syncHubToSettings('ch-discover-on')"> Enable</label>
+          </div>
           <div class="channel-card">
             <div class="ch-hdr"><span class="ch-icon">🔍</span><span class="ch-title">GSC URL Inspection</span><span class="ch-badge badge-white">WHITEHAT</span></div>
             <div class="ch-desc">Direct Google signal. Inspects &amp; submits each URL. Auto-rotates SA keys to bypass 200/day quota.</div>
@@ -1577,17 +1664,141 @@ Then deploy.</div></div>
           <div class="set-group-title"><span class="set-icon">📡</span> Indexing Channels — Enable / Disable</div>
           <div class="set-tip" style="margin-bottom:12px">Toggle which channels fire when you hit Submit or run the Indexing Hub blast.</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-gsc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Google Search Console API</span><span style="color:var(--muted)">— Direct URL inspection submit via SA key</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-idx-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC Indexing API</span><span style="color:var(--muted)">— indexing.googleapis.com batch submit</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-sitemap-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Sitemap Ping</span><span style="color:var(--muted)">— Pings Google/Bing with sitemap URL</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-indexnow-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">IndexNow</span><span style="color:var(--muted)">— Blasts Bing, Yandex, Seznam, Brave, Naver, Yep simultaneously</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-wayback-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Wayback Machine</span><span style="color:var(--muted)">— Archives URL at web.archive.org (no key needed)</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-bing-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Bing Webmaster API</span><span style="color:var(--muted)">— Requires Bing API key above</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-pubsub-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">PubSubHubbub</span><span style="color:var(--muted)">— Feed ping to pubsubhubbub.appspot.com</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-xmlrpc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">XML-RPC Ping Blast</span><span style="color:var(--muted)">— Pings 10+ blog ping services</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-worker-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Worker (Railway)</span><span style="color:var(--muted)">— Requires Worker URL above</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-rui-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Rapid URL Indexer</span><span style="color:var(--muted)">— Fires on 2nd retry if NEUTRAL. Requires RUI key above</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-t2-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Tier-2 Auto-Generate</span><span style="color:var(--muted)">— Auto-creates tier-2 links on submit</span></label>
+            <div style="font-size:.5rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px">🟢 Google / GSC</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-gsc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC URL Inspection</span><span style="color:var(--muted)">— Direct URL inspection submit via SA key (200 req/day/key)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-gsc-request-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC Request Indexing</span><span style="color:var(--muted)">— Dedicated "Request Indexing" API · ~10 req/day per property per SA key</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-idx-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Google Indexing API</span><span style="color:var(--muted)">— indexing.googleapis.com batch submit · URL_UPDATED signal</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-sitemap-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC Sitemaps API</span><span style="color:var(--muted)">— DELETE + re-add sitemap in GSC · forces full rescan</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-discover-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Google Discover Ping</span><span style="color:var(--muted)">— google.com/ping + bing.com/ping for all domain sitemaps simultaneously</span></label>
+            <div style="font-size:.5rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">📡 External Engines</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-indexnow-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">IndexNow Multi-Engine</span><span style="color:var(--muted)">— Blasts Bing, Yandex, Seznam, Brave, Naver, Yep simultaneously</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-bing-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Bing Webmaster API</span><span style="color:var(--muted)">— Direct URL submission · higher priority queue than IndexNow · requires key</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-wayback-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Wayback Machine</span><span style="color:var(--muted)">— Archives URL at web.archive.org · no key needed</span></label>
+            <div style="font-size:.5rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">📢 Feed / Ping</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-pubsub-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">PubSubHubbub / WebSub</span><span style="color:var(--muted)">— Feed ping to pubsubhubbub.appspot.com + superfeedr + 3 hubs</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-xmlrpc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">XML-RPC Ping Blast</span><span style="color:var(--muted)">— 80+ verified-alive blog ping endpoints simultaneously</span></label>
+            <div style="font-size:.5rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">⚡ BEAST / Worker</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-worker-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Worker API Blast (Railway)</span><span style="color:var(--muted)">— 16-layer server-side engine · requires Worker URL above</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-multi-sa-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">🔥 Multi-SA Parallel Fire</span><span style="color:var(--muted)">— All SA keys blast same URL simultaneously · N× priority signal weight</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-bing-first-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">🔎 Bing-First Strategy</span><span style="color:var(--muted)">— Bing indexes in 1–3 min → Google detects via cross-engine monitoring</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-websub-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">📡 WebSub Deep Stack</span><span style="color:var(--muted)">— 5 WebSub hubs × all feeds simultaneously (not just appspot)</span></label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-amplify-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">🌐 Crawl Amplify</span><span style="color:var(--muted)">— Server-side diverse UA fetches → organic traffic signal to Google's scheduler</span></label>
+            <div style="font-size:.5rem;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">🌐 Residential Proxy</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-proxy-on" onchange="saveProxySettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Residential Proxy Crawl</span><span style="color:var(--muted)">— Routes fetches through rotating residential IPs · crawl queue jump signal</span></label>
+            <div style="padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:7px;margin-left:24px">
+              <div>
+                <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Gateway URL <span style="font-size:.48rem;color:var(--muted2)">(leave blank to use PROXY_GATEWAY Railway env)</span></div>
+                <input id="proxy-gateway-url" placeholder="http://user:pass@gate.provider.com:port" style="font-size:.62rem" oninput="saveProxySettings()">
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div style="font-size:.52rem;color:var(--muted)">IPs per URL blast:</div>
+                <select id="proxy-fetch-count" style="width:90px;font-size:.62rem" onchange="saveProxySettings()">
+                  <option value="5">5 IPs</option>
+                  <option value="10" selected>10 IPs</option>
+                  <option value="15">15 IPs</option>
+                  <option value="20">20 IPs</option>
+                </select>
+                <button class="btn btn-outline" style="font-size:.55rem;padding:4px 10px" onclick="testProxyGateway()">🔌 Test Gateway</button>
+              </div>
+              <div id="proxy-status" style="font-size:.5rem;color:var(--muted);line-height:1.5">Configure PROXY_GATEWAY on Railway or paste a gateway URL above</div>
+            </div>
+            <div style="font-size:.5rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">💰 Paid Services</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-rui-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Rapid URL Indexer</span><span style="color:var(--muted)">— 90%+ indexation rate · fires on 2nd retry if NEUTRAL · requires RUI key above</span></label>
+            <div style="font-size:.5rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">🔗 Automation</div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-t2-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Tier-2 Social Drafts</span><span style="color:var(--muted)">— Auto-generates social share drafts (Reddit/X/LinkedIn/Pinterest) on submit</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SECTION 12: AUTO-SCHEDULER ══ -->
+      <div class="card">
+        <div class="set-group">
+          <div class="set-group-title"><span class="set-icon">⏱</span> Auto-Retry Scheduler</div>
+          <div class="set-tip" style="margin-bottom:12px">Automatically escalates NEUTRAL links on a schedule — no manual clicks needed. Runs every 30 minutes in-browser.</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:10px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:.62rem;cursor:pointer;flex:1">
+              <input type="checkbox" id="auto-sched-on" onchange="toggleAutoScheduler()" style="accent-color:var(--accent)">
+              <span style="color:var(--text);font-weight:700">Enable automatic escalation for all projects</span>
+            </label>
+            <span id="sched-status-badge" style="font-size:.52rem;color:var(--muted2)">Disabled</span>
+          </div>
+          <div id="sched-next-run" style="font-size:.58rem;color:var(--cyan);display:none;margin-bottom:8px">⟳ Scheduler running — checks every 30 min</div>
+          <div style="font-size:.55rem;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.08em">Retry windows — blast NEUTRAL after:</div>
+          <div class="sched-interval-row">
+            <button class="sched-chip active" data-h="12" onclick="toggleSchedChip(this)">12h</button>
+            <button class="sched-chip active" data-h="24" onclick="toggleSchedChip(this)">24h</button>
+            <button class="sched-chip active" data-h="48" onclick="toggleSchedChip(this)">48h</button>
+            <button class="sched-chip active" data-h="72" onclick="toggleSchedChip(this)">72h</button>
+            <button class="sched-chip active" data-h="96" onclick="toggleSchedChip(this)">96h</button>
+          </div>
+          <div class="sched-stats-row" id="sched-stats-row" style="margin-top:10px">
+            <div class="sched-stat-pill"><span class="sv" id="ss-neutral" style="color:var(--blue)">0</span>NEUTRAL</div>
+            <div class="sched-stat-pill"><span class="sv" id="ss-queued" style="color:var(--orange)">0</span>Due Now</div>
+            <div class="sched-stat-pill"><span class="sv" id="ss-pass" style="color:var(--accent)">0</span>Indexed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SECTION 13: DRIP-FEED DEFAULTS ══ -->
+      <div class="card">
+        <div class="set-group">
+          <div class="set-group-title"><span class="set-icon">💧</span> Drip-Feed Re-Blast Defaults</div>
+          <div class="set-tip" style="margin-bottom:12px">Default drip schedule applied whenever you submit via the Indexing Hub or IndexForce. Individual submits can still override this per-job.</div>
+          <div style="padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:.62rem;cursor:pointer;flex:1">
+                <input type="checkbox" id="set-drip-default-on" onchange="saveDripDefaults()" style="accent-color:var(--accent)" checked>
+                <span style="color:var(--text);font-weight:700">Drip-Feed enabled by default</span>
+              </label>
+              <span style="font-size:.52rem;color:var(--blue)">ON</span>
+            </div>
+            <div style="font-size:.55rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Default blast intervals:</div>
+            <div class="drip-hours-chips" id="set-drip-default-chips">
+              <button class="drip-chip active" data-h="6" onclick="this.classList.toggle('active');saveDripDefaults()">+6h</button>
+              <button class="drip-chip active" data-h="12" onclick="this.classList.toggle('active');saveDripDefaults()">+12h</button>
+              <button class="drip-chip active" data-h="24" onclick="this.classList.toggle('active');saveDripDefaults()">+24h</button>
+              <button class="drip-chip active" data-h="48" onclick="this.classList.toggle('active');saveDripDefaults()">+48h</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SECTION 14: DATA MANAGEMENT ══ -->
+      <div class="card">
+        <div class="set-group">
+          <div class="set-group-title"><span class="set-icon">🗂</span> Data Management</div>
+          <div class="set-tip" style="margin-bottom:12px">Export, backup, or reset your LinkCore data. All data is stored in Supabase — these actions affect local cache and history only unless noted.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">📥 Export All Links (CSV)</span>
+              <span style="font-size:.55rem;color:var(--muted)">All projects, all statuses</span>
+              <button class="btn btn-outline" style="font-size:.58rem" onclick="exportAllCSV()">↓ Export CSV</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">🕰 Clear Crawl History</span>
+              <span style="font-size:.55rem;color:var(--muted)">Clears per-URL check history (local only)</span>
+              <button class="btn btn-outline" style="font-size:.58rem" onclick="if(confirm('Clear all crawl check history?')){localStorage.removeItem('lc_crawl_history');_crawlHistoryCache=null;toast('Crawl history cleared','green')}">Clear</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">⚡ Clear IndexForce Job History</span>
+              <span style="font-size:.55rem;color:var(--muted)">Clears local job log (local only)</span>
+              <button class="btn btn-outline" style="font-size:.58rem" onclick="ifClearHistory()">Clear</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">🔄 Reset SA Quota Counters</span>
+              <span style="font-size:.55rem;color:var(--muted)">Resets daily used counts for all SA keys</span>
+              <button class="btn btn-outline" style="font-size:.58rem" onclick="resetAllSAQuotas()">Reset</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid rgba(239,68,68,.2);border-radius:8px">
+              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">🗑 Rebuild All Sitemaps</span>
+              <span style="font-size:.55rem;color:var(--muted)">Rebuilds + re-pings all 4 domain sitemaps from DB</span>
+              <button class="btn btn-orange" style="font-size:.58rem" onclick="manualSitemapPing()">↻ Rebuild &amp; Ping</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px">
+              <span style="font-size:.62rem;color:var(--red);font-weight:700;flex:1">☢ Clear All Local Settings</span>
+              <span style="font-size:.55rem;color:var(--muted)">Wipes localStorage (does NOT delete Supabase data)</span>
+              <button class="btn btn-danger" style="font-size:.58rem;border-color:rgba(239,68,68,.4)" onclick="if(confirm('Wipe ALL local settings? Supabase data is kept.')){localStorage.clear();toast('Local settings wiped — reload to re-enter keys','');setTimeout(()=>location.reload(),1500)}">Wipe Local</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2012,6 +2223,7 @@ window.addEventListener('load', async () => {
   loadDomainGscConfig();
   restoreSettings();
   restoreProxySettings();
+  loadDripDefaults();
   await loadAll();
   refreshBotFeed();
   renderSAVault();
@@ -2167,6 +2379,20 @@ function loadSettingsPage(){
     const c=document.getElementById(id); const h=document.getElementById(id+'-hub');
     if(c&&h) h.checked=c.checked;
   });
+  // Restore proxy settings into Settings page fields
+  restoreProxySettings();
+  // Restore auto-scheduler state
+  const schedOn = localStorage.getItem('lc_auto_sched')==='1';
+  const schedCb = document.getElementById('auto-sched-on');
+  if(schedCb) schedCb.checked = schedOn;
+  const badge = document.getElementById('sched-status-badge');
+  if(badge){ badge.textContent = schedOn ? 'Active ✓' : 'Disabled'; badge.style.color = schedOn ? 'var(--accent)' : 'var(--muted2)'; }
+  const nextEl = document.getElementById('sched-next-run');
+  if(nextEl) nextEl.style.display = schedOn ? 'block' : 'none';
+  restoreSchedChips();
+  updateSchedStats();
+  // Restore drip defaults
+  loadDripDefaults();
 }
 
 function setVal(id, val){ const el=document.getElementById(id); if(el&&val) el.value=val; }
@@ -2203,6 +2429,10 @@ async function saveAllSettings(){
   const gw = document.getElementById('cfg-generic-webhook')?.value.trim();
   if(dw) localStorage.setItem('lc_discord_webhook', dw);
   if(gw) localStorage.setItem('lc_generic_webhook', gw);
+  // Proxy settings
+  saveProxySettings();
+  // Drip defaults
+  saveDripDefaults();
   // ── Persist all to Supabase lc_config ──
   const bk = document.getElementById('bing-api-key')?.value.trim();
   const rk = document.getElementById('rui-api-key')?.value.trim();
@@ -2307,9 +2537,13 @@ function saveChanSettings(){
   chanSettings.amplify      = document.getElementById('ch-amplify-on')?.checked??true;
   chanSettings.proxyEnabled = document.getElementById('ch-proxy-on')?.checked??false;
   chanSettings.t2           = document.getElementById('ch-t2-on')?.checked??true;
+  chanSettings.gscRequest   = document.getElementById('ch-gsc-request-on')?.checked??true;
+  chanSettings.discover     = document.getElementById('ch-discover-on')?.checked??true;
   // Sync hub mirrors
   const pairs = ['ch-gsc-on','ch-idx-api-on','ch-sitemap-api-on','ch-indexnow-on',
-    'ch-wayback-on','ch-bing-on','ch-pubsub-on','ch-xmlrpc-on','ch-worker-on','ch-rui-on','ch-t2-on'];
+    'ch-wayback-on','ch-bing-on','ch-pubsub-on','ch-xmlrpc-on','ch-worker-on','ch-rui-on','ch-t2-on',
+    'ch-gsc-request-on','ch-discover-on',
+    'ch-multi-sa-on','ch-bing-first-on','ch-websub-on','ch-amplify-on'];
   pairs.forEach(id=>{
     const canon=document.getElementById(id); const hub=document.getElementById(id+'-hub');
     if(canon&&hub) hub.checked=canon.checked;
@@ -3874,12 +4108,57 @@ async function runIndexing(){
 }
 
 // ── Worker submit from Submit tab ──
-function runWorkerSubmit(){
+async function runWorkerSubmit(){
   const pid = document.getElementById('idx-proj-sel').value;
   if(!pid){ toast('Select a project first',''); return; }
-  document.getElementById('worker-proj-sel').value = pid;
-  showView('worker');
-  submitToWorker();
+  const pl = links[pid]||[];
+  if(!pl.length){ toast('No links in this project',''); return; }
+
+  const wUrl = (localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+  if(!wUrl){ toast('Set your Railway Worker URL in Settings first',''); return; }
+
+  const allUrls = pl.flatMap(l=>allShortUrls(l.code));
+  const limit   = idxPlan==='pro' ? 10000 : 100;
+  const sliced  = allUrls.slice(0,limit);
+
+  const btn = document.getElementById('worker-idx-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Submitting…'; }
+
+  try {
+    const r = await fetch(`${wUrl}/api/submit`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        raw_urls:   sliced.join('\n'),
+        plan:       idxPlan,
+        user_id:    'linkcore-hub',
+        gsc_site:   document.getElementById('gsc-site')?.value.trim()||'',
+        drip_mode:  idxGetDripMode(),
+        drip_hours: idxGetDripHours(),
+      })
+    });
+    if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); return; }
+    const d = await r.json();
+    idxLog(`⚡ Worker BEAST: job ${d.job_id} queued — ${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} SA keys`,'ok');
+    // Show drip status bar if drip was enabled
+    if(d.drip_mode && idxGetDripHours().length){
+      const nextAt = Date.now()/1000 + idxGetDripHours()[0]*3600;
+      idxShowDripStatus(nextAt);
+      const dripCard = document.getElementById('idx-drip-active-card');
+      if(dripCard){ dripCard.style.display=''; setTimeout(fetchDripStatus,800); }
+    }
+    // Show link-hub stats card
+    const lhCard = document.getElementById('idx-link-hub-stat-card');
+    if(lhCard){ lhCard.style.display=''; setTimeout(idxFetchLinkHubStats,1500); }
+    // Update sitemap-idx-url display
+    const idxUrl = document.getElementById('idx-sitemap-idx-url-display');
+    if(idxUrl) idxUrl.textContent = `${wUrl}/sitemap-index.xml`;
+    toast(`⚡ Worker BEAST job queued — ${d.urls_queued} URLs`,'green');
+  } catch(e){
+    toast('Worker unreachable: '+e.message,'');
+    idxLog(`✖ Worker unreachable: ${e.message}`,'');
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='⚡ Worker BEAST'; }
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -5297,29 +5576,6 @@ function startScheduler(){
   _schedTimer = setInterval(checkScheduledLinks, 30*60*1000); // every 30 min
 }
 
-async function checkScheduledLinks(){
-  const allLinks = Object.values(links).flat();
-  const now = Date.now();
-  const logEl = document.getElementById('sched-log');
-  const toRetry = allLinks.filter(l=>{
-    if(!l.submitted || l.verdict==='PASS') return false;
-    const age = now - new Date(l.added_at||l.submitted_at||0).getTime();
-    const rc = l.retry_count||0;
-    // 48h = rc<1, 72h = rc<2, 96h = rc<3
-    if(rc===0 && age > 48*3600*1000) return true;
-    if(rc===1 && age > 72*3600*1000) return true;
-    if(rc===2 && age > 96*3600*1000) return true;
-    return false;
-  });
-  if(!toRetry.length) return;
-  if(logEl){ logEl.style.display='block'; logEl.textContent=`⟳ Auto-scheduler: ${toRetry.length} link(s) queued for escalation…`; }
-  // Trigger escalation for qualifying links
-  await runEscalation(toRetry);
-  if(logEl) logEl.textContent=`✓ Auto-retried ${toRetry.length} link(s) at ${new Date().toLocaleTimeString()}`;
-  // Notify
-  fireNotification(`🔁 Auto-retry: ${toRetry.length} NEUTRAL link(s) escalated`, 'auto-retry');
-}
-
 // ══════════════════════════════════════════════════════════
 // NOTIFICATIONS & WEBHOOKS
 // ══════════════════════════════════════════════════════════
@@ -5812,6 +6068,11 @@ async function crawlModalResubmit(){
 // ══════════════════════════════════════════════════════════
 function toggleSchedChip(btn){
   btn.classList.toggle('active');
+  const h = btn.dataset.h;
+  // Sync all other chips with same data-h (Settings page + Escalation tab)
+  document.querySelectorAll(`.sched-chip[data-h="${h}"]`).forEach(c => {
+    if(c !== btn) c.classList.toggle('active', btn.classList.contains('active'));
+  });
   saveSchedIntervals();
 }
 function saveSchedIntervals(){
@@ -5846,8 +6107,7 @@ function updateSchedStats(){
   if(p) p.textContent=pass.length;
 }
 
-// Override checkScheduledLinks to use configurable intervals
-const _origCheckScheduledLinks = checkScheduledLinks;
+// checkScheduledLinks uses configurable intervals + updateSchedStats
 async function checkScheduledLinks(){
   const allLinks = Object.values(links).flat();
   const now = Date.now();
@@ -6012,8 +6272,39 @@ async function getSaTokenForDomain(cfg, scope){
   setTimeout(()=>{ resetAllSAQuotas(); setInterval(resetAllSAQuotas, 24*3600*1000); }, msToMidnightUTC);
 
 // ══════════════════════════════════════════════════════════
-// v16 — DRIP-FEED SCHEDULER
+// DRIP-FEED DEFAULTS (Settings page)
 // ══════════════════════════════════════════════════════════
+function saveDripDefaults() {
+  const on = document.getElementById('set-drip-default-on')?.checked ?? true;
+  const hours = Array.from(document.querySelectorAll('#set-drip-default-chips .drip-chip.active'))
+    .map(el => parseInt(el.dataset.h)).filter(h => !isNaN(h));
+  localStorage.setItem('lc_drip_default_on', on ? '1' : '0');
+  localStorage.setItem('lc_drip_default_hours', JSON.stringify(hours));
+  cfgSetBatch({ drip_default_on: on ? '1' : '0', drip_default_hours: JSON.stringify(hours) }).catch(() => {});
+}
+
+function loadDripDefaults() {
+  const on = localStorage.getItem('lc_drip_default_on') !== '0'; // default true
+  const hours = (() => { try { return JSON.parse(localStorage.getItem('lc_drip_default_hours') || '[6,12,24,48]'); } catch(e) { return [6,12,24,48]; } })();
+  // Restore Settings page chips
+  const el = document.getElementById('set-drip-default-on');
+  if (el) el.checked = on;
+  document.querySelectorAll('#set-drip-default-chips .drip-chip').forEach(chip => {
+    chip.classList.toggle('active', hours.includes(parseInt(chip.dataset.h)));
+  });
+  // Push defaults into submit-pane chips (IndexHub + IndexForce) so they start pre-set
+  ['idx-drip-chips', 'drip-chips'].forEach(groupId => {
+    document.querySelectorAll(`#${groupId} .drip-chip`).forEach(chip => {
+      chip.classList.toggle('active', hours.includes(parseInt(chip.dataset.h)));
+    });
+  });
+  const dripChk1 = document.getElementById('idx-drip-mode-chk');
+  const dripChk2 = document.getElementById('drip-mode-chk');
+  if (dripChk1) dripChk1.checked = on;
+  if (dripChk2) dripChk2.checked = on;
+}
+
+
 
 let dripTimers = {};
 
@@ -6154,6 +6445,122 @@ async function runVerify(jobId) {
     if (rows) rows.innerHTML = `<span style="color:var(--red)">✖ ${he(String(err))}</span>`;
   }
 }
+
+// ══════════════════════════════════════════════════════════
+// INDEXING HUB — plan/drip/crawlping mirrors (v18 parity)
+// ══════════════════════════════════════════════════════════
+
+let idxPlan = 'free';
+
+function idxSetPlan(p) {
+  idxPlan = p;
+  document.getElementById('idx-plan-free').className = 'plan-pill' + (p === 'free' ? ' active' : '');
+  document.getElementById('idx-plan-pro').className  = 'plan-pill' + (p === 'pro'  ? ' active' : '');
+}
+
+function idxGetDripHours() {
+  return Array.from(document.querySelectorAll('#idx-drip-chips .drip-chip.active'))
+    .map(el => parseInt(el.dataset.h)).filter(h => !isNaN(h));
+}
+
+function idxGetDripMode() {
+  return document.getElementById('idx-drip-mode-chk')?.checked ?? true;
+}
+
+function idxCancelDrip() {
+  document.getElementById('idx-drip-status-bar')?.classList.remove('show');
+  toast('Drip cancelled (server-side drip continues if worker is running)', 'orange');
+}
+
+function idxShowDripStatus(nextAtEpoch) {
+  const bar = document.getElementById('idx-drip-status-bar');
+  if (!bar) return;
+  bar.classList.add('show');
+  function tick() {
+    const left = Math.max(0, Math.floor((nextAtEpoch - Date.now() / 1000) / 60));
+    const el = document.getElementById('idx-drip-countdown');
+    if (el) el.textContent = left > 60 ? `${Math.floor(left/60)}h ${left%60}m` : `${left}m`;
+    if (left > 0) setTimeout(tick, 60000);
+  }
+  tick();
+}
+
+async function idxFetchLinkHubStats() {
+  const workerUrl = (localStorage.getItem('lc_worker_url') || '').replace(/\/$/, '');
+  if (!workerUrl) { toast('Worker URL not configured', 'red'); return; }
+  try {
+    const resp = await fetch(`${workerUrl}/api/link-hub-stats`);
+    const data = await resp.json();
+    document.getElementById('idx-lh-urls-stored').textContent    = (data.total_urls_stored || 0).toLocaleString();
+    document.getElementById('idx-lh-domains-warmed').textContent = Object.keys(data.domains || {}).length;
+    document.getElementById('idx-lh-domains-total').textContent  = (data.link_hub_domains || []).length;
+    const card = document.getElementById('idx-link-hub-stat-card');
+    if (card) card.style.display = '';
+    const firstDomain = (data.link_hub_domains || [])[0];
+    const openBtn = document.getElementById('idx-link-hub-open-btn');
+    if (openBtn && firstDomain) openBtn.href = `https://${firstDomain}/link-hub`;
+    toast(`Link-hub: ${data.total_urls_stored} URLs across ${Object.keys(data.domains||{}).length} domains`, 'green');
+  } catch(err) {
+    toast(`Link-hub stats error: ${err.message}`, 'red');
+  }
+}
+
+async function idxFireCrawlPing() {
+  const url = document.getElementById('idx-crawl-ping-url')?.value.trim();
+  const logEl = document.getElementById('idx-crawl-ping-log');
+  if (!url) { toast('Paste a URL to ping first', ''); return; }
+  try { new URL(url); } catch { toast('Invalid URL', ''); return; }
+  if (logEl) { logEl.style.display = 'block'; logEl.innerHTML = '<span style="color:var(--muted)">⏳ Firing 13 crawl signal methods…</span>'; }
+  const rawD1 = document.getElementById('cfg-d1')?.value.trim() || SHORT_BASES[0] || '';
+  const domain = rawD1.replace(/^https?:\/\//, '').replace(/\/link\/?$/, '').replace(/\/$/, '').split('/')[0];
+  if (!domain) { toast('Set your primary domain in Settings first', ''); return; }
+  const endpoint = `https://${domain}/api/crawl-ping`;
+  const cpLog = (msg, cls='') => {
+    if (!logEl) return;
+    const line = document.createElement('div');
+    line.style.color = cls==='ok'?'var(--accent)':cls==='err'?'var(--red)':'var(--muted)';
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+  try {
+    logEl.innerHTML = '';
+    cpLog(`→ POST ${endpoint}`);
+    const r = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) { cpLog(`✖ HTTP ${r.status}`, 'err'); return; }
+    cpLog(`✅ Done in ${data.ms||'?'}ms`, 'ok');
+    const res = data.results || {};
+    [['M4 PubSubHubbub',res.m4_pubsub],['M5 AMP Cache',res.m5_amp],['M6 Googlebot Sim',res.m6_bot_sim],
+     ['M7 Google Cache',res.m7_gcache],['M8 Google Translate',res.m8_translate],['M9 Mobile Friendly',res.m9_mobile_test],
+     ['M10 PageSpeed ×2',res.m10_psi],['M11 IndexNow ×4',res.m11_indexnow],['M12 Wayback+CDX',res.m12_wayback],
+     ['M13 CommonCrawl',res.m13_commoncrawl],['M14 RSS Bomb ×6',res.m14_rss_bomb],['M15 CF Radar',res.m15_cf_radar],
+     ['M16 Rendertron',res.m16_rendertron]
+    ].forEach(([name,r])=>{ if(r) cpLog(`  ${r.ok?'✓':'✗'} ${name}`, r.ok?'ok':'err'); });
+    (data.errors||[]).forEach(e=>cpLog(`  ⚠ ${e}`,'err'));
+    toast('🚀 Crawl ping fired — 13 methods','green');
+  } catch(e) {
+    cpLog(`✖ ${e.message}`,'err');
+    toast('Crawl ping failed: '+e.message,'');
+  }
+}
+
+// Wire idx-drip-chips and sitemap-idx-url on IndexHub init
+(function() {
+  function initIdxHub() {
+    document.querySelectorAll('#idx-drip-chips .drip-chip').forEach(chip => {
+      chip.addEventListener('click', () => chip.classList.toggle('active'));
+    });
+    const workerUrl = localStorage.getItem('lc_worker_url') || '';
+    const idx = document.getElementById('idx-sitemap-idx-url-display');
+    if (idx && workerUrl) idx.textContent = `${workerUrl}/sitemap-index.xml`;
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initIdxHub);
+  } else {
+    initIdxHub();
+  }
+})();
 
 // ══════════════════════════════════════════════════════════
 // CRAWL PING — fires /api/crawl-ping on primary Vercel domain
