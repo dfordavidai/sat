@@ -4,6 +4,7 @@
     { "src": "/feed.xml",                "dest": "/api/feed"                 },
     { "src": "/link-hub",                "dest": "/api/link-hub"             },
     { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
+    { "src": "/api/crawl-ping",          "dest": "/api/crawl-ping"           },
     { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  }
   ],
   "headers": [
@@ -11,7 +12,7 @@
       "source": "/link/(.*)",
       "headers": [
         { "key": "X-Robots-Tag",  "value": "noindex" },
-        { "key": "Cache-Control", "value": "no-store"          }
+        { "key": "Cache-Control", "value": "no-store" }
       ]
     }
   ]
