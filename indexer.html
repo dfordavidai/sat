@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LinkCore v15 — Backlink Manager + IndexForce</title>
+<title>LinkCore v17 — Backlink Manager + IndexForce BEAST</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -989,7 +989,7 @@ textarea{resize:vertical;line-height:1.7}
       <div class="page-hdr">
         <div>
           <div class="page-title">⚡ IndexForce</div>
-          <div class="page-sub">12-layer server-side engine · Multi-SA Parallel · Bing-First · WebSub Deep · XML-RPC · IndexNow · GSC · Crawl Amplify · 24h Verify</div>
+          <div class="page-sub">16-layer BEAST v7 · GSC Request Indexing · Google Discover Ping · Link-Hub PageRank · NewsArticle Schema · Drip-Feed · 24h Verify · DNS Prefetch · News Sitemap</div>
         </div>
         <div class="hdr-btns">
           <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
@@ -1008,19 +1008,19 @@ textarea{resize:vertical;line-height:1.7}
           <div class="worker-dot" id="worker-dot"></div>
           <span id="worker-health-text" style="color:var(--muted)">Not connected — enter your Railway URL and test</span>
         </div>
-        <div class="hint" style="margin-top:6px">Deploy <strong>worker.py</strong> to Railway, paste the public URL above. All 7 layers run server-side — no CORS limits, real TCP connections, retry logic, 24h indexation check.</div>
+        <div class="hint" style="margin-top:6px">Deploy <strong>worker.py</strong> (BEAST v7) to Railway, paste the public URL above. All <strong>16 layers</strong> run server-side — no CORS limits, real TCP connections, drip scheduler, GSC Request Indexing, Google Discover ping, and 24h indexation verify.</div>
       </div>
 
       <!-- Submit card -->
       <div class="card">
-        <div class="card-label">🚀 Submit URLs — 7-Layer Blast</div>
+        <div class="card-label">🚀 Submit URLs — 16-Layer BEAST Blast</div>
         <div style="font-size:.6rem;color:var(--muted);margin-bottom:10px">
-          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all 7 layers concurrently on Railway.
+          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all 16 layers concurrently on Railway — including GSC Request Indexing, Google Discover Ping, NewsArticle Schema, DNS Prefetch, and News Sitemap injection.
         </div>
         <!-- Plan toggle -->
         <div class="plan-row">
-          <button class="plan-pill active" id="if-plan-free" onclick="ifSetPlan('free')">Free — 50 URLs</button>
-          <button class="plan-pill" id="if-plan-pro" onclick="ifSetPlan('pro')">⚡ Pro — 5,000 URLs</button>
+          <button class="plan-pill active" id="if-plan-free" onclick="ifSetPlan('free')">Free — 100 URLs</button>
+          <button class="plan-pill" id="if-plan-pro" onclick="ifSetPlan('pro')">⚡ Pro — 10,000 URLs</button>
         </div>
         <!-- Project selector -->
         <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
@@ -1130,24 +1130,51 @@ textarea{resize:vertical;line-height:1.7}
         </div>
       </div>
 
-      <!-- 12 Layers explained -->
+      <!-- 16 Layers explained -->
       <div class="card">
-        <div class="card-label">🔬 What BEAST worker.py Fires (12 Layers, All Simultaneous)</div>
+        <div class="card-label">🔬 What BEAST worker.py Fires (16 Layers, All Simultaneous)</div>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
-          <div class="if-layer"><span class="if-layer-icon">🔥</span><div><div class="if-layer-name">Multi-SA Parallel Indexing API</div><div class="if-layer-detail">ALL SA keys × all URLs simultaneously — N× independent priority signals to Google's indexing queue vs sequential round-robin</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🔍</span><div><div class="if-layer-name">GSC URL Inspection (all SAs parallel)</div><div class="if-layer-detail">Every SA inspects every URL simultaneously — forces scheduler to re-evaluate crawl priority</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔥</span><div><div class="if-layer-name">Multi-SA Parallel Google Indexing API</div><div class="if-layer-detail">ALL SA keys × all URLs simultaneously — N× independent priority signals to Google's indexing queue vs sequential round-robin</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📋</span><div><div class="if-layer-name">GSC Request Indexing (NEW #1)</div><div class="if-layer-detail">Dedicated "Request Indexing" API — ~10 requests/day per GSC property per SA key, spread across all SA keys. This is the actual GSC button, exposed via API.</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔍</span><div><div class="if-layer-name">GSC URL Inspection — Every Blast (FIX #2)</div><div class="if-layer-detail">Every SA inspects every URL simultaneously on EVERY blast — forces scheduler to re-evaluate crawl priority (pull trigger, not just push)</div></div></div>
           <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">GSC Sitemap — Delete + Re-add</div><div class="if-layer-detail">Force re-scan from scratch via GSC API — stronger signal than a sitemap ping</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🔎</span><div><div class="if-layer-name">Bing-First Strategy</div><div class="if-layer-detail">Bing indexes in 1-3min → Google detects via cross-engine monitoring. Fires BEFORE Google API calls</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">⚡</span><div><div class="if-layer-name">IndexNow × 6 Engines</div><div class="if-layer-detail">Bing, Yandex, Seznam, Brave, api.indexnow.org — all fire in parallel, confirmed OK per engine</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">📡</span><div><div class="if-layer-name">XML-RPC Blast (80+ endpoints)</div><div class="if-layer-detail">TRUE parallel TCP — all endpoints fire simultaneously via real connections, 6s hard timeout, actual success rate</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">📢</span><div><div class="if-layer-name">WebSub / PubSubHubbub (4 hubs)</div><div class="if-layer-detail">All hubs × all feeds simultaneously — appspot, superfeedr, websubhub, switchboard p3k</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📡</span><div><div class="if-layer-name">Google Discover + Sitemap Ping (NEW #3)</div><div class="if-layer-detail">Pings google.com/ping and bing.com/ping for each domain's sitemap-index.xml, sitemap.xml, sitemap-links.xml, and feed.xml simultaneously</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔎</span><div><div class="if-layer-name">Bing-First Strategy</div><div class="if-layer-detail">Bing indexes in 1–3min → Google detects via cross-engine monitoring. Fires BEFORE Google API calls</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">⚡</span><div><div class="if-layer-name">IndexNow × 6 Engines</div><div class="if-layer-detail">Bing, Yandex, Seznam, Brave, Naver, api.indexnow.org — all fire in parallel, confirmed OK per engine</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📰</span><div><div class="if-layer-name">XML-RPC Blast (80+ endpoints)</div><div class="if-layer-detail">TRUE parallel TCP — all endpoints fire simultaneously via real connections, 6s hard timeout, actual success rate</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📢</span><div><div class="if-layer-name">WebSub / PubSubHubbub (4 hubs)</div><div class="if-layer-detail">All hubs × all feeds simultaneously — appspot, superfeedr, websubhub, switchboard p3k. Link header tells Googlebot to subscribe for push instead of polling.</div></div></div>
           <div class="if-layer"><span class="if-layer-icon">🔎</span><div><div class="if-layer-name">Bing Webmaster Direct API</div><div class="if-layer-detail">ssl.bing.com SubmitUrlbatch — higher-priority queue than IndexNow</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🕰</span><div><div class="if-layer-name">Wayback Machine Save</div><div class="if-layer-detail">web.archive.org/save — triggers discovery via archive change monitoring</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">Sitemap Ping (Google + Bing + Yandex)</div><div class="if-layer-detail">Direct pings to all 3 engines for all sitemap URLs</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">📰</span><div><div class="if-layer-name">RSS Feed + Aggregators</div><div class="if-layer-detail">Generates real RSS/Atom per job, submits to Feedly, FeedBurner, etc.</div></div></div>
-          <div class="if-layer"><span class="if-layer-icon">🌐</span><div><div class="if-layer-name">Crawl Amplify</div><div class="if-layer-detail">Diverse UA fetches from server — organic traffic signals spike crawl priority in Google's scheduler</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🕰</span><div><div class="if-layer-name">Wayback Machine Save</div><div class="if-layer-detail">web.archive.org/save — triggers discovery via archive change monitoring. CDX ping cross-referenced by Google as new-URL existence signal.</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">Sitemap Ping (Google + Bing + Yandex)</div><div class="if-layer-detail">Direct pings to all 3 engines for all sitemap URLs + sitemap-index.xml per domain</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">📰</span><div><div class="if-layer-name">RSS Aggregators + Atom Feed</div><div class="if-layer-detail">Generates real Atom feed per job, submits to Feedly, FeedBurner, FeedAge, RSS.app etc. Feed always shows now() timestamp (NEW #10) — no-cache forces every aggregator re-fetch.</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🔗</span><div><div class="if-layer-name">Link-Hub Injection (FIX #1/#3)</div><div class="if-layer-detail">Real &lt;a href&gt; links injected into /link-hub pages. ItemList + NewsArticle JSON-LD schema (NEW #4) — NewsArticle datePublished=now triggers Google News crawler (sub-5-min cycle). ping attribute fires crawl-ping on every browser click (NEW #7). DNS prefetch tags for all destination domains (NEW #9).</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🗺</span><div><div class="if-layer-name">Sitemap-Index Ping (FIX #9)</div><div class="if-layer-detail">Per-domain sitemap-index.xml pings to Google + Bing. Each domain lists only its own sub-sitemaps — no cross-domain entries. News sitemap namespace injected into each &lt;url&gt; (NEW #8).</div></div></div>
+          <div class="if-layer"><span class="if-layer-icon">🌐</span><div><div class="if-layer-name">CDN Cache Warm + Crawl Amplify</div><div class="if-layer-detail">Diverse UA fetches from server — Googlebot UA warms /link-hub, /sitemap.xml, /feed.xml, /crawl-hub, /sitemap-index.xml on all CDN domains. Residential proxy amplify via PROXY_GATEWAY for organic traffic signals.</div></div></div>
         </div>
       </div>
+
+      <!-- NEW: Crawl-Ping Direct Fire card -->
+      <div class="card">
+        <div class="card-label">🎯 Crawl-Ping Direct Fire (M4–M16)</div>
+        <div style="font-size:.6rem;color:var(--muted);margin-bottom:12px;line-height:1.7">
+          Fire all 13 crawl signal methods directly for any single URL. Runs on Vercel Edge (<code>/api/crawl-ping</code>) — no Railway worker needed. M4 = PubSubHubbub, M9 = Mobile Friendly Test, M10 = PageSpeed Insights, M11 = IndexNow, M15 = Cloudflare Radar.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <input id="crawl-ping-url" placeholder="https://yoursite.com/your-page" style="flex:1;min-width:200px">
+          <button class="btn btn-primary" onclick="fireCrawlPing()">🚀 Fire M4–M16</button>
+        </div>
+        <div id="crawl-ping-log" class="idx-log" style="display:none;max-height:160px"></div>
+      </div>
+
+      <!-- NEW: Drip Status card -->
+      <div class="card" id="drip-active-card" style="display:none">
+        <div class="card-label">⏱ Active Drip Schedules</div>
+        <div id="drip-active-list" style="font-size:.62rem;color:var(--muted)">Loading…</div>
+        <div style="margin-top:10px">
+          <button class="btn btn-outline" style="font-size:.55rem" onclick="fetchDripStatus()">↻ Refresh Drip Status</button>
+        </div>
+      </div>
+
     </div>
 
     <!-- ANALYTICS -->
@@ -3415,8 +3442,8 @@ async function rawUrlBlast(){
   const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
   if(wUrl){
     try{
-      const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:document.getElementById('gsc-site')?.value.trim()||''})});
-      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 12 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
+      const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:document.getElementById('gsc-site')?.value.trim()||'',drip_mode:getDripMode(),drip_hours:getDripHours()})});
+      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
     }catch(e){ rawLog(`⚠ Worker: ${e.message}`,'info'); }
   }
   // ── 11. Residential Proxy Crawl Amplification ──
@@ -3783,8 +3810,8 @@ async function blastUrls(shortUrls, pl, logTarget='idx'){
         if(wUrl){
           log('⚙ Worker API blast…','info');
           try{
-            const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:allUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||''})});
-            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 12 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
+            const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:allUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||'',drip_mode:getDripMode(),drip_hours:getDripHours()})});
+            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
             else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
           }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
         }
@@ -4343,18 +4370,32 @@ async function ifSubmitJob(){
   try{
     const r = await fetch(`${wUrl}/api/submit`,{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({raw_urls:raw, plan:ifPlan, user_id:'linkcore-v10'})
+      body: JSON.stringify({
+        raw_urls: raw,
+        plan: ifPlan,
+        user_id: 'linkcore-v18',
+        gsc_site: document.getElementById('gsc-site')?.value.trim() || '',
+        drip_mode: getDripMode(),
+        drip_hours: getDripHours(),
+      })
     });
     if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); btn.disabled=false; btn.textContent='⚡ Start Indexing'; if(prog) prog.style.display='none'; return; }
     const d = await r.json();
     ifCurrentJobId = d.job_id;
-    const stub = {job_id:d.job_id, status:'queued', url_count:d.urls_queued, urls_skipped:d.urls_skipped||0, queued_at:new Date().toISOString(), plan:ifPlan, worker_url:wUrl};
+    const stub = {job_id:d.job_id, status:'queued', url_count:d.urls_queued, urls_skipped:d.urls_skipped||0, queued_at:new Date().toISOString(), plan:ifPlan, worker_url:wUrl, drip_mode:d.drip_mode};
     ifSaveHistory(stub);
     ifRenderJobCard(stub);
     ifRenderHistory();
     ifStartPolling(d.job_id, wUrl);
     if(bar) bar.style.width='30%';
-    toast(`⚡ Job queued — ${d.urls_queued} URLs across 7 layers`,'green');
+    // Auto-show drip panel if drip was registered
+    if(d.drip_mode && getDripHours().length){
+      const nextAt = Date.now()/1000 + getDripHours()[0]*3600;
+      showDripStatus(nextAt);
+      const dripCard = document.getElementById('drip-active-card');
+      if(dripCard){ dripCard.style.display=''; setTimeout(fetchDripStatus,800); }
+    }
+    toast(`⚡ Job queued — ${d.urls_queued} URLs across 16 layers`,'green');
   }catch(e){
     toast('Worker unreachable: '+e.message,'');
     btn.disabled=false; btn.textContent='⚡ Start Indexing';
@@ -4392,6 +4433,7 @@ function ifRenderJobCard(job){
   if(!wrap) return;
   wrap.style.display='block';
   const res = job.results||{};
+  const ld  = job.layer_detail||{};  // full 16-layer detail from /api/status
   const isComplete = job.status==='complete';
   const isRunning  = job.status==='running';
   const isQueued   = job.status==='queued';
@@ -4428,8 +4470,15 @@ function ifRenderJobCard(job){
       ${ifLayerRow('✅','24h Indexation Verify','l7',res.verify_result?'on':'off',res.verify_result?`${res.verify_result.indexed}/${res.verify_result.checked} confirmed — ${res.verify_result.index_rate}`:'Fires automatically 24h after submit')}
       ${ifLayerRow('🔗','Link-Hub Injection','l8',res.link_hub_injection?'on':'off',res.link_hub_injection?`${res.link_hub_injection.link_hub_urls_stored||0} URLs · ${res.link_hub_injection.link_hub_domains_warmed||0} domains warmed`:'PageRank flow via /link-hub with ItemList schema')}
       ${ifLayerRow('🗺','Sitemap-Index Ping','l9',res.sitemap_index_ping?'on':'off',res.sitemap_index_ping?`${res.sitemap_index_ping.sitemap_index_pings_ok||0}/${res.sitemap_index_ping.sitemap_index_pings_fired||0} OK`:'Per-domain sitemap-index.xml pings (per-domain, no cross-domain)')}
+      ${ifLayerRow('🟢','GSC Request Indexing','l10',ld.gsc_request_indexing&&!ld.gsc_request_indexing.skipped?'on':'off',ld.gsc_request_indexing&&!ld.gsc_request_indexing.skipped?`${ld.gsc_request_indexing.gsc_request_indexing_ok||0}/${ld.gsc_request_indexing.gsc_request_indexing_fired||0} OK · ${ld.gsc_request_indexing.sa_count||0} SA keys`:'NEW #1 — Dedicated GSC "Request Indexing" API (10 req/day/key)')}
+      ${ifLayerRow('🌐','Google Discover Ping','l11',ld.google_discover_ping&&!ld.google_discover_ping.skipped?'on':'off',ld.google_discover_ping?`${ld.google_discover_ping.google_discover_pings_ok||0}/${ld.google_discover_ping.google_discover_pings_fired||0} OK`:'NEW #3 — google.com/ping + bing.com/ping for all sitemaps')}
+      ${ifLayerRow('🔎','GSC URL Inspection','l12',ld.gsc_inspection&&!ld.gsc_inspection.skipped?'on':'off',ld.gsc_inspection&&!ld.gsc_inspection.skipped?`${ld.gsc_inspection.gsc_inspection_ok||0}/${ld.gsc_inspection.gsc_inspection_fired||0} OK · fires EVERY blast`:'FIX #2 — Pull trigger, forces scheduler re-eval on every blast')}
+      ${ifLayerRow('🔵','Bing Webmaster API','l13',ld.bing_webmaster&&!ld.bing_webmaster.skipped?'on':'off',ld.bing_webmaster&&!ld.bing_webmaster.skipped?`${ld.bing_webmaster.bing_ok||0}/${ld.bing_webmaster.bing_total||0} hosts OK`:'Direct Bing URL submission (BING_API_KEY env var)')}
+      ${ifLayerRow('📡','WebSub / PubSubHubbub','l14',ld.websub?'on':'off',ld.websub?`${ld.websub.websub_ok||0}/${ld.websub.websub_fired||0} notifications OK`:'4 WebSub hubs — PubSubHubbub, Superfeedr, WebSubHub, Switchboard')}
+      ${ifLayerRow('🏛','Wayback Machine','l15',ld.wayback?'on':'off',ld.wayback?`${ld.wayback.wayback_ok||0}/${ld.wayback.wayback_attempted||0} archived`:'archive.org save — URL existence signal in Google link graph')}
+      ${ifLayerRow('🔄','Crawl Amplify','l16',ld.crawl_amplify&&!ld.crawl_amplify.skipped?'on':'off',ld.crawl_amplify&&!ld.crawl_amplify.skipped?`${ld.crawl_amplify.amplify_ok||0}/${ld.crawl_amplify.amplify_attempted||0} fetched via proxy`:'Residential proxy fetch — PROXY_GATEWAY env var required')}
     </div>
-    <div class="verify-panel" id="verify-${he(job.job_id||'')}')">
+    <div class="verify-panel" id="verify-${he(job.job_id||'')}">
       <div class="verify-panel-hdr">🔍 GSC Indexation Verdict</div>
       <div id="verify-rows-${he(job.job_id||'')}" style="padding:10px 14px;color:var(--muted);font-size:.6rem">
         Click Verify to poll GSC Inspection API…
@@ -5978,6 +6027,61 @@ function getDripMode() {
   return document.getElementById('drip-mode-chk')?.checked ?? true;
 }
 
+// ══════════════════════════════════════════════════════════
+// v17 — DRIP STATUS — /api/drip-status
+// ══════════════════════════════════════════════════════════
+
+async function fetchDripStatus() {
+  const workerUrl = (localStorage.getItem('lc_worker_url') || '').replace(/\/$/, '');
+  const card = document.getElementById('drip-active-card');
+  const list = document.getElementById('drip-active-list');
+  if (!workerUrl) { toast('Worker URL not configured', 'red'); return; }
+  if (list) list.textContent = 'Loading\u2026';
+  if (card) card.style.display = '';
+  try {
+    const resp = await fetch(`${workerUrl}/api/drip-status`);
+    const data = await resp.json();
+    const drips = data.drips || [];
+    if (drips.length === 0) {
+      if (list) list.innerHTML = '<span style="color:var(--muted2)">No active drip schedules.</span>';
+      if (card) card.style.display = 'none';
+      return;
+    }
+    let html = `<div style="color:var(--blue);font-size:.58rem;margin-bottom:8px">\ud83d\udd35 ${drips.length} active drip schedule${drips.length>1?'s':''} \u2014 auto re-blasting at scheduled intervals</div>`;
+    drips.forEach((d) => {
+      const nextMin = d.next_drip_in_minutes != null ? d.next_drip_in_minutes : '\u2014';
+      const nextStr = nextMin !== '\u2014' ? (nextMin < 60 ? `${nextMin}m` : `${Math.round(nextMin/60)}h ${nextMin%60}m`) : 'done';
+      html += `<div style="padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <span style="color:var(--text);font-size:.6rem;font-weight:700">Job: <span style="color:var(--accent)">${(d.parent_job_id||'?').slice(0,8)}</span></span>
+        <span style="font-size:.58rem;color:var(--muted)">${(d.urls_count||0).toLocaleString()} URLs</span>
+        <span style="font-size:.58rem;color:var(--blue)">${d.drips_done||0}/${d.drips_scheduled||0} drips done</span>
+        <span style="font-size:.58rem;color:var(--orange)">Next: <strong>${nextStr}</strong></span>
+        <span style="font-size:.58rem;color:var(--muted2)">${d.drips_remaining||0} remaining</span>
+      </div>`;
+    });
+    if (list) list.innerHTML = html;
+    toast(`\ud83d\udd35 ${drips.length} drip schedule${drips.length>1?'s':''} active`, 'green');
+  } catch(err) {
+    if (list) list.innerHTML = `<span style="color:var(--red)">Error: ${err.message}</span>`;
+    toast(`Drip status error: ${err.message}`, 'red');
+  }
+}
+
+// Auto-refresh drip status every 60s when card is visible
+setInterval(async () => {
+  const card = document.getElementById('drip-active-card');
+  if (card && card.style.display !== 'none') {
+    const workerUrl = (localStorage.getItem('lc_worker_url') || '').replace(/\/$/, '');
+    if (!workerUrl) return;
+    try {
+      const resp = await fetch(`${workerUrl}/api/drip-status`);
+      const data = await resp.json();
+      if ((data.drips||[]).length === 0) { card.style.display = 'none'; return; }
+      fetchDripStatus();
+    } catch {}
+  }
+}, 60000);
+
 // Wire up drip chips and populate sitemap-index URL on load
 (function() {
   function initV16() {
@@ -6052,6 +6156,72 @@ async function runVerify(jobId) {
 }
 
 // ══════════════════════════════════════════════════════════
+// CRAWL PING — fires /api/crawl-ping on primary Vercel domain
+// ══════════════════════════════════════════════════════════
+
+async function fireCrawlPing() {
+  const url = document.getElementById('crawl-ping-url')?.value.trim();
+  const logEl = document.getElementById('crawl-ping-log');
+  if (!url) { toast('Paste a URL to ping first', ''); return; }
+  try { new URL(url); } catch { toast('Invalid URL', ''); return; }
+  if (logEl) { logEl.style.display = 'block'; logEl.innerHTML = '<span style="color:var(--muted)">⏳ Firing 13 crawl signal methods…</span>'; }
+
+  // Use primary domain from settings (cfg-d1 or SHORT_BASES[0])
+  const rawD1 = document.getElementById('cfg-d1')?.value.trim() || SHORT_BASES[0] || '';
+  const domain = rawD1.replace(/^https?:\/\//, '').replace(/\/link\/?$/, '').replace(/\/$/, '').split('/')[0];
+  if (!domain) { toast('Set your primary domain in Settings first', ''); return; }
+
+  const endpoint = `https://${domain}/api/crawl-ping`;
+  const cpLog = (msg, cls='') => {
+    if (!logEl) return;
+    const line = document.createElement('div');
+    line.style.color = cls === 'ok' ? 'var(--accent)' : cls === 'err' ? 'var(--red)' : 'var(--muted)';
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+
+  try {
+    logEl.innerHTML = '';
+    cpLog(`→ POST ${endpoint}`);
+    cpLog(`   URL: ${url}`);
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) { cpLog(`✖ HTTP ${r.status} — check DOMAIN_NAME env var on Vercel`, 'err'); return; }
+    cpLog(`✅ Done in ${data.ms || '?'}ms`, 'ok');
+    const res = data.results || {};
+    const checks = [
+      ['M4 PubSubHubbub',    res.m4_pubsub],
+      ['M5 AMP Cache',       res.m5_amp],
+      ['M6 Googlebot Sim',   res.m6_bot_sim],
+      ['M7 Google Cache',    res.m7_gcache],
+      ['M8 Google Translate',res.m8_translate],
+      ['M9 Mobile Friendly', res.m9_mobile_test],
+      ['M10 PageSpeed ×2',   res.m10_psi],
+      ['M11 IndexNow ×4',    res.m11_indexnow],
+      ['M12 Wayback + CDX',  res.m12_wayback],
+      ['M13 CommonCrawl',    res.m13_commoncrawl],
+      ['M14 RSS Bomb ×6',    res.m14_rss_bomb],
+      ['M15 CF Radar',       res.m15_cf_radar],
+      ['M16 Rendertron',     res.m16_rendertron],
+    ];
+    checks.forEach(([name, r]) => {
+      if (!r) return;
+      cpLog(`  ${r.ok ? '✓' : '✗'} ${name}`, r.ok ? 'ok' : 'err');
+    });
+    if ((data.errors || []).length) data.errors.forEach(e => cpLog(`  ⚠ ${e}`, 'err'));
+    toast('🚀 Crawl ping fired — 13 methods', 'green');
+  } catch(e) {
+    cpLog(`✖ ${e.message} — is the Vercel domain deployed?`, 'err');
+    toast('Crawl ping failed: ' + e.message, '');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
 // v16 — LINK-HUB STATS — FIX #1/#3
 // ══════════════════════════════════════════════════════════
 
@@ -6111,41 +6281,7 @@ async function pingBingSitemapIdx() {
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// v16 — PATCH ifSubmitJob to include drip_mode + drip_hours
-// ══════════════════════════════════════════════════════════
-// The existing ifSubmitJob is patched here via monkey-patching.
-// It wraps the original to inject drip params into the POST body.
-(function() {
-  const _origSubmit = window.ifSubmitJob;
-  if (typeof _origSubmit !== 'function') return; // not loaded yet — DOMContentLoaded handles it
-  window.ifSubmitJob = async function() {
-    // Patch the fetch call by temporarily overriding fetch body construction
-    // Simpler approach: just add drip params to what the original sends
-    const dripMode  = getDripMode();
-    const dripHours = getDripHours();
-    const _origFetch = window.fetch;
-    window.fetch = function(url, opts) {
-      if (opts && opts.body && typeof opts.body === 'string') {
-        try {
-          const parsed = JSON.parse(opts.body);
-          if (parsed.raw_urls !== undefined) {
-            parsed.drip_mode  = dripMode;
-            parsed.drip_hours = dripHours;
-            opts = { ...opts, body: JSON.stringify(parsed) };
-          }
-        } catch(e) {}
-      }
-      window.fetch = _origFetch;
-      return _origFetch.call(this, url, opts);
-    };
-    await _origSubmit();
-    if (dripMode && dripHours.length) {
-      const nextAt = Date.now()/1000 + dripHours[0]*3600;
-      showDripStatus(nextAt);
-    }
-  };
-})();
+// v18 — ifSubmitJob now natively includes drip_mode, drip_hours, gsc_site (no monkey-patch needed)
 
 </script>
 
