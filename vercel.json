@@ -1,21 +1,97 @@
 {
   "routes": [
-    { "src": "/sitemap.xml",             "dest": "/api/sitemap"              },
-    { "src": "/sitemap-index.xml",       "dest": "/api/sitemap-index"        },
-    { "src": "/sitemap_index.xml",       "dest": "/api/sitemap-index"        },
-    { "src": "/sitemap-links.xml",       "dest": "/api/sitemap-links"        },
-    { "src": "/feed.xml",                "dest": "/api/feed"                 },
-    { "src": "/link-hub",                "dest": "/api/link-hub"             },
-    { "src": "/crawl-hub",               "dest": "/api/link-hub"             },
-    { "src": "/api/crawl-ping",          "dest": "/api/crawl-ping"           },
-    { "src": "/link/(?<code>[^/]+)",     "dest": "/api/redirect?code=$code"  }
+    {
+      "src": "/sitemap.xml",
+      "dest": "/api/sitemap"
+    },
+    {
+      "src": "/sitemap-index.xml",
+      "dest": "/api/sitemap-index"
+    },
+    {
+      "src": "/sitemap_index.xml",
+      "dest": "/api/sitemap-index"
+    },
+    {
+      "src": "/sitemap-links.xml",
+      "dest": "/api/sitemap-links"
+    },
+    {
+      "src": "/feed.xml",
+      "dest": "/api/feed"
+    },
+    {
+      "src": "/link-hub",
+      "dest": "/api/link-hub"
+    },
+    {
+      "src": "/crawl-hub",
+      "dest": "/api/link-hub"
+    },
+    {
+      "src": "/api/crawl-ping",
+      "dest": "/api/crawl-ping"
+    },
+    {
+      "src": "/link/(?<code>[^/]+)",
+      "dest": "/api/redirect?code=$code"
+    }
   ],
   "headers": [
     {
       "source": "/link/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag",  "value": "noindex" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        }
+      ]
+    },
+    {
+      "source": "/(link-hub|crawl-hub|sitemap.xml|sitemap-links.xml|sitemap-index.xml)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Vary",
+          "value": "Accept, Accept-Encoding"
+        },
+        {
+          "key": "X-Allow-SXG",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "source": "/(sitemap.xml|sitemap-links.xml|sitemap-index.xml|feed.xml)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/link-hub",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "index, follow"
+        },
+        {
+          "key": "Vary",
+          "value": "Accept-Encoding"
+        }
       ]
     }
   ]
