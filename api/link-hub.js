@@ -82,7 +82,13 @@ export default async function handler(request) {
   <title>Link Hub — ${host}</title>
   <meta name="description" content="Active link directory — ${totalLinks} URLs indexed on ${now.toDateString()}">
   <link rel="canonical" href="https://${host}/link-hub">
-  <script type="application/ld+json">${schema}</script>
+  <link rel="alternate" type="application/atom+xml" href="https://${host}/feed.xml">
+  <!-- NEW #9: DNS prefetch for all destination domains -->
+  ${destDomains.map(d => `<link rel="dns-prefetch" href="//${d}">`).join('\n  ')}
+  <!-- ItemList schema -->
+  <script type="application/ld+json">${itemListSchema}</script>
+  <!-- NEW #4: NewsArticle schema — triggers Google News crawler (sub-5-min cycle) -->
+  <script type="application/ld+json">${newsSchema}</script>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #333; }
     h1 { font-size: 1.4rem; border-bottom: 2px solid #e5e5e5; padding-bottom: 12px; }
