@@ -67,12 +67,29 @@ export default async function handler(request) {
 
     const { value: xml, updated_at } = rows[0];
 
-    return new Response(xml, {
+    // NEW #10: always-now timestamp — feed aggregators re-fetch when updated changes
+    const nowStr  = now.toUTCString();
+    const feedEtag = `"lc-feed-${rows[0].value?.length || 0}-${Math.floor(now.getTime() / 60000)}"`;
+
+    // NEW #5: Honour If-None-Match for 304 — builds Googlebot/aggregator trust
+    if (request.headers.get('if-none-match') === feedEtag) {
+      return new Response(null, { status: 304 });
+    }
+
+    // Inject always-now <updated> so every poll sees a fresh timestamp
+    const xmlWithFreshTs = xml.replace(
+      /<updated>[^<]*<\/updated>/,
+      `<updated>${now.toISOString()}</updated>`
+    );
+
+    return new Response(xmlWithFreshTs, {
       status: 200,
       headers: {
         'Content-Type':  'application/atom+xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600',
-        'Last-Modified': new Date(updated_at).toUTCString(),
+        // NEW #10: no-cache forces every aggregator poll to re-fetch
+        'Cache-Control': 'no-cache, must-revalidate',
+        'Last-Modified': nowStr,
+        'ETag':          feedEtag,
         'Link':          linkHeader,
       },
     });
