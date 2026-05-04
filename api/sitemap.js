@@ -53,8 +53,29 @@ export default async function handler(request) {
     // ── Lastmod Freshness Spoofing ──────────────────────────────────────────
     // Replace every <lastmod> value in the stored XML with today's date.
     // Google treats a changed lastmod as a freshness signal and recrawls faster.
-    const today  = now.toISOString().slice(0, 10); // YYYY-MM-DD
-    const xml    = rawXml.replace(/<lastmod>[^<]*<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+    const today   = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const nowFull = now.toISOString().replace(/\.\d+Z$/, '+00:00');
+    // FIX #6: Replace lastmod with today for freshness
+    let xml = rawXml.replace(/<lastmod>[^<]*<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+    // NEW #8: Inject Google News sitemap namespace if not present
+    xml = xml.replace(
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
+    );
+    // NEW #8: Inject <news:news> block into each <url> entry for Google News crawler
+    xml = xml.replace(/<\/url>/g, (_, offset) => {
+      // Extract the <loc> from the preceding <url> block
+      const block   = xml.slice(Math.max(0, offset - 500), offset);
+      const locMatch = block.match(/<loc>([^<]+)<\/loc>/);
+      const loc      = locMatch ? locMatch[1] : '';
+      const domain   = loc ? new URL(loc).hostname : 'LinkCore';
+      return `  <news:news>
+      <news:publication><news:name>${domain}</news:name><news:language>en</news:language></news:publication>
+      <news:publication_date>${nowFull}</news:publication_date>
+      <news:title>Update: ${domain}</news:title>
+    </news:news>
+  </url>`;
+    });
 
     // ETag based on url_count + today — changes daily, forcing Googlebot recheck
     const etag = `"lc-sm-${url_count || 0}-${today}"`;
