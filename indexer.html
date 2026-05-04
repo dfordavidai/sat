@@ -1483,6 +1483,10 @@ Then deploy.</div></div>
           <div class="set-group-title"><span class="set-icon">🔍</span> Google Search Console (GSC)</div>
 
           <!-- Per-domain GSC property config — each domain's shorts go to its own GSC property -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:.58rem;color:var(--muted)">Each domain has its own GSC property + SA key. SA key is optional — falls back to the global SA Vault below if left blank.</div>
+            <button class="btn btn-blue" style="font-size:.55rem;padding:5px 12px;white-space:nowrap" onclick="testAllDomains()">🧪 Test All Domains</button>
+          </div>
           <div id="domain-gsc-rows" style="margin-bottom:10px"><!-- rendered by renderDomainGscRows() --></div>
           <!-- hidden legacy field so old references to #gsc-site still resolve -->
           <input id="gsc-site" type="hidden">
@@ -2025,10 +2029,21 @@ let chanSettings = {
 // All SA keys fire the same URL simultaneously — max signal weight
 // ══════════════════════════════════════════════════════════
 async function fireAllSAsInParallel(urls, logFn) {
-  if (!saVault.length) { logFn('⚠ No SA keys for parallel fire', 'err'); return {ok:0, fired:0}; }
-  logFn(`🔥 Multi-SA parallel: ${saVault.length} SA keys × ${urls.length} URLs simultaneously…`, 'info');
+  // Collect ALL SA keys: global vault + any domain-specific SAs not already in vault
   const today = new Date().toDateString();
-  const activeSAs = saVault.filter(sa => {
+  const allSAs = [...saVault];
+  for(const cfg of domainGscConfig){
+    if(cfg.saJson){
+      try{
+        const parsed = JSON.parse(cfg.saJson);
+        const alreadyIn = allSAs.some(s=>{ try{return JSON.parse(s.json).client_email===parsed.client_email;}catch(e){return false;} });
+        if(!alreadyIn) allSAs.push({label: parsed.client_email||'domain-sa', json:cfg.saJson, daily_used:0, date:today});
+      }catch(e){}
+    }
+  }
+  if (!allSAs.length) { logFn('⚠ No SA keys for parallel fire', 'err'); return {ok:0, fired:0}; }
+  logFn(`🔥 Multi-SA parallel: ${allSAs.length} SA keys (vault + domain-specific) × ${urls.length} URLs simultaneously…`, 'info');
+  const activeSAs = allSAs.filter(sa => {
     if (sa.date !== today) { sa.daily_used = 0; sa.date = today; }
     return sa.daily_used < 200;
   });
@@ -2484,10 +2499,29 @@ async function testSupabase(){
 
 async function testGSC(){
   setConn('conn-gsc','testing…',null);
-  if(!saVault.length){ setConn('conn-gsc','no SA key',false); return; }
-  const site = document.getElementById('gsc-site')?.value.trim();
-  if(!site){ setConn('conn-gsc','no site set',false); return; }
-  setConn('conn-gsc','SA key present ✓',true);
+  const configured = domainGscConfig.filter(d=>d.gscUrl);
+  if(!configured.length && !saVault.length){ setConn('conn-gsc','no SA key or GSC property',false); return; }
+  if(!configured.length){
+    // No per-domain config — fall back to legacy single-site test
+    if(!saVault.length){ setConn('conn-gsc','no SA key',false); return; }
+    const site = document.getElementById('gsc-site')?.value.trim();
+    if(!site){ setConn('conn-gsc','no site set',false); return; }
+    setConn('conn-gsc','SA key present ✓',true);
+    return;
+  }
+  // Test first configured domain as a quick global check, detailed per-domain via testAllDomains()
+  let passCount=0;
+  for(const cfg of configured){
+    const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
+    if(!token) continue;
+    try{
+      const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gscUrl)}`,{headers:{'Authorization':`Bearer ${token}`}});
+      if(r.ok) passCount++;
+    }catch(e){}
+  }
+  if(passCount===configured.length) setConn('conn-gsc',`✓ All ${passCount} domains verified`,true);
+  else if(passCount>0) setConn('conn-gsc',`⚠ ${passCount}/${configured.length} domains OK`,null);
+  else setConn('conn-gsc','✗ All domains failed',false);
 }
 
 async function testIndexNow(){
@@ -3176,58 +3210,78 @@ async function fullBlastOnAdd(newLinks){
   // ── Step 1: Build & save all 4 sitemaps ──
   const sitemapRows = await buildAndSaveAllSitemaps();
 
-  // ── Step 2: Google Indexing API (direct push) — originals + all shorts ──
-  const sa = getNextSA();
-  if(sa && chanSettings.idxApi){
-    try{
-      const tokenIdx = await getToken(sa.json,'https://www.googleapis.com/auth/indexing');
-      let queued=0, failed=0;
-      for(const url of fullUrlSet){
+  // ── Step 2: Google Indexing API — per-domain SA, all shorts + originals ──
+  if(chanSettings.idxApi){
+    let totalQueued=0, totalFailed=0;
+    // Fire each short-link domain with its own SA
+    for(let di=0; di<SHORT_BASES.length; di++){
+      const cfg = domainGscConfig[di]||{};
+      const domainUrls = newLinks.flatMap(l=>[SHORT_BASES[di]+l.code]);
+      const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/indexing');
+      if(!token){ sitemapLog(`⚠ Indexing API domain ${di+1}: no SA token`,'warn'); totalFailed+=domainUrls.length; continue; }
+      for(const url of domainUrls){
         try{
           const r = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
-            method:'POST',
-            headers:{'Authorization':`Bearer ${tokenIdx}`,'Content-Type':'application/json'},
+            method:'POST', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
             body: JSON.stringify({url, type:'URL_UPDATED'})
           });
-          if(r.ok||r.status===200){ queued++; sa.daily_used++; }
-          else{ failed++; }
-        }catch(e){ failed++; }
-        await new Promise(r=>setTimeout(r,80)); // ~12/sec to stay under quota
+          if(r.ok||r.status===200){ totalQueued++; }
+          else{ totalFailed++; }
+        }catch(e){ totalFailed++; }
+        await new Promise(r=>setTimeout(r,80));
       }
-      sitemapLog(`⚡ Google Indexing API: ${queued} URLs queued, ${failed} failed`,'ok');
-      localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
-      cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
-    }catch(e){ sitemapLog(`⚠ Indexing API auth: ${e.message}`,'warn'); }
-  } else if(!sa){ sitemapLog('⚠ Indexing API: no SA keys — add one in Settings','warn'); }
-
-  // ── Step 3: GSC URL Inspection — originals + primary short ──
-  if(sa && chanSettings.gsc){
-    try{
-      const tokenGSC = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
-      const site = document.getElementById('gsc-site')?.value.trim()||localStorage.getItem('lc_gsc_site')||'';
-      if(site){
-        const inspectUrls = [...originals, ...newLinks.map(l=>allShortUrls(l.code)[0])];
-        let inspOk=0;
-        for(const url of inspectUrls){
+    }
+    // Also fire originals via the first available SA (best-effort)
+    const globalSa = getNextSA();
+    if(globalSa){
+      try{
+        const t = await getToken(globalSa.json,'https://www.googleapis.com/auth/indexing');
+        for(const url of originals){
           try{
-            const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{
-              method:'POST',
-              headers:{'Authorization':`Bearer ${tokenGSC}`,'Content-Type':'application/json'},
-              body: JSON.stringify({inspectionUrl:url, siteUrl:site})
+            const r = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
+              method:'POST', headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},
+              body: JSON.stringify({url, type:'URL_UPDATED'})
             });
-            if(r.ok){ const d=await r.json(); const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED'; inspOk++; sa.daily_used++;
-              // Update verdict for short links
-              const match = newLinks.find(l=>allShortUrls(l.code)[0]===url||l.original===url);
-              if(match){ await sbPatch('lc_links',`id=eq.${match.id}`,{verdict:v,submitted:true}); match.verdict=v; match.submitted=true; }
-            }
+            if(r.ok||r.status===200){ totalQueued++; globalSa.daily_used++; }
           }catch(e){}
-          await new Promise(r=>setTimeout(r,200));
+          await new Promise(r=>setTimeout(r,80));
         }
-        sitemapLog(`🔍 GSC Inspection: ${inspOk}/${inspectUrls.length} URLs inspected`,'ok');
-        localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
-        cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
-      } else { sitemapLog('⚠ GSC Inspection skipped — set GSC site in Settings','warn'); }
-    }catch(e){ sitemapLog(`⚠ GSC Inspection: ${e.message}`,'warn'); }
+      }catch(e){}
+    }
+    sitemapLog(`⚡ Google Indexing API: ${totalQueued} URLs queued, ${totalFailed} failed`,'ok');
+    localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+    cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
+  } else { sitemapLog('⚠ Indexing API: no SA keys — add one in Settings','warn'); }
+
+  // ── Step 3: GSC URL Inspection — per-domain, each short inspected against its own property ──
+  if(chanSettings.gsc){
+    let inspOk=0, inspTotal=0;
+    for(let di=0; di<SHORT_BASES.length; di++){
+      const cfg = domainGscConfig[di]||{};
+      if(!cfg.gscUrl){ sitemapLog(`⚠ GSC Inspection domain ${di+1}: no GSC property set`,'warn'); continue; }
+      const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
+      if(!token){ sitemapLog(`⚠ GSC Inspection domain ${di+1}: no SA token`,'warn'); continue; }
+      // Inspect this domain's short URLs + originals
+      const inspectUrls = [...originals, ...newLinks.map(l=>SHORT_BASES[di]+l.code)];
+      inspTotal += inspectUrls.length;
+      for(const url of inspectUrls){
+        try{
+          const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{
+            method:'POST',
+            headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+            body: JSON.stringify({inspectionUrl:url, siteUrl:cfg.gscUrl})
+          });
+          if(r.ok){ const d=await r.json(); const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED'; inspOk++;
+            const match = newLinks.find(l=>SHORT_BASES[di]+l.code===url||l.original===url);
+            if(match){ await sbPatch('lc_links',`id=eq.${match.id}`,{verdict:v,submitted:true}); match.verdict=v; match.submitted=true; }
+          }
+        }catch(e){}
+        await new Promise(r=>setTimeout(r,200));
+      }
+    }
+    sitemapLog(`🔍 GSC Inspection: ${inspOk}/${inspTotal} URLs inspected across ${SHORT_BASES.length} domains`,'ok');
+    localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+    cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
   }
 
   // ── Step 4: IndexNow bulk submit — originals + all shorts, all 8 engines ──
@@ -3265,28 +3319,27 @@ async function fullBlastOnAdd(newLinks){
     sitemapLog(`📡 IndexNow: ${inOk} engine responses OK across ${Object.keys(byHost).length} host(s) (${fullUrlSet.length} URLs)`,'ok');
   }
 
-  // ── Step 5: GSC Sitemaps API — delete + re-add all 4 domain sitemaps ──
-  if(sa && chanSettings.sitemapApi){
-    try{
-      const t = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
-      const site = document.getElementById('gsc-site')?.value.trim()||localStorage.getItem('lc_gsc_site')||'';
-      if(site){
-        const siteEnc = encodeURIComponent(site);
-        const hdrs = {'Authorization':`Bearer ${t}`,'Content-Type':'application/json'};
-        let smOk=0;
-        for(const smUrl of SITEMAP_URLS){
-          try{
-            const smEnc = encodeURIComponent(smUrl);
-            const base = `https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`;
-            await fetch(base,{method:'DELETE',headers:hdrs});
-            await new Promise(r=>setTimeout(r,400));
-            const r = await fetch(base,{method:'PUT',headers:hdrs});
-            if(r.ok||r.status===204) smOk++;
-          }catch(e){}
-        }
-        sitemapLog(`🗺 GSC Sitemaps API: ${smOk}/${SITEMAP_URLS.length} domain sitemaps re-submitted`,'ok');
-      }
-    }catch(e){ sitemapLog(`⚠ GSC Sitemaps API: ${e.message}`,'warn'); }
+  // ── Step 5: GSC Sitemaps API — each domain deletes + re-adds its own sitemap with its own SA ──
+  if(chanSettings.sitemapApi){
+    let smOk=0, smTotal=0;
+    for(let di=0; di<SHORT_BASES.length; di++){
+      const cfg = domainGscConfig[di]||{};
+      if(!cfg.gscUrl){ continue; }
+      const t = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
+      if(!t){ sitemapLog(`⚠ Sitemaps API domain ${di+1}: no SA token`,'warn'); continue; }
+      const siteEnc = encodeURIComponent(cfg.gscUrl);
+      const smUrl   = SITEMAP_URLS[di];
+      const smEnc   = encodeURIComponent(smUrl);
+      const hdrs    = {'Authorization':`Bearer ${t}`,'Content-Type':'application/json'};
+      smTotal++;
+      try{
+        await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`,{method:'DELETE',headers:hdrs});
+        await new Promise(r=>setTimeout(r,400));
+        const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`,{method:'PUT',headers:hdrs});
+        if(r.ok||r.status===204) smOk++;
+      }catch(e){ sitemapLog(`⚠ Sitemaps API domain ${di+1}: ${e.message}`,'warn'); }
+    }
+    if(smTotal>0) sitemapLog(`🗺 GSC Sitemaps API: ${smOk}/${smTotal} domain sitemaps re-submitted (each via its own SA)`,'ok');
   }
 
   // ── Step 6: Sitemap pings (Google + Bing) for all 4 domains ──
@@ -3328,7 +3381,7 @@ async function fullBlastOnAdd(newLinks){
     if(wUrl){
       try{
         const r = await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({raw_urls:fullUrlSet.join('\n'), plan:'free'})});
+          body:JSON.stringify({raw_urls:fullUrlSet.join('\n'), plan:'free', gsc_site:(domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||'', gsc_sites:domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''}))})});
         if(r.ok){ const d=await r.json(); sitemapLog(`⚙ Worker relay: job ${d.job_id} — ${d.urls_queued} URLs queued`,'ok'); }
         else{ sitemapLog(`⚙ Worker relay: HTTP ${r.status}`,'warn'); }
       }catch(e){ sitemapLog(`⚠ Worker relay: ${e.message}`,'warn'); }
@@ -3596,25 +3649,63 @@ async function rawUrlBlast(){
     }catch(e){ rawLog(`⚠ Multi-SA: ${e.message}`,'info'); }
   }
 
-  // ── 2. GSC Inspection + GSC Sitemaps API ──
-  if(saVault.length){
-    const sa = getNextSA();
-    if(sa){
-      try{
-        const [tokenIdx, tokenGSC] = await Promise.all([
-          getToken(sa.json,'https://www.googleapis.com/auth/indexing'),
-          getToken(sa.json,'https://www.googleapis.com/auth/webmasters'),
-        ]);
-        const fires = [];
-        for(const url of urls.slice(0,200)){
-          if(tokenIdx) fires.push(fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tokenIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url,type:'URL_UPDATED'})}).then(r=>{if(r.ok)sa.daily_used++;}).catch(()=>{}));
-        }
-        await Promise.allSettled(fires);
-        rawLog(`⚡ Indexing API: ${Math.min(urls.length,200)} URLs submitted`,'ok');
-        localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
-        cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
-      }catch(e){ rawLog(`⚠ GSC: ${e.message}`,'info'); }
+  // ── 2. GSC Inspection + GSC Sitemaps API — per-domain ──
+  {
+    let gscOk=0, gscTotal=0;
+    for(let di=0; di<SHORT_BASES.length; di++){
+      const cfg = domainGscConfig[di]||{};
+      if(!cfg.gscUrl) continue;
+      const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
+      const idxToken = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/indexing');
+      if(!token && !idxToken) continue;
+      const domUrls = urls.filter(u=>{ try{return new URL(u).hostname===new URL(SHORT_BASES[di]).hostname;}catch(e){return false;} });
+      const fires = [];
+      for(const url of domUrls.slice(0,200)){
+        gscTotal++;
+        if(idxToken) fires.push(
+          fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${idxToken}`,'Content-Type':'application/json'},body:JSON.stringify({url,type:'URL_UPDATED'})})
+          .then(r=>{ if(r.ok) gscOk++; }).catch(()=>{})
+        );
+        if(token) fires.push(
+          fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:url,siteUrl:cfg.gscUrl})})
+          .then(r=>{ if(r.ok) gscOk++; }).catch(()=>{})
+        );
+      }
+      // GSC Sitemaps — delete + re-add this domain's sitemap
+      if(cfg.gscUrl && token){
+        const siteEnc = encodeURIComponent(cfg.gscUrl);
+        const smEnc   = encodeURIComponent(SITEMAP_URLS[di]);
+        const hdrs    = {'Authorization':`Bearer ${token}`,'Content-Type':'application/json'};
+        fires.push(
+          fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`,{method:'DELETE',headers:hdrs})
+          .then(()=>new Promise(r=>setTimeout(r,300)))
+          .then(()=>fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`,{method:'PUT',headers:hdrs}))
+          .catch(()=>{})
+        );
+      }
+      await Promise.allSettled(fires);
     }
+    // Also fire global SA vault URLs that don't belong to any configured domain
+    if(saVault.length){
+      const globalSa = getNextSA();
+      if(globalSa){
+        try{
+          const [tIdx, tGsc] = await Promise.all([
+            getToken(globalSa.json,'https://www.googleapis.com/auth/indexing'),
+            getToken(globalSa.json,'https://www.googleapis.com/auth/webmasters'),
+          ]);
+          const unclaimed = urls.filter(u=>!SHORT_BASES.some(b=>{ try{return new URL(u).hostname===new URL(b).hostname;}catch(e){return false;} }));
+          const extraFires = [];
+          for(const url of unclaimed.slice(0,200)){
+            if(tIdx) extraFires.push(fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{method:'POST',headers:{'Authorization':`Bearer ${tIdx}`,'Content-Type':'application/json'},body:JSON.stringify({url,type:'URL_UPDATED'})}).then(r=>{if(r.ok)globalSa.daily_used++;}).catch(()=>{}));
+          }
+          await Promise.allSettled(extraFires);
+          localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+          cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
+        }catch(e){}
+      }
+    }
+    rawLog(`⚡ GSC (Indexing API + Inspection + Sitemaps): ${gscOk} API calls OK across ${SHORT_BASES.length} domains`,'ok');
   }
 
   // ── 3. IndexNow ALL engines simultaneously ──
@@ -3676,7 +3767,7 @@ async function rawUrlBlast(){
   const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
   if(wUrl){
     try{
-      const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:document.getElementById('gsc-site')?.value.trim()||'',drip_mode:getDripMode(),drip_hours:getDripHours()})});
+      const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:(domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||document.getElementById('gsc-site')?.value.trim()||'',gsc_sites:domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''})),drip_mode:getDripMode(),drip_hours:getDripHours()})});
       if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
     }catch(e){ rawLog(`⚠ Worker: ${e.message}`,'info'); }
   }
@@ -4653,7 +4744,10 @@ async function ifSubmitJob(){
         raw_urls: raw,
         plan: ifPlan,
         user_id: 'linkcore-v18',
-        gsc_site: document.getElementById('gsc-site')?.value.trim() || '',
+        // Legacy single field — first configured domain (backward compat with older workers)
+        gsc_site: (domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl || document.getElementById('gsc-site')?.value.trim() || '',
+        // Full per-domain config for workers that support it
+        gsc_sites: domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl, saJson:d.saJson||''})),
         drip_mode: getDripMode(),
         drip_hours: getDripHours(),
       })
@@ -6216,22 +6310,103 @@ function renderDomainGscRows(){
   el.innerHTML = SHORT_BASES.map((base,i)=>{
     const cfg = domainGscConfig[i]||{};
     const domain = (()=>{ try{return new URL(base).hostname;}catch(e){return base;} })();
-    return `<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px">
-      <div style="font-size:.6rem;font-weight:700;color:var(--accent);margin-bottom:8px">
+    return `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:.6rem;font-weight:700;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0"></span>
         Domain ${i+1}: <code style="color:var(--text)">${he(domain)}</code>
+        <span id="dgsc-status-${i}" style="margin-left:auto;font-size:.5rem;padding:2px 7px;border-radius:4px;background:var(--bg3);color:var(--muted)">not tested</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr;gap:6px">
+      <div style="display:grid;grid-template-columns:1fr;gap:8px">
         <div>
-          <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">GSC Property URL (exact match, with trailing slash)</div>
+          <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">GSC Property URL <span style="color:var(--orange)">(must match exactly, with trailing slash)</span></div>
           <input id="dgsc-url-${i}" value="${he(cfg.gscUrl||'')}" placeholder="https://${he(domain)}/" oninput="saveDomainGscConfig()" style="width:100%">
         </div>
         <div>
-          <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">SA Key for this domain (leave blank to use SA Vault)</div>
-          <textarea id="dgsc-sa-${i}" rows="2" placeholder='Paste SA JSON or leave blank to share global SA Vault' oninput="saveDomainGscConfig()" style="width:100%;font-size:.52rem">${he(cfg.saJson||'')}</textarea>
+          <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">SA Key for this domain <span style="color:var(--muted)">(leave blank to share global SA Vault)</span></div>
+          <textarea id="dgsc-sa-${i}" rows="2" placeholder='Paste SA JSON or leave blank to use global SA Vault' oninput="saveDomainGscConfig()" style="width:100%;font-size:.52rem">${he(cfg.saJson||'')}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">
+          <button class="btn btn-blue" style="font-size:.55rem;padding:4px 10px" onclick="testDomainSA(${i})">🔍 Test SA → GSC</button>
+          <button class="btn btn-cyan" style="font-size:.55rem;padding:4px 10px" onclick="testDomainIndexingAPI(${i})">⚡ Test Indexing API</button>
         </div>
       </div>
     </div>`;
   }).join('');
+}
+
+async function testDomainSA(i){
+  const cfg = domainGscConfig[i]||{};
+  const statusEl = document.getElementById(`dgsc-status-${i}`);
+  if(!cfg.gscUrl){ toast(`Domain ${i+1}: set GSC property URL first`,''); return; }
+  if(statusEl){ statusEl.textContent='⟳ Testing…'; statusEl.style.color='var(--orange)'; statusEl.style.background='var(--orange-dim)'; }
+  const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
+  if(!token){
+    if(statusEl){ statusEl.textContent='✗ No SA / token fail'; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+    toast(`Domain ${i+1}: no SA key or token error`,'');
+    return;
+  }
+  try{
+    const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gscUrl)}`,{
+      headers:{'Authorization':`Bearer ${token}`}
+    });
+    if(r.ok){
+      if(statusEl){ statusEl.textContent='✓ GSC verified'; statusEl.style.color='var(--accent)'; statusEl.style.background='var(--accent-dim)'; }
+      toast(`✅ Domain ${i+1} (${new URL(SHORT_BASES[i]).hostname}): SA → GSC verified`,'green');
+    } else if(r.status===403){
+      if(statusEl){ statusEl.textContent='✗ 403 Not owner'; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+      toast(`Domain ${i+1}: SA not added as Owner in GSC for this property`,'');
+    } else {
+      if(statusEl){ statusEl.textContent=`✗ HTTP ${r.status}`; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+      toast(`Domain ${i+1}: GSC returned HTTP ${r.status}`,'');
+    }
+  }catch(e){
+    if(statusEl){ statusEl.textContent='✗ Error'; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+    toast(`Domain ${i+1}: ${e.message}`,'');
+  }
+}
+
+async function testDomainIndexingAPI(i){
+  const cfg = domainGscConfig[i]||{};
+  const statusEl = document.getElementById(`dgsc-status-${i}`);
+  if(!cfg.gscUrl){ toast(`Domain ${i+1}: set GSC property URL first`,''); return; }
+  if(statusEl){ statusEl.textContent='⟳ Testing API…'; statusEl.style.color='var(--orange)'; statusEl.style.background='var(--orange-dim)'; }
+  const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/indexing');
+  if(!token){
+    if(statusEl){ statusEl.textContent='✗ No token'; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+    toast(`Domain ${i+1}: could not get Indexing API token`,'');
+    return;
+  }
+  try{
+    // Test with the GSC property URL itself as a canary — a 400 means auth works (URL just isn't a valid page), 403 means no access
+    const r = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body: JSON.stringify({url: cfg.gscUrl, type:'URL_UPDATED'})
+    });
+    if(r.ok||r.status===200||r.status===400){
+      if(statusEl){ statusEl.textContent='✓ Indexing API OK'; statusEl.style.color='var(--accent)'; statusEl.style.background='var(--accent-dim)'; }
+      toast(`✅ Domain ${i+1}: Indexing API token valid`,'green');
+    } else if(r.status===403){
+      if(statusEl){ statusEl.textContent='✗ 403 No access'; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+      toast(`Domain ${i+1}: SA not authorized for Indexing API (add indexing.googleapis.com in GCP)`,'');
+    } else {
+      if(statusEl){ statusEl.textContent=`⚠ HTTP ${r.status}`; statusEl.style.color='var(--orange)'; statusEl.style.background='var(--orange-dim)'; }
+      toast(`Domain ${i+1}: Indexing API HTTP ${r.status}`,'');
+    }
+  }catch(e){
+    if(statusEl){ statusEl.textContent='✗ Error'; statusEl.style.color='var(--red)'; statusEl.style.background='var(--red-dim)'; }
+    toast(`Domain ${i+1}: ${e.message}`,'');
+  }
+}
+
+async function testAllDomains(){
+  for(let i=0;i<SHORT_BASES.length;i++){
+    await testDomainSA(i);
+    await new Promise(r=>setTimeout(r,400));
+    await testDomainIndexingAPI(i);
+    await new Promise(r=>setTimeout(r,400));
+  }
+  toast('All domain SA tests complete','green');
 }
 
 /**
