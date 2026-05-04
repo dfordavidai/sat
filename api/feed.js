@@ -8,6 +8,12 @@
  * Required env vars:
  *   SUPABASE_URL
  *   SUPABASE_KEY
+ *
+ * CHANGES:
+ *   Added Link: rel="hub" + rel="self" headers to both responses.
+ *   This tells Googlebot to subscribe to PubSubHubbub push notifications
+ *   instead of polling — so when crawl-ping fires M4, Google is already
+ *   listening and processes the ping in seconds, not minutes.
  */
 
 export const config = { runtime: 'edge' };
@@ -23,6 +29,11 @@ export default async function handler(request) {
   const host = new URL(request.url).hostname;
   // lc_config key format: feed_xml_flexygist_com_ng
   const cfgKey = `feed_xml_${host.replace(/\./g, '_')}`;
+
+  // Link header — tells Googlebot about the PubSub hub and self URL.
+  // Googlebot reads this and subscribes for push notifications.
+  const linkHeader = '<https://pubsubhubbub.appspot.com/>; rel="hub", ' +
+                     `<https://${host}/feed.xml>; rel="self"`;
 
   try {
     const res = await fetch(
@@ -46,9 +57,10 @@ export default async function handler(request) {
       return new Response(fallback, {
         status: 200,
         headers: {
-          'Content-Type': 'application/atom+xml; charset=utf-8',
+          'Content-Type':  'application/atom+xml; charset=utf-8',
           'Cache-Control': 'public, max-age=3600',
           'X-Feed-Status': 'empty',
+          'Link':          linkHeader,
         },
       });
     }
@@ -61,6 +73,7 @@ export default async function handler(request) {
         'Content-Type':  'application/atom+xml; charset=utf-8',
         'Cache-Control': 'public, max-age=3600',
         'Last-Modified': new Date(updated_at).toUTCString(),
+        'Link':          linkHeader,
       },
     });
 
