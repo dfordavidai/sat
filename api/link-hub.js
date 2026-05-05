@@ -54,9 +54,15 @@ export default async function handler(request) {
     const totalLinks = rows?.length || 0;
     const lastmod    = now.toISOString();
 
-    // JSON-LD schema: Article + ItemList for Google Discover / Rich Results
-    // (Enhancement #2) — signals to Googlebot's Discover crawler
-    const schema = JSON.stringify({
+    // Collect unique destination domains for DNS prefetch
+    const destDomains = [...new Set(
+      (rows || [])
+        .map(r => { try { return new URL(r.target).hostname; } catch { return null; } })
+        .filter(Boolean)
+    )].slice(0, 20);
+
+    // JSON-LD: ItemList schema for Rich Results
+    const itemListSchema = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       name: `LinkCore Hub — ${host}`,
@@ -71,6 +77,21 @@ export default async function handler(request) {
           position: i + 1,
           url: `https://${host}/link/${r.code}`,
         })),
+      },
+    });
+
+    // JSON-LD: NewsArticle schema — triggers Google News crawler
+    const newsSchema = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: `Link Hub — ${host}`,
+      datePublished: lastmod,
+      dateModified: lastmod,
+      url: `https://${host}/link-hub`,
+      publisher: {
+        '@type': 'Organization',
+        name: host,
+        url: `https://${host}`,
       },
     });
 
