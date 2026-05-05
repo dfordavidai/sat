@@ -37,61 +37,54 @@
       "dest": "/api/redirect?code=$code"
     }
   ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "(?:.*\\.)?guruswapaz\\.com\\.ng" }],
+      "destination": "https://flexygist.com.ng/category/gist/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "(?:.*\\.)?mp3fresh\\.com\\.ng" }],
+      "destination": "https://flexygist.com.ng/category/download-mp3/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "(?:.*\\.)?naijasturf\\.com\\.ng" }],
+      "destination": "https://flexygist.com.ng/category/viral/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/link/(.*)",
       "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "no-store"
-        },
-        {
-          "key": "X-DNS-Prefetch-Control",
-          "value": "on"
-        }
+        { "key": "X-Robots-Tag", "value": "noindex" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-DNS-Prefetch-Control", "value": "on" }
       ]
     },
     {
       "source": "/(link-hub|crawl-hub|sitemap.xml|sitemap-links.xml|sitemap-index.xml)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Vary",
-          "value": "Accept, Accept-Encoding"
-        },
-        {
-          "key": "X-Allow-SXG",
-          "value": "1"
-        }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Vary", "value": "Accept, Accept-Encoding" },
+        { "key": "X-Allow-SXG", "value": "1" }
       ]
     },
     {
       "source": "/(sitemap.xml|sitemap-links.xml|sitemap-index.xml|feed.xml)",
       "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        }
+        { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     },
     {
       "source": "/link-hub",
       "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "index, follow"
-        },
-        {
-          "key": "Vary",
-          "value": "Accept-Encoding"
-        }
+        { "key": "X-Robots-Tag", "value": "index, follow" },
+        { "key": "Vary", "value": "Accept-Encoding" }
       ]
     }
   ]
