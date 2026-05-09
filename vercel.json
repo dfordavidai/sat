@@ -37,68 +37,12 @@
       "dest": "/api/redirect?code=$code"
     }
   ],
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "guruswapaz.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/gist/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.guruswapaz.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/gist/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "waecgceexpo.guruswapaz.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/gist/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "jamb.guruswapaz.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/gist/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "jambexporus.guruswapaz.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/gist/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "mp3fresh.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/download-mp3/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.mp3fresh.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/download-mp3/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "naijasturf.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/viral/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.naijasturf.com.ng" }],
-      "destination": "https://flexygist.com.ng/category/viral/:path*",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/link/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex" },
-        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Robots-Tag", "value": "index, follow" },
+        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=300" },
         { "key": "X-DNS-Prefetch-Control", "value": "on" }
       ]
     },
