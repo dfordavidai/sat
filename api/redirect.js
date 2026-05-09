@@ -44,32 +44,7 @@ export const config = { runtime: 'edge' };
 const FALLBACK_URL = 'https://flexygist.com.ng/';
 const WORKER_BASE  = process.env.WORKER_URL || '';
 
-const DOMAIN_REDIRECTS = {
-  'guruswapaz.com.ng':              'https://flexygist.com.ng/gist/',
-  'www.guruswapaz.com.ng':          'https://flexygist.com.ng/gist/',
-  'waecgceexpo.guruswapaz.com.ng':  'https://flexygist.com.ng/naija-news/',
-  'jamb.guruswapaz.com.ng':         'https://flexygist.com.ng/naija-news/',
-  'jambexporuns.guruswapaz.com.ng': 'https://flexygist.com.ng/naija-news/',
-  'mp3fresh.com.ng':                'https://flexygist.com.ng/download-mp3/',
-  'www.mp3fresh.com.ng':            'https://flexygist.com.ng/download-mp3/',
-  'naijasturf.com.ng':              'https://flexygist.com.ng/viral/',
-  'www.naijasturf.com.ng':          'https://flexygist.com.ng/viral/',
-};
 
-// ── Googlebot / crawler detection ─────────────────────────────────────────────
-// When Googlebot hits the page we want it to read the HTML (and index + follow).
-// When a real user hits the page we want instant JS redirect.
-// Both paths serve the same HTML — the difference is purely rendering speed.
-// Googlebot renders <a href> and JSON-LD; browsers execute <script> redirect.
-const BOT_UA_PATTERNS = [
-  /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i, /baiduspider/i,
-  /yandexbot/i, /facebot/i, /ia_archiver/i, /msnbot/i, /adsbot/i,
-  /mediapartners/i, /apis-google/i, /google-read-aloud/i, /feedfetcher/i,
-];
-
-function isBot(ua) {
-  return BOT_UA_PATTERNS.some(p => p.test(ua || ''));
-}
 
 // ── Main handler ───────────────────────────────────────────────────────────────
 export default async function handler(request, context) {
@@ -77,25 +52,10 @@ export default async function handler(request, context) {
   const host  = url.hostname.toLowerCase();
   const path  = url.pathname;
   const parts = path.split('/').filter(Boolean);
-  const ua    = request.headers.get('user-agent') || '';
 
   const SB_URL     = process.env.SUPABASE_URL;
   const SB_KEY     = process.env.SUPABASE_KEY;
   const domainName = process.env.DOMAIN_NAME || host;
-
-  // ── Domain-level redirects (legacy domains → primary) ─────────────────────
-  if (DOMAIN_REDIRECTS[host]) {
-    const base   = DOMAIN_REDIRECTS[host];
-    const suffix = path.replace(/^\//, '');
-    return new Response(null, {
-      status: 301,
-      headers: {
-        'Location':      suffix ? base + suffix : base,
-        'Cache-Control': 'no-store',
-        'X-Redirect-By': 'LinkCore-DomainRedirect',
-      },
-    });
-  }
 
   // ── /sitemap-index.xml ────────────────────────────────────────────────────
   if (path === '/sitemap-index.xml') {
