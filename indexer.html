@@ -1,11 +1,9 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LinkCore v17 — Backlink Manager + IndexForce BEAST</title>
+<title>LinkCore v20 — Backlink Manager + IndexForce BEAST · Group Blast Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -448,6 +446,25 @@ textarea{resize:vertical;line-height:1.7}
 .drip-status-bar.show{display:flex}
 .drip-countdown{font-family:var(--display);font-weight:700;font-size:.75rem}
 
+/* ══ v20: Micro-drip interval chips ══ */
+.micro-int-chip{font-family:var(--mono);font-size:.58rem;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s}
+.micro-int-chip:hover{border-color:var(--border2);color:var(--text)}
+.micro-int-chip.active{background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.35);color:var(--cyan)}
+
+/* ══ v20: Blast group selectors ══ */
+.blast-groups-wrap{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.blast-groups-label{font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:2px}
+.blast-group-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;transition:border-color .15s,background .15s}
+.blast-group-row:hover{border-color:var(--border2)}
+.blast-group-row.checked{border-color:var(--group-color,var(--accent));background:var(--group-dim,var(--accent-dim))}
+.blast-group-row input[type=checkbox]{width:15px;height:15px;cursor:pointer;flex-shrink:0;margin-top:2px}
+.blast-group-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.blast-group-info{flex:1}
+.blast-group-name{font-size:.68rem;font-weight:700;color:var(--text)}
+.blast-group-detail{font-size:.52rem;color:var(--muted);margin-top:3px;line-height:1.6}
+.blast-group-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.blast-group-tag{font-size:.46rem;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
+
 /* ══ v16 NEW: Verify / GSC Indexation Check UI ══════════════════════ */
 .verify-panel{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:10px;display:none}
 .verify-panel.show{display:block}
@@ -520,7 +537,7 @@ textarea{resize:vertical;line-height:1.7}
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-logo">⚡</div>
-      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v19 · 80-Layer BEAST v11 · Auto-blast</div></div>
+      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v20 · 80-Layer BEAST v12 · Group Blast Control</div></div>
     </div>
     <div class="sb-label">Views</div>
     <button class="sb-btn active" onclick="showView('dashboard')"><span class="dot"></span> Dashboard</button>
@@ -642,6 +659,23 @@ textarea{resize:vertical;line-height:1.7}
         <div class="card-label">📋 Paste URLs to Blast</div>
         <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">One URL per line. Hits all 80 BEAST v11 layers: GSC Indexing API + Request Indexing · GA4 Measurement Protocol (J11) · IndexNow × 10 · G-Layers (PageSpeed, AMP, Translate, CF Radar, Rendertron) · J-Layers (Fibonacci Drip, SA Quota Rotation, Cross-Domain Mesh) · K-Layers (Live Inspection, Superfeedr, SEO Bot Signal) · L-Layers (Micro-Drip, Browser Crawl, Social Graph) · M-Layers (Priority Queue, HTTP/2 Push, Multi-Region Health) · XML-RPC × 80 · WebSub × 10 hubs. No shortlink created.</div>
         <textarea id="raw-blast-input" rows="10" placeholder="https://somesite.com/backlink-page&#10;https://anothersite.com/your-link&#10;https://example.com/page-with-your-link"></textarea>
+
+        <!-- v20: Raw blast group filter -->
+        <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">Fire which layer groups?</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--accent);cursor:pointer;padding:4px 10px;border:1px solid rgba(0,255,136,.3);border-radius:6px;background:rgba(0,255,136,.06)">
+              <input type="checkbox" id="rbg-chk-1" checked style="width:13px;height:13px;accent-color:var(--accent)"> 🔥 G1 · IndexNow+GSC Core
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--blue);cursor:pointer;padding:4px 10px;border:1px solid rgba(59,130,246,.3);border-radius:6px;background:rgba(59,130,246,.06)">
+              <input type="checkbox" id="rbg-chk-2" checked style="width:13px;height:13px;accent-color:var(--blue)"> 🕷️ G2 · Top Crawlers
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--purple);cursor:pointer;padding:4px 10px;border:1px solid rgba(168,85,247,.3);border-radius:6px;background:rgba(168,85,247,.06)">
+              <input type="checkbox" id="rbg-chk-3" checked style="width:13px;height:13px;accent-color:var(--purple)"> 🌐 G3 · Full Stack
+            </label>
+          </div>
+        </div>
+
         <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
           <button class="btn btn-primary" id="raw-blast-btn" onclick="rawUrlBlast()">🔥 Blast All Channels</button>
           <button class="btn btn-outline" onclick="document.getElementById('raw-blast-input').value=''">Clear</button>
@@ -712,6 +746,23 @@ textarea{resize:vertical;line-height:1.7}
             <span>🔄</span>
             <span>Drip active — next blast in <span id="idx-drip-countdown">—</span></span>
             <button class="btn btn-outline" style="margin-left:auto;font-size:.5rem;padding:2px 7px" onclick="idxCancelDrip()">Cancel</button>
+          </div>
+
+          <!-- v20: Blast group selector for Indexing Hub -->
+          <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+            <div style="font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">⚙ Blast groups — tick to include:</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--accent);cursor:pointer;padding:5px 12px;border:1px solid rgba(0,255,136,.3);border-radius:6px;background:rgba(0,255,136,.06)">
+                <input type="checkbox" id="ibg-chk-1" checked style="width:13px;height:13px;accent-color:var(--accent)" onchange="updateIdxGroupSummary()"> 🔥 G1 · IndexNow + GSC + Sitemap Core
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--blue);cursor:pointer;padding:5px 12px;border:1px solid rgba(59,130,246,.3);border-radius:6px;background:rgba(59,130,246,.06)">
+                <input type="checkbox" id="ibg-chk-2" checked style="width:13px;height:13px;accent-color:var(--blue)" onchange="updateIdxGroupSummary()"> 🕷️ G2 · Top Crawlers (Google-adjacent)
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--purple);cursor:pointer;padding:5px 12px;border:1px solid rgba(168,85,247,.3);border-radius:6px;background:rgba(168,85,247,.06)">
+                <input type="checkbox" id="ibg-chk-3" checked style="width:13px;height:13px;accent-color:var(--purple)" onchange="updateIdxGroupSummary()"> 🌐 G3 · Full Remaining Stack
+              </label>
+            </div>
+            <div id="idx-groups-summary" style="font-size:.52rem;color:var(--accent)">✅ All 3 groups — full 80-layer blast</div>
           </div>
 
           <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -1078,7 +1129,7 @@ textarea{resize:vertical;line-height:1.7}
       <div class="page-hdr">
         <div>
           <div class="page-title">⚡ IndexForce</div>
-          <div class="page-sub">80-layer BEAST v11 · GSC Request Indexing · GA4 Measurement Protocol · G-Layers (20) · J-Layers (14) · K-Layers (20) · L-Layers (10) · M-Layers (18) · Micro-Drip · Priority Queue</div>
+          <div class="page-sub">80-layer BEAST v12 · <strong>Group Blast Control</strong> (G1: IndexNow+GSC · G2: Top Crawlers · G3: Full Stack) · Micro-Drip @ 2/5/10min · Fibonacci Drip · Adaptive Burst · Priority Queue</div>
         </div>
         <div class="hdr-btns">
           <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
@@ -1140,23 +1191,100 @@ textarea{resize:vertical;line-height:1.7}
             <span style="color:var(--blue);font-size:.6rem">ON</span>
           </label>
         </div>
-        <!-- ══ v19: Micro-Drip toggle (L1 scheduler — T+5/10/20/30min) ══ -->
-        <div class="drip-toggle-row" id="micro-drip-toggle-row" style="margin-top:6px">
-          <div style="flex:1">
-            <div class="drip-toggle-label">⚡ Micro-Drip Re-Blast <span style="font-size:.5rem;color:var(--accent);font-weight:400;text-transform:uppercase;letter-spacing:.06em;margin-left:4px">L1 — NEW v11</span></div>
-            <div style="font-size:.52rem;color:var(--muted);margin-top:2px">
-              Additional micro re-blasts at T+5min, T+10min, T+20min, T+30min — maximizes the first-hour crawl window.
+        <!-- ══ v20: Micro-Drip toggle with selectable minute intervals ══ -->
+        <div class="drip-toggle-row" id="micro-drip-toggle-row" style="margin-top:6px;flex-direction:column;align-items:stretch;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1">
+              <div class="drip-toggle-label">⚡ Micro-Drip Re-Blast <span style="font-size:.5rem;color:var(--accent);font-weight:400;text-transform:uppercase;letter-spacing:.06em;margin-left:4px">L1 — NEW v11</span></div>
+              <div style="font-size:.52rem;color:var(--muted);margin-top:2px">
+                Select interval — re-blasts fire at each T+ tick to saturate the first-hour crawl window.
+              </div>
+            </div>
+            <label class="ch-toggle">
+              <input type="checkbox" id="micro-drip-mode-chk" onchange="toggleMicroDripChips()">
+              <span id="micro-drip-chk-label" style="color:var(--cyan);font-size:.6rem">OFF</span>
+            </label>
+          </div>
+          <!-- Micro-drip interval selector -->
+          <div id="micro-drip-chips-row" style="display:none;flex-direction:column;gap:6px">
+            <div style="font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Pick interval cadence:</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="micro-int-chip" data-mins="2" onclick="selectMicroInterval(this)">⚡ Every 2 min</button>
+              <button class="micro-int-chip active" data-mins="5" onclick="selectMicroInterval(this)">🔥 Every 5 min <span style="font-size:.45rem;opacity:.7">(default)</span></button>
+              <button class="micro-int-chip" data-mins="10" onclick="selectMicroInterval(this)">💧 Every 10 min</button>
+            </div>
+            <div id="micro-drip-preview" style="font-size:.52rem;color:var(--cyan);margin-top:2px">
+              <!-- filled by JS -->
             </div>
           </div>
-          <label class="ch-toggle">
-            <input type="checkbox" id="micro-drip-mode-chk">
-            <span style="color:var(--cyan);font-size:.6rem">OFF</span>
-          </label>
         </div>
         <div class="drip-status-bar" id="drip-status-bar">
           <span>🔄</span>
           <span>Drip active — next blast in <span class="drip-countdown" id="drip-countdown">—</span></span>
           <button class="btn btn-outline" style="margin-left:auto;font-size:.5rem;padding:2px 7px" onclick="cancelDrip()">Cancel</button>
+        </div>
+
+        <!-- ══ v20: Blast Layer Group Selector ══ -->
+        <div style="margin-top:12px">
+          <div class="blast-groups-label">⚙ Select blast groups — tick what fires:</div>
+          <div class="blast-groups-wrap">
+
+            <!-- Group 1: Google/IndexNow Core -->
+            <div class="blast-group-row checked" id="bg-row-1" style="--group-color:rgba(0,255,136,.4);--group-dim:rgba(0,255,136,.06)" onclick="toggleBlastGroup(1,this)">
+              <input type="checkbox" id="bg-chk-1" checked onclick="event.stopPropagation();toggleBlastGroup(1,this.closest('.blast-group-row'))">
+              <div class="blast-group-icon">🔥</div>
+              <div class="blast-group-info">
+                <div class="blast-group-name" style="color:var(--accent)">Group 1 — IndexNow &amp; GSC &amp; Sitemap Core</div>
+                <div class="blast-group-detail">The highest-signal Google &amp; IndexNow layers. GSC Indexing API (multi-SA), GSC Request Indexing, GSC URL Inspection, GSC Sitemap delete+re-add, Google Discover ping, IndexNow ×6 engines, Bing Webmaster, Sitemap ping (Google+Bing+Yandex), Bing-First strategy.</div>
+                <div class="blast-group-tags">
+                  <span class="blast-group-tag" style="color:var(--accent);border-color:rgba(0,255,136,.2)">GSC Indexing API</span>
+                  <span class="blast-group-tag" style="color:var(--accent);border-color:rgba(0,255,136,.2)">IndexNow ×6</span>
+                  <span class="blast-group-tag" style="color:var(--accent);border-color:rgba(0,255,136,.2)">Sitemap Ping</span>
+                  <span class="blast-group-tag" style="color:var(--accent);border-color:rgba(0,255,136,.2)">Bing Webmaster</span>
+                  <span class="blast-group-tag" style="color:var(--accent);border-color:rgba(0,255,136,.2)">Google Discover</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 2: Top Crawlers (Google-adjacent) -->
+            <div class="blast-group-row checked" id="bg-row-2" style="--group-color:rgba(59,130,246,.4);--group-dim:rgba(59,130,246,.06)" onclick="toggleBlastGroup(2,this)">
+              <input type="checkbox" id="bg-chk-2" checked onclick="event.stopPropagation();toggleBlastGroup(2,this.closest('.blast-group-row'))">
+              <div class="blast-group-icon">🕷️</div>
+              <div class="blast-group-info">
+                <div class="blast-group-name" style="color:var(--blue)">Group 2 — Top Crawlers (Google-adjacent)</div>
+                <div class="blast-group-detail">Services Googlebot monitors or cross-references. PageSpeed Insights bulk, Mobile-Friendly Test, Rich Results Test, AMP Cache ping, Google Translate fetch, Cloudflare Radar, Rendertron prerender, CDN cache warm, Common Crawl, Crawl amplify (Googlebot UA), SA quota-rotated blast.</div>
+                <div class="blast-group-tags">
+                  <span class="blast-group-tag" style="color:var(--blue);border-color:rgba(59,130,246,.2)">PageSpeed</span>
+                  <span class="blast-group-tag" style="color:var(--blue);border-color:rgba(59,130,246,.2)">AMP Cache</span>
+                  <span class="blast-group-tag" style="color:var(--blue);border-color:rgba(59,130,246,.2)">Rendertron</span>
+                  <span class="blast-group-tag" style="color:var(--blue);border-color:rgba(59,130,246,.2)">Cloudflare Radar</span>
+                  <span class="blast-group-tag" style="color:var(--blue);border-color:rgba(59,130,246,.2)">Crawl Amplify</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 3: Everything else -->
+            <div class="blast-group-row checked" id="bg-row-3" style="--group-color:rgba(168,85,247,.4);--group-dim:rgba(168,85,247,.06)" onclick="toggleBlastGroup(3,this)">
+              <input type="checkbox" id="bg-chk-3" checked onclick="event.stopPropagation();toggleBlastGroup(3,this.closest('.blast-group-row'))">
+              <div class="blast-group-icon">🌐</div>
+              <div class="blast-group-info">
+                <div class="blast-group-name" style="color:var(--purple)">Group 3 — Full Remaining Layer Stack</div>
+                <div class="blast-group-detail">The rest of the BEAST. XML-RPC blast ×80 endpoints, WebSub mega (10 hubs), RSS mega-bomb, Wayback Machine flood, Link-hub injection, Schema validator crawl, Adaptive burst, Yandex full, Bing content submission, Authority page warm, Delete+resubmit cycle, Multi-engine sitemap ping.</div>
+                <div class="blast-group-tags">
+                  <span class="blast-group-tag" style="color:var(--purple);border-color:rgba(168,85,247,.2)">XML-RPC ×80</span>
+                  <span class="blast-group-tag" style="color:var(--purple);border-color:rgba(168,85,247,.2)">WebSub ×10</span>
+                  <span class="blast-group-tag" style="color:var(--purple);border-color:rgba(168,85,247,.2)">RSS Mega-Bomb</span>
+                  <span class="blast-group-tag" style="color:var(--purple);border-color:rgba(168,85,247,.2)">Wayback Flood</span>
+                  <span class="blast-group-tag" style="color:var(--purple);border-color:rgba(168,85,247,.2)">Link-Hub</span>
+                  <span class="blast-group-tag" style="color:var(--purple);border-color:rgba(168,85,247,.2)">Adaptive Burst</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div id="blast-groups-summary" style="font-size:.52rem;color:var(--muted);margin-top:6px;padding:6px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+            ✅ All 3 groups active — full 80-layer blast
+          </div>
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap">
@@ -1333,106 +1461,64 @@ textarea{resize:vertical;line-height:1.7}
     <!-- SETTINGS -->
     <div class="view" id="view-settings">
       <div class="page-hdr">
-        <div><div class="page-title">⚙ Settings &amp; Configuration</div><div class="page-sub">All keys, domains and channels — configured in one place</div></div>
+        <div>
+          <div class="page-title">⚙ Settings</div>
+          <div class="page-sub">All keys, channels and preferences — saved to Supabase</div>
+        </div>
         <div class="hdr-btns">
-          <span class="set-saved-msg" id="set-saved-msg">✓ Saved</span>
-          <button class="btn btn-primary set-save-btn" onclick="saveAllSettings()">💾 Save All</button>
+          <span class="set-saved-msg" id="set-saved-msg">✓ Saved to Supabase</span>
+          <button class="btn btn-primary" id="set-save-all-btn" onclick="saveAllSettings()">💾 Save All</button>
           <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
         </div>
       </div>
 
-      <!-- ══ CONNECTION STATUS ══ -->
-      <div class="card" style="margin-bottom:16px">
+      <!-- Connection Status always visible -->
+      <div class="card">
         <div class="card-label">🔌 Connection Status</div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-          <div class="set-conn-row">
-            <span class="set-conn-label">Supabase Database</span>
-            <button class="set-test-btn" onclick="testSupabase()">Test</button>
-            <span class="set-conn-badge" id="conn-supabase">checking…</span>
-          </div>
-          <div class="set-conn-row">
-            <span class="set-conn-label">Google Search Console API</span>
-            <button class="set-test-btn" onclick="testGSC()">Test</button>
-            <span class="set-conn-badge" id="conn-gsc">not tested</span>
-          </div>
-          <div class="set-conn-row">
-            <span class="set-conn-label">IndexNow</span>
-            <button class="set-test-btn" onclick="testIndexNow()">Test</button>
-            <span class="set-conn-badge" id="conn-indexnow">not tested</span>
-          </div>
-          <div class="set-conn-row">
-            <span class="set-conn-label">Worker / Railway</span>
-            <button class="set-test-btn" onclick="testWorker()">Test</button>
-            <span class="set-conn-badge" id="conn-worker">not tested</span>
-          </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+          <div class="set-conn-row"><span class="set-conn-label">Supabase Database</span><button class="set-test-btn" onclick="testSupabase()">Test</button><span class="set-conn-badge" id="conn-supabase">not tested</span></div>
+          <div class="set-conn-row"><span class="set-conn-label">Google Search Console API</span><button class="set-test-btn" onclick="testGSC()">Test</button><span class="set-conn-badge" id="conn-gsc">not tested</span></div>
+          <div class="set-conn-row"><span class="set-conn-label">IndexNow Key File</span><button class="set-test-btn" onclick="testIndexNow()">Test</button><span class="set-conn-badge" id="conn-indexnow">not tested</span></div>
+          <div class="set-conn-row"><span class="set-conn-label">Worker / Railway</span><button class="set-test-btn" onclick="testWorker()">Test</button><span class="set-conn-badge" id="conn-worker">not tested</span></div>
         </div>
       </div>
 
-      <!-- ══ SECTION 1: SUPABASE ══ -->
-      <div class="card">
-        <div class="set-group">
+      <!-- Tab nav -->
+      <div class="idx-tabs" style="margin-bottom:0">
+        <button class="idx-tab active" onclick="switchSetTab('keys')">🔑 Keys &amp; Credentials</button>
+        <button class="idx-tab" onclick="switchSetTab('domains')">🌐 Domains</button>
+        <button class="idx-tab" onclick="switchSetTab('gsc')">🔍 GSC / SA Keys</button>
+        <button class="idx-tab" onclick="switchSetTab('channels')">📡 Channels</button>
+        <button class="idx-tab" onclick="switchSetTab('scheduler')">⏱ Scheduler</button>
+        <button class="idx-tab" onclick="switchSetTab('data')">🗂 Data</button>
+      </div>
+
+      <!-- ══ TAB: KEYS ══ -->
+      <div class="idx-pane active" id="set-pane-keys" style="gap:14px">
+
+        <!-- Supabase -->
+        <div class="card">
           <div class="set-group-title"><span class="set-icon">🗄</span> Supabase</div>
-
           <div class="set-row">
-            <div class="set-label">
-              Project URL
-              <span class="set-status" id="st-sb-url">not set</span>
-            </div>
-            <input id="cfg-sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" oninput="updateStatus('cfg-sb-url','st-sb-url')">
-            <div class="set-tip">Your Supabase project URL. Found in <strong>Project Settings → API → Project URL</strong>.</div>
+            <div class="set-label">Project URL <span class="set-status" id="st-sb-url">not set</span></div>
+            <input id="cfg-sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" oninput="settingsMarkDirty('cfg-sb-url','st-sb-url')">
+            <div class="set-tip">Project Settings → API → Project URL</div>
           </div>
-
           <div class="set-row">
-            <div class="set-label">
-              Anon Public Key
-              <span class="set-status" id="st-sb-key">not set</span>
-            </div>
-            <input id="cfg-sb-key" placeholder="eyJhbGci…" oninput="updateStatus('cfg-sb-key','st-sb-key')">
-            <div class="set-tip">The <code>anon</code> API key — safe for browser use. Found in <strong>Project Settings → API → Project API Keys → anon public</strong>.</div>
+            <div class="set-label">Anon Public Key <span class="set-status" id="st-sb-key">not set</span></div>
+            <input id="cfg-sb-key" placeholder="eyJhbGci…" oninput="settingsMarkDirty('cfg-sb-key','st-sb-key')">
+            <div class="set-tip">Project Settings → API → anon public key</div>
           </div>
-
-          <div class="steps-list">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to get Supabase credentials</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">Go to <a href="https://supabase.com" target="_blank">supabase.com</a> → sign in → click <strong>New Project</strong></div></div>
-            <div class="step-item" style="margin-top:10px"><div class="step-num" style="background:var(--accent-dim);color:var(--accent);border-color:rgba(0,255,136,.3)">SQL</div><div class="step-text">Run this SQL in Supabase SQL Editor to create required tables:<br><button onclick="navigator.clipboard.writeText(document.getElementById('sb-sql-snippet').textContent);toast('SQL copied','green')" class="btn btn-outline" style="font-size:.5rem;margin-top:5px">📋 Copy SQL</button><pre id="sb-sql-snippet" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;margin-top:6px;font-size:.52rem;color:var(--accent);white-space:pre-wrap;overflow:auto;max-height:220px">-- LinkCore v13 required tables
-create table if not exists lc_projects (
-  id text primary key,
-  name text,
-  note text,
-  created_at timestamptz default now()
-);
-create table if not exists lc_links (
-  id text primary key,
-  project_id text references lc_projects(id) on delete cascade,
-  original text,
-  code text,
-  verdict text default 'pending',
-  hits integer default 0,
-  submitted boolean default false,
-  retry_count integer default 0,
-  added_at timestamptz default now(),
-  tag text
-);
-create table if not exists ic_short_links (
-  code text primary key,
-  target text,
-  hits integer default 0
-);
--- Config store (settings, SA vault, channel toggles)
-create table if not exists lc_config (
-  key text primary key,
-  value text,
-  updated_at timestamptz default now()
-);
--- Per-domain sitemaps
-create table if not exists lc_sitemaps (
-  domain text primary key,
-  sitemap_url text,
-  xml text,
-  url_count integer default 0,
-  updated_at timestamptz default now()
-);
--- Enable RLS (disable for anon key usage)
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn btn-outline" style="font-size:.58rem" onclick="testSupabase()">🔍 Test Connection</button>
+            <button class="btn btn-outline" style="font-size:.58rem" onclick="showSetupSQL()">📋 Copy Setup SQL</button>
+          </div>
+          <pre id="sb-sql-snippet" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:10px;font-size:.5rem;color:var(--accent);white-space:pre-wrap;overflow:auto;max-height:220px">-- LinkCore required tables
+create table if not exists lc_projects (id text primary key, name text, note text, created_at timestamptz default now());
+create table if not exists lc_links (id text primary key, project_id text references lc_projects(id) on delete cascade, original text, code text, verdict text default 'pending', hits integer default 0, submitted boolean default false, retry_count integer default 0, added_at timestamptz default now(), tag text);
+create table if not exists ic_short_links (code text primary key, target text, hits integer default 0);
+create table if not exists lc_config (key text primary key, value text, updated_at timestamptz default now());
+create table if not exists lc_sitemaps (domain text primary key, sitemap_url text, xml text, url_count integer default 0, updated_at timestamptz default now());
 alter table lc_projects enable row level security;
 alter table lc_links enable row level security;
 alter table ic_short_links enable row level security;
@@ -1442,298 +1528,209 @@ create policy "anon all" on lc_projects for all using (true) with check (true);
 create policy "anon all" on lc_links for all using (true) with check (true);
 create policy "anon all" on ic_short_links for all using (true) with check (true);
 create policy "anon all" on lc_config for all using (true) with check (true);
-create policy "anon all" on lc_sitemaps for all using (true) with check (true);</pre></div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Set a name, database password and region → wait for it to provision (~1 min)</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">Go to <strong>Project Settings → API</strong> → copy the <code>Project URL</code> and <code>anon public</code> key</div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-text">Run the setup SQL in the <strong>SQL Editor</strong> tab — see the README for the full block</div></div>
-          </div>
+create policy "anon all" on lc_sitemaps for all using (true) with check (true);</pre>
         </div>
-      </div>
 
-      <!-- ══ SECTION 2: DOMAINS ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🌐</span> Short Link Domains</div>
-          <div class="set-tip" style="margin-bottom:12px">Each domain serves <code>/link/CODE</code> via a <strong style="color:var(--accent)">Vercel Edge Function that returns HTTP 301</strong> → Google follows the 301 and indexes the <em>destination</em> page, not the short URL. All 4 domains share the same Supabase table.</div>
-
-          <div class="set-domains-grid">
-            <div>
-              <div class="set-domain-label"><span class="set-domain-dot" style="background:#00ff88"></span> Domain 1 (primary)</div>
-              <input id="cfg-d1" placeholder="https://yourdomain1.com/link/">
-            </div>
-            <div>
-              <div class="set-domain-label"><span class="set-domain-dot" style="background:#3b82f6"></span> Domain 2</div>
-              <input id="cfg-d2" placeholder="https://yourdomain2.com/link/">
-            </div>
-            <div>
-              <div class="set-domain-label"><span class="set-domain-dot" style="background:#f97316"></span> Domain 3</div>
-              <input id="cfg-d3" placeholder="https://yourdomain3.com/link/">
-            </div>
-            <div>
-              <div class="set-domain-label"><span class="set-domain-dot" style="background:#a855f7"></span> Domain 4</div>
-              <input id="cfg-d4" placeholder="https://yourdomain4.com/link/">
-            </div>
-          </div>
-
-          <div class="steps-list" style="margin-top:12px">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to set up redirect domains on Vercel</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">Create a GitHub repo for each domain with two files:<br><br>
-<strong>vercel.json</strong><br>
-<pre style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;font-size:.52rem;color:var(--accent);margin:6px 0;white-space:pre-wrap">{"routes":[{"src":"/link/(?&lt;code&gt;[^/]+)","dest":"/api/redirect?code=$code"}]}</pre>
-<strong>api/redirect.js</strong> — the Edge Function (download from LinkCore setup kit or copy from the instructions below)</div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Go to <a href="https://vercel.com" target="_blank">vercel.com</a> → <strong>Add New → Project</strong> → import the repo → before deploying, go to <strong>Settings → Environment Variables</strong> and add:<br><br>
-<code>SUPABASE_URL</code> = your Supabase project URL<br>
-<code>SUPABASE_KEY</code> = your Supabase anon key<br><br>
-Then deploy.</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">In the Vercel project go to <strong>Settings → Domains</strong> → add your custom domain → copy the DNS records to your registrar</div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-text">Repeat for all 4 domains. The <code>api/redirect.js</code> file is identical for all — only the env vars differ if needed. Enter the full base URLs above including <code>/link/</code> at the end.</div></div>
-            <div class="step-item" style="background:var(--accent-dim);border-color:rgba(0,255,136,.2)"><div class="step-num" style="background:var(--accent-dim);color:var(--accent);border-color:rgba(0,255,136,.3)">✓</div><div class="step-text"><strong style="color:var(--accent)">Why this works:</strong> The Edge Function returns <code>HTTP 301 Location: &lt;original-url&gt;</code>. Googlebot follows 301s server-side, crawls and indexes the <strong>destination page</strong> — not your short URL. JS-based redirects (the old method) don't reliably pass this signal.</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ SECTION 3: GSC ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🔍</span> Google Search Console (GSC)</div>
-
-          <!-- Per-domain GSC property config — each domain's shorts go to its own GSC property -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-            <div style="font-size:.58rem;color:var(--muted)">Each domain has its own GSC property + SA key. SA key is optional — falls back to the global SA Vault below if left blank.</div>
-            <button class="btn btn-blue" style="font-size:.55rem;padding:5px 12px;white-space:nowrap" onclick="testAllDomains()">🧪 Test All Domains</button>
-          </div>
-          <div id="domain-gsc-rows" style="margin-bottom:10px"><!-- rendered by renderDomainGscRows() --></div>
-          <!-- hidden legacy field so old references to #gsc-site still resolve -->
-          <input id="gsc-site" type="hidden">
-
-          <div class="set-row">
-            <div class="set-label">Service Account Keys (SA Vault) <span class="set-status ok">auto-rotates</span></div>
-            <div style="font-size:.58rem;color:var(--muted);margin-bottom:10px">Each SA key allows 200 URL submissions/day. Add multiple keys — LinkCore auto-rotates on quota hit. 10 keys = 2,000/day.</div>
-            <!-- SA Health Dashboard -->
-            <div class="sa-quota-bar-wrap" id="sa-vault-list"><div style="font-size:.6rem;color:var(--muted2);padding:8px 0">No SA keys yet.</div></div>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button class="btn btn-outline" style="font-size:.58rem" onclick="resetAllSAQuotas()">🔄 Reset Daily Counts</button>
-              <span id="sa-reset-info" style="font-size:.52rem;color:var(--muted);align-self:center">Resets automatically at midnight UTC</span>
-            </div>
-            <div class="sa-add-row" style="margin-top:12px">
-              <textarea id="sa-new-json" rows="3" placeholder='Paste service account JSON here — {"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}'></textarea>
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <button class="btn btn-primary" style="white-space:nowrap" onclick="addSAKey()">+ Add Key</button>
-                <span id="sa-validate-badge" style="display:none"></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="steps-list">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to get a GSC Service Account key</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → create or select a project</div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Go to <strong>APIs &amp; Services → Enable APIs</strong> → search for <strong>Google Search Console API</strong> → enable it</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">Go to <strong>IAM &amp; Admin → Service Accounts</strong> → click <strong>+ Create Service Account</strong> → give it a name → click Done</div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-text">Click the service account → go to <strong>Keys tab</strong> → <strong>Add Key → Create new key → JSON</strong> → a JSON file downloads</div></div>
-            <div class="step-item"><div class="step-num">5</div><div class="step-text">Go to <a href="https://search.google.com/search-console" target="_blank">search.google.com/search-console</a> → open your property → <strong>Settings → Users and permissions → Add user</strong> → paste the <code>client_email</code> from the JSON → set permission to <strong>Owner</strong></div></div>
-            <div class="step-item"><div class="step-num">6</div><div class="step-text">Paste the entire contents of the downloaded JSON file into the SA Key box above and click <strong>+ Add Key</strong></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ SECTION 4: INDEXNOW ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">⚡</span> IndexNow</div>
-
-          <div class="set-row">
-            <div class="set-label">IndexNow API Key <span class="set-status" id="st-indexnow">not set</span></div>
-            <input id="cfg-indexnow-key" placeholder="e.g. indexcore" oninput="updateStatus('cfg-indexnow-key','st-indexnow')">
-            <div class="set-tip">Any string you choose — typically your site name. This key must also be hosted at <code>yourdomain.com/YOURKEY.txt</code> containing just the key on one line.</div>
-          </div>
-
-          <div class="set-row">
-            <div class="set-label">Key File URL</div>
-            <input id="cfg-indexnow-loc" placeholder="https://flexygist.com.ng/indexcore.txt">
-            <div class="set-tip">The URL where your key file is hosted. Bing and other engines verify this before accepting submissions.</div>
-          </div>
-
-          <div class="steps-list">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to set up IndexNow</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">Choose a key string — can be anything like <code>mysite123</code> or your brand name</div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Create a file named <code>YOURKEY.txt</code> in your domain repo root, containing just the key on one line</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">Deploy — verify it's accessible at <code>https://yourdomain.com/YOURKEY.txt</code></div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-text">Enter the key and the full URL of the txt file above. Docs: <a href="https://www.indexnow.org/documentation" target="_blank">indexnow.org/documentation</a></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ SECTION 5: BING ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🔷</span> Bing Webmaster API</div>
-
-          <div class="set-row">
-            <div class="set-label">Bing API Key <span class="set-status" id="st-bing">not set</span></div>
-            <input id="bing-api-key" placeholder="Bing Webmaster API Key" oninput="updateStatus('bing-api-key','st-bing');localStorage.setItem('lc_bing_api_key',this.value.trim());saveChanSettings()">
-            <div class="set-tip">Direct Bing URL Submission API (higher-priority queue than IndexNow — separate endpoint). Auto-fires on every link add AND on every escalation retry. Get it at <a href="https://www.bing.com/webmasters" target="_blank">bing.com/webmasters</a>.</div>
-          </div>
-
-          <div class="steps-list">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to get a Bing Webmaster API key</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">Go to <a href="https://www.bing.com/webmasters" target="_blank">bing.com/webmasters</a> → sign in with a Microsoft account</div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Add your site → verify ownership (HTML file, meta tag, or DNS)</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">Go to <strong>Settings → API Access → API Key</strong> → copy the key and paste above</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ SECTION 6: WORKER / RAILWAY ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🚂</span> Worker / Railway App</div>
-
+        <!-- Worker / Railway -->
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">🚂</span> Worker / Railway</div>
           <div class="set-row">
             <div class="set-label">Worker URL <span class="set-status" id="st-worker">not set</span></div>
-            <input id="worker-url-input" placeholder="https://your-app.railway.app" oninput="updateStatus('worker-url-input','st-worker');saveChanSettings()">
-            <div class="set-tip">URL of your Railway (or any Node.js) worker that handles background indexing jobs. Optional — only needed for the Worker channel.</div>
+            <input id="worker-url-input" placeholder="https://your-app.railway.app" oninput="settingsMarkDirty('worker-url-input','st-worker');syncWorkerUrlInputs()">
+            <div class="set-tip">Deploy worker_v13.py to Railway → paste the public URL here. Required for 80-layer BEAST blast.</div>
           </div>
-
-          <div class="steps-list">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to deploy a worker on Railway</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">Go to <a href="https://railway.app" target="_blank">railway.app</a> → sign in → <strong>New Project → Deploy from GitHub repo</strong></div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Select your worker repo (Node.js/Express app that accepts POST requests with URLs to index)</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">Railway auto-deploys and gives you a public URL — paste it above</div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-text">Docs: <a href="https://docs.railway.app" target="_blank">docs.railway.app</a> — free tier includes 500 hours/month</div></div>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <button class="btn btn-outline" style="font-size:.58rem" onclick="testWorker()">🔍 Test</button>
+            <span id="worker-sa-pool-status" style="font-size:.5rem;color:var(--muted)"></span>
           </div>
         </div>
-      </div>
 
-      <!-- ══ SECTION 7: RAPID URL INDEXER ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🚀</span> Rapid URL Indexer</div>
-
+        <!-- IndexNow -->
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">⚡</span> IndexNow</div>
           <div class="set-row">
-            <div class="set-label">RUI API Key <span class="set-status" id="st-rui">not set</span></div>
-            <input id="rui-api-key" placeholder="Rapid URL Indexer API Key" oninput="updateStatus('rui-api-key','st-rui');saveChanSettings()">
-            <div class="set-tip">Paid service — fires automatically on 2nd retry if a link stays NEUTRAL. Get a key at <a href="https://rapidurlindexer.com" target="_blank">rapidurlindexer.com</a>.</div>
+            <div class="set-label">API Key <span class="set-status" id="st-indexnow">not set</span></div>
+            <input id="cfg-indexnow-key" placeholder="e.g. indexcore" oninput="settingsMarkDirty('cfg-indexnow-key','st-indexnow')">
           </div>
-        </div>
-      </div>
-
-      <!-- ══ SECTION 8: WAYBACK ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">📼</span> Wayback Machine</div>
-          <div class="set-tip" style="margin-bottom:10px">No API key needed — the Wayback Machine is free and open. LinkCore submits URLs directly to <code>https://web.archive.org/save/</code>. Just make sure the Wayback channel is enabled in the Indexing Hub.</div>
-
-          <div class="steps-list">
-            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How it works</div>
-            <div class="step-item"><div class="step-num">1</div><div class="step-text">LinkCore posts each short URL to <code>https://web.archive.org/save/YOUR_URL</code></div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-text">Wayback crawls and archives the page — creating a public snapshot with a timestamp</div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-text">Google sometimes uses Wayback snapshots as a crawl signal — useful for stubborn URLs</div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-text">You can verify snapshots manually at <a href="https://web.archive.org" target="_blank">web.archive.org</a> by searching your URL</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ SECTION 9: SITEMAP / FEED ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🗺</span> Sitemap &amp; Feed URLs</div>
-
           <div class="set-row">
-            <div class="set-label">Sitemap URL <span class="set-status" id="st-sitemap">not set</span></div>
-            <input id="cfg-sitemap" placeholder="https://flexygist.com.ng/sitemap.xml" oninput="updateStatus('cfg-sitemap','st-sitemap')">
-            <div class="set-tip">Primary sitemap URL (legacy field). All 4 domain sitemaps are now auto-managed in Supabase <code>lc_sitemaps</code> table and updated on every link add.</div>
+            <div class="set-label">Key File URL</div>
+            <input id="cfg-indexnow-loc" placeholder="https://yourdomain.com/indexcore.txt" oninput="settingsMarkDirty('cfg-indexnow-loc',null)">
+            <div class="set-tip">Host a .txt file at this URL containing just your key. Bing verifies before accepting.</div>
           </div>
+          <button class="btn btn-outline" style="font-size:.58rem;margin-top:4px" onclick="testIndexNow()">🔍 Verify Key File</button>
+        </div>
 
+        <!-- API Keys -->
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">🔑</span> API Keys</div>
           <div class="set-row">
-            <div class="set-label">Feed URL <span class="set-status" id="st-feed">not set</span></div>
-            <input id="cfg-feed" placeholder="https://flexygist.com.ng/feed.xml" oninput="updateStatus('cfg-feed','st-feed')">
-            <div class="set-tip">RSS/Atom feed URL. Used in response header hints to signal fresh content to crawlers.</div>
+            <div class="set-label">Bing Webmaster API Key <span class="set-status" id="st-bing">not set</span></div>
+            <input id="bing-api-key" placeholder="Bing Webmaster API Key" oninput="settingsMarkDirty('bing-api-key','st-bing');syncHubMirror('bing-api-key','bing-api-key-hub')">
+            <div class="set-tip">bing.com/webmasters → Settings → API Access</div>
+          </div>
+          <div class="set-row">
+            <div class="set-label">Rapid URL Indexer Key <span class="set-status" id="st-rui">not set</span></div>
+            <input id="rui-api-key" placeholder="Rapid URL Indexer API Key" oninput="settingsMarkDirty('rui-api-key','st-rui');syncHubMirror('rui-api-key','rui-api-key-hub')">
+            <div class="set-tip">Fires on 2nd retry if link stays NEUTRAL. <a href="https://rapidurlindexer.com" target="_blank">rapidurlindexer.com</a></div>
           </div>
         </div>
-      </div>
 
-      <!-- ══ SECTION 10: CHANNELS ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">🔔</span> Notifications &amp; Webhooks</div>
-          <div class="set-tip" style="margin-bottom:12px">Get alerted when links are indexed, go dead, or stay NEUTRAL past 96h.</div>
+        <!-- Notifications -->
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">🔔</span> Notifications</div>
           <div class="notif-row">
-            <span style="flex:1;font-size:.62rem;color:var(--text)">🌐 Browser Push Notifications</span>
+            <span style="flex:1;font-size:.62rem;color:var(--text)">🌐 Browser Push</span>
             <button class="btn btn-outline" style="font-size:.58rem" onclick="requestBrowserNotifPerm()" id="notif-browser-btn">Enable</button>
             <span id="notif-browser-status" class="notif-status" style="background:var(--bg4);color:var(--muted)">Off</span>
           </div>
           <div class="notif-row">
-            <span style="color:var(--text);font-size:.62rem">🟣 Discord Webhook URL</span>
-            <input id="cfg-discord-webhook" placeholder="https://discord.com/api/webhooks/..." style="flex:1;min-width:0;max-width:340px;font-size:.6rem" oninput="updateStatus('cfg-discord-webhook','notif-discord-status')">
+            <span style="flex:0 0 auto;font-size:.62rem;color:var(--text)">🟣 Discord Webhook</span>
+            <input id="cfg-discord-webhook" placeholder="https://discord.com/api/webhooks/..." style="flex:1;min-width:0;font-size:.6rem" oninput="settingsMarkDirty('cfg-discord-webhook',null)">
             <button class="btn btn-outline" style="font-size:.58rem" onclick="testDiscordWebhook()">Test</button>
-            <span id="notif-discord-status" class="notif-status" style="background:var(--bg4);color:var(--muted)">Not set</span>
           </div>
           <div class="notif-row">
-            <span style="color:var(--text);font-size:.62rem">🔗 Generic Webhook URL</span>
-            <input id="cfg-generic-webhook" placeholder="https://your-endpoint.com/hook" style="flex:1;min-width:0;max-width:340px;font-size:.6rem" oninput="updateStatus('cfg-generic-webhook','notif-generic-status')">
-            <span id="notif-generic-status" class="notif-status" style="background:var(--bg4);color:var(--muted)">Not set</span>
+            <span style="flex:0 0 auto;font-size:.62rem;color:var(--text)">🔗 Generic Webhook</span>
+            <input id="cfg-generic-webhook" placeholder="https://your-endpoint.com/hook" style="flex:1;min-width:0;font-size:.6rem" oninput="settingsMarkDirty('cfg-generic-webhook',null)">
           </div>
-          <div style="margin-top:10px;font-size:.58rem;color:var(--muted)">Trigger on: <span style="color:var(--accent)">Link indexed</span> · <span style="color:var(--orange)">96h NEUTRAL</span> · <span style="color:var(--red)">Dead link</span> · <span style="color:var(--purple)">Quota exhausted</span></div>
+          <div style="margin-top:6px;font-size:.52rem;color:var(--muted)">Fires on: <span style="color:var(--accent)">indexed</span> · <span style="color:var(--orange)">96h NEUTRAL</span> · <span style="color:var(--red)">dead link</span> · <span style="color:var(--purple)">quota exhausted</span></div>
         </div>
-      </div>
 
-      <!-- ══ SECTION 11: CHANNELS ══ -->
-      <div class="card">
-        <div class="set-group">
-          <div class="set-group-title"><span class="set-icon">📡</span> Indexing Channels — Enable / Disable</div>
-          <div class="set-tip" style="margin-bottom:12px">Toggle which channels fire when you hit Submit or run the Indexing Hub blast.</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="font-size:.5rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px">🟢 Google / GSC</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-gsc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC URL Inspection</span><span style="color:var(--muted)">— Direct URL inspection submit via SA key (200 req/day/key)</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-gsc-request-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC Request Indexing</span><span style="color:var(--muted)">— Dedicated "Request Indexing" API · ~10 req/day per property per SA key</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-idx-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Google Indexing API</span><span style="color:var(--muted)">— indexing.googleapis.com batch submit · URL_UPDATED signal</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-sitemap-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">GSC Sitemaps API</span><span style="color:var(--muted)">— DELETE + re-add sitemap in GSC · forces full rescan</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-discover-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Google Discover Ping</span><span style="color:var(--muted)">— google.com/ping + bing.com/ping for all domain sitemaps simultaneously</span></label>
-            <div style="font-size:.5rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">📡 External Engines</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-indexnow-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">IndexNow Multi-Engine</span><span style="color:var(--muted)">— Blasts Bing, Yandex, Seznam, Brave, Naver, Yep simultaneously</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-bing-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Bing Webmaster API</span><span style="color:var(--muted)">— Direct URL submission · higher priority queue than IndexNow · requires key</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-wayback-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Wayback Machine</span><span style="color:var(--muted)">— Archives URL at web.archive.org · no key needed</span></label>
-            <div style="font-size:.5rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">📢 Feed / Ping</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-pubsub-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">PubSubHubbub / WebSub</span><span style="color:var(--muted)">— Feed ping to pubsubhubbub.appspot.com + superfeedr + 3 hubs</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-xmlrpc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">XML-RPC Ping Blast</span><span style="color:var(--muted)">— 80+ verified-alive blog ping endpoints simultaneously</span></label>
-            <div style="font-size:.5rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">⚡ BEAST / Worker</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-worker-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Worker API Blast (Railway)</span><span style="color:var(--muted)">— 16-layer server-side engine · requires Worker URL above</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-multi-sa-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">🔥 Multi-SA Parallel Fire</span><span style="color:var(--muted)">— All SA keys blast same URL simultaneously · N× priority signal weight</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-bing-first-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">🔎 Bing-First Strategy</span><span style="color:var(--muted)">— Bing indexes in 1–3 min → Google detects via cross-engine monitoring</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-websub-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">📡 WebSub Deep Stack</span><span style="color:var(--muted)">— 5 WebSub hubs × all feeds simultaneously (not just appspot)</span></label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-amplify-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">🌐 Crawl Amplify</span><span style="color:var(--muted)">— Server-side diverse UA fetches → organic traffic signal to Google's scheduler</span></label>
-            <div style="font-size:.5rem;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">🌐 Residential Proxy</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-proxy-on" onchange="saveProxySettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Residential Proxy Crawl</span><span style="color:var(--muted)">— Routes fetches through rotating residential IPs · crawl queue jump signal</span></label>
-            <div style="padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:7px;margin-left:24px">
+      </div><!-- /keys -->
+
+      <!-- ══ TAB: DOMAINS ══ -->
+      <div class="idx-pane" id="set-pane-domains" style="gap:14px">
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">🌐</span> Short Link Domains</div>
+          <div class="set-tip" style="margin-bottom:12px">Each domain serves <code>/link/CODE</code> via a Vercel Edge Function returning HTTP 301. All 4 domains share the same Supabase <code>ic_short_links</code> table.</div>
+          <div class="set-domains-grid">
+            <div>
+              <div class="set-domain-label"><span class="set-domain-dot" style="background:#00ff88"></span> Domain 1 (primary)</div>
+              <input id="cfg-d1" placeholder="https://yourdomain1.com/link/" oninput="settingsMarkDirty('cfg-d1',null)">
+            </div>
+            <div>
+              <div class="set-domain-label"><span class="set-domain-dot" style="background:#3b82f6"></span> Domain 2</div>
+              <input id="cfg-d2" placeholder="https://yourdomain2.com/link/" oninput="settingsMarkDirty('cfg-d2',null)">
+            </div>
+            <div>
+              <div class="set-domain-label"><span class="set-domain-dot" style="background:#f97316"></span> Domain 3</div>
+              <input id="cfg-d3" placeholder="https://yourdomain3.com/link/" oninput="settingsMarkDirty('cfg-d3',null)">
+            </div>
+            <div>
+              <div class="set-domain-label"><span class="set-domain-dot" style="background:#a855f7"></span> Domain 4</div>
+              <input id="cfg-d4" placeholder="https://yourdomain4.com/link/" oninput="settingsMarkDirty('cfg-d4',null)">
+            </div>
+          </div>
+          <div class="set-row" style="margin-top:14px">
+            <div class="set-label">Primary Sitemap URL <span class="set-status" id="st-sitemap">not set</span></div>
+            <input id="cfg-sitemap" placeholder="https://yourdomain1.com/sitemap.xml" oninput="settingsMarkDirty('cfg-sitemap','st-sitemap')">
+          </div>
+          <div class="set-row">
+            <div class="set-label">Primary Feed URL <span class="set-status" id="st-feed">not set</span></div>
+            <input id="cfg-feed" placeholder="https://yourdomain1.com/feed.xml" oninput="settingsMarkDirty('cfg-feed','st-feed')">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">🔍</span> Per-Domain GSC Properties</div>
+          <div class="set-tip" style="margin-bottom:10px">Each domain needs its own GSC property URL. Leave SA JSON blank to fall back to the global SA Vault.</div>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+            <button class="btn btn-blue" style="font-size:.55rem;padding:5px 12px" onclick="testAllDomains()">🧪 Test All Domains</button>
+          </div>
+          <div id="domain-gsc-rows"></div>
+        </div>
+      </div><!-- /domains -->
+
+      <!-- ══ TAB: GSC KEYS ══ -->
+      <div class="idx-pane" id="set-pane-gsc" style="gap:14px">
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">🔍</span> Service Account Vault</div>
+          <div style="font-size:.58rem;color:var(--muted);margin-bottom:12px">Each SA key = 200 URL submissions/day. Add multiple keys — LinkCore auto-rotates on quota hit. <strong style="color:var(--accent)">10 keys = 2,000/day.</strong></div>
+          <div class="sa-quota-bar-wrap" id="sa-vault-list"><div style="font-size:.6rem;color:var(--muted2);padding:8px 0">No SA keys yet.</div></div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn btn-outline" style="font-size:.58rem" onclick="resetAllSAQuotas()">🔄 Reset Daily Counts</button>
+            <button class="btn btn-outline" style="font-size:.58rem" onclick="testGSC()">🔍 Test GSC</button>
+            <span id="sa-reset-info" style="font-size:.52rem;color:var(--muted);align-self:center">Resets at midnight UTC</span>
+          </div>
+          <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+            <div style="font-size:.58rem;font-weight:700;color:var(--text);margin-bottom:8px">Add Service Account Key</div>
+            <div class="sa-add-row">
+              <textarea id="sa-new-json" rows="3" placeholder='Paste full service account JSON — {"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}'></textarea>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <button class="btn btn-primary" style="white-space:nowrap" onclick="addSAKey()">+ Add Key</button>
+                <span id="sa-validate-badge" style="display:none;font-size:.52rem;text-align:center"></span>
+              </div>
+            </div>
+          </div>
+          <div class="steps-list" style="margin-top:14px">
+            <div style="font-family:var(--mono);font-size:.52rem;color:var(--accent);margin-bottom:4px;font-weight:700">⟶ How to create a GSC Service Account</div>
+            <div class="step-item"><div class="step-num">1</div><div class="step-text"><a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Enable <strong>Google Search Console API</strong> → IAM &amp; Admin → Service Accounts → Create</div></div>
+            <div class="step-item"><div class="step-num">2</div><div class="step-text">Keys tab → Add Key → JSON → download</div></div>
+            <div class="step-item"><div class="step-num">3</div><div class="step-text"><a href="https://search.google.com/search-console" target="_blank">GSC</a> → Settings → Users → Add User → paste <code>client_email</code> → set <strong>Owner</strong></div></div>
+            <div class="step-item"><div class="step-num">4</div><div class="step-text">Paste full JSON above → click + Add Key</div></div>
+          </div>
+        </div>
+      </div><!-- /gsc -->
+
+      <!-- ══ TAB: CHANNELS ══ -->
+      <div class="idx-pane" id="set-pane-channels" style="gap:14px">
+        <div class="card">
+          <div class="set-group-title"><span class="set-icon">📡</span> Indexing Channels</div>
+          <div style="font-size:.58rem;color:var(--muted);margin-bottom:14px">Toggle which channels fire on Submit and Escalation. Changes are saved immediately.</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:.5rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border)">🟢 Google / GSC</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-gsc-request-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>GSC Request Indexing</strong> — dedicated "Request Indexing" API (~10/day per key)</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-gsc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>GSC URL Inspection</strong> — URL inspection submit via SA key (200/day/key)</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-idx-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>Google Indexing API</strong> — URL_UPDATED signal to indexing.googleapis.com batch endpoint</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-sitemap-api-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>GSC Sitemaps API</strong> — DELETE + re-add sitemap in GSC; forces full rescan</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-discover-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span><strong>Google Discover Ping</strong> — pings google.com/ping + bing.com/ping for all domain sitemaps</span></label>
+
+            <div style="font-size:.5rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border);margin-top:6px">📡 External Engines</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-indexnow-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>IndexNow Multi-Engine</strong> — Bing, Yandex, Seznam, Brave, Naver, Yep simultaneously</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-bing-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>Bing Webmaster API</strong> — direct URL submission; higher priority queue than IndexNow</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-wayback-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>Wayback Machine</strong> — archives each URL; crawl signal amplifier. No key needed.</span></label>
+
+            <div style="font-size:.5rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border);margin-top:6px">📢 Feed / Ping</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-pubsub-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>PubSubHubbub / WebSub</strong> — feed ping to 4 WebSub hubs simultaneously</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-xmlrpc-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>XML-RPC Ping Blast</strong> — 80+ verified-alive blog ping endpoints in parallel</span></label>
+
+            <div style="font-size:.5rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border);margin-top:6px">⚡ BEAST / Worker</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-worker-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>Worker API Blast (Railway)</strong> — 80-layer BEAST engine; no CORS limits, real TCP</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-multi-sa-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span>🔥 <strong>Multi-SA Parallel Fire</strong> — all SA keys blast same URL simultaneously</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-bing-first-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span>🔎 <strong>Bing-First Strategy</strong> — Bing indexes in 1–3 min → Google detects via cross-engine monitoring</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-websub-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span>📡 <strong>WebSub Deep Stack</strong> — 5 WebSub hubs × all feeds simultaneously</span></label>
+            <label class="ch-toggle"><input type="checkbox" id="ch-amplify-on" onchange="saveChanSettings()" checked style="accent-color:var(--accent)"><span>🌐 <strong>Crawl Amplify</strong> — server-side diverse UA fetches → organic traffic signal</span></label>
+
+            <div style="font-size:.5rem;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border);margin-top:6px">🌐 Residential Proxy</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-proxy-on" onchange="saveProxySettings()" style="accent-color:var(--accent)"><span><strong>Residential Proxy Crawl</strong> — routes fetches through rotating residential IPs via Railway</span></label>
+            <div style="margin-left:22px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px;margin-top:4px">
               <div>
-                <div style="font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Gateway URL <span style="font-size:.48rem;color:var(--muted2)">(leave blank to use PROXY_GATEWAY Railway env)</span></div>
+                <div style="font-size:.52rem;color:var(--muted);margin-bottom:4px">Gateway URL <span style="color:var(--muted2)">(or set PROXY_GATEWAY env on Railway)</span></div>
                 <input id="proxy-gateway-url" placeholder="http://user:pass@gate.provider.com:port" style="font-size:.62rem" oninput="saveProxySettings()">
               </div>
               <div style="display:flex;gap:8px;align-items:center">
-                <div style="font-size:.52rem;color:var(--muted)">IPs per URL blast:</div>
-                <select id="proxy-fetch-count" style="width:90px;font-size:.62rem" onchange="saveProxySettings()">
-                  <option value="5">5 IPs</option>
-                  <option value="10" selected>10 IPs</option>
-                  <option value="15">15 IPs</option>
-                  <option value="20">20 IPs</option>
+                <div style="font-size:.52rem;color:var(--muted)">IPs per URL:</div>
+                <select id="proxy-fetch-count" style="width:80px;font-size:.62rem" onchange="saveProxySettings()">
+                  <option value="5">5 IPs</option><option value="10" selected>10 IPs</option><option value="15">15 IPs</option><option value="20">20 IPs</option>
                 </select>
-                <button class="btn btn-outline" style="font-size:.55rem;padding:4px 10px" onclick="testProxyGateway()">🔌 Test Gateway</button>
+                <button class="btn btn-outline" style="font-size:.55rem" onclick="testProxyGateway()">🔌 Test</button>
+                <span id="proxy-status" style="font-size:.5rem;color:var(--muted)"></span>
               </div>
-              <div id="proxy-status" style="font-size:.5rem;color:var(--muted);line-height:1.5">Configure PROXY_GATEWAY on Railway or paste a gateway URL above</div>
             </div>
-            <div style="font-size:.5rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">💰 Paid Services</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-rui-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Rapid URL Indexer</span><span style="color:var(--muted)">— 90%+ indexation rate · fires on 2nd retry if NEUTRAL · requires RUI key above</span></label>
-            <div style="font-size:.5rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:2px;margin-top:6px">🔗 Automation</div>
-            <label style="display:flex;align-items:center;gap:10px;font-size:.62rem;cursor:pointer"><input type="checkbox" id="ch-t2-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span style="color:var(--text);font-weight:700">Tier-2 Social Drafts</span><span style="color:var(--muted)">— Auto-generates social share drafts (Reddit/X/LinkedIn/Pinterest) on submit</span></label>
+
+            <div style="font-size:.5rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border);margin-top:6px">💰 Paid</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-rui-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>Rapid URL Indexer</strong> — 90%+ indexation rate; fires on 2nd retry if NEUTRAL</span></label>
+
+            <div style="font-size:.5rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 0 4px;border-bottom:1px solid var(--border);margin-top:6px">🔗 Automation</div>
+            <label class="ch-toggle"><input type="checkbox" id="ch-t2-on" onchange="saveChanSettings()" style="accent-color:var(--accent)"><span><strong>Tier-2 Social Drafts</strong> — auto-generates Reddit/X/LinkedIn/Pinterest drafts on submit</span></label>
           </div>
         </div>
-      </div>
+      </div><!-- /channels -->
 
-      <!-- ══ SECTION 12: AUTO-SCHEDULER ══ -->
-      <div class="card">
-        <div class="set-group">
+      <!-- ══ TAB: SCHEDULER ══ -->
+      <div class="idx-pane" id="set-pane-scheduler" style="gap:14px">
+        <div class="card">
           <div class="set-group-title"><span class="set-icon">⏱</span> Auto-Retry Scheduler</div>
-          <div class="set-tip" style="margin-bottom:12px">Automatically escalates NEUTRAL links on a schedule — no manual clicks needed. Runs every 30 minutes in-browser.</div>
+          <div class="set-tip" style="margin-bottom:12px">Automatically escalates NEUTRAL links every 30 minutes in-browser. No manual clicks needed.</div>
           <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:10px">
             <label style="display:flex;align-items:center;gap:8px;font-size:.62rem;cursor:pointer;flex:1">
               <input type="checkbox" id="auto-sched-on" onchange="toggleAutoScheduler()" style="accent-color:var(--accent)">
@@ -1742,7 +1739,7 @@ Then deploy.</div></div>
             <span id="sched-status-badge" style="font-size:.52rem;color:var(--muted2)">Disabled</span>
           </div>
           <div id="sched-next-run" style="font-size:.58rem;color:var(--cyan);display:none;margin-bottom:8px">⟳ Scheduler running — checks every 30 min</div>
-          <div style="font-size:.55rem;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.08em">Retry windows — blast NEUTRAL after:</div>
+          <div style="font-size:.55rem;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.08em">Blast NEUTRAL links after:</div>
           <div class="sched-interval-row">
             <button class="sched-chip active" data-h="12" onclick="toggleSchedChip(this)">12h</button>
             <button class="sched-chip active" data-h="24" onclick="toggleSchedChip(this)">24h</button>
@@ -1756,22 +1753,16 @@ Then deploy.</div></div>
             <div class="sched-stat-pill"><span class="sv" id="ss-pass" style="color:var(--accent)">0</span>Indexed</div>
           </div>
         </div>
-      </div>
 
-      <!-- ══ SECTION 13: DRIP-FEED DEFAULTS ══ -->
-      <div class="card">
-        <div class="set-group">
+        <div class="card">
           <div class="set-group-title"><span class="set-icon">💧</span> Drip-Feed Re-Blast Defaults</div>
-          <div class="set-tip" style="margin-bottom:12px">Default drip schedule applied whenever you submit via the Indexing Hub or IndexForce. Individual submits can still override this per-job.</div>
-          <div style="padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <label style="display:flex;align-items:center;gap:8px;font-size:.62rem;cursor:pointer;flex:1">
-                <input type="checkbox" id="set-drip-default-on" onchange="saveDripDefaults()" style="accent-color:var(--accent)" checked>
-                <span style="color:var(--text);font-weight:700">Drip-Feed enabled by default</span>
-              </label>
-              <span style="font-size:.52rem;color:var(--blue)">ON</span>
-            </div>
-            <div style="font-size:.55rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Default blast intervals:</div>
+          <div class="set-tip" style="margin-bottom:12px">Default drip schedule applied to every submit via Indexing Hub or IndexForce. Individual jobs can still override.</div>
+          <div style="padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:.62rem;cursor:pointer;margin-bottom:10px">
+              <input type="checkbox" id="set-drip-default-on" onchange="saveDripDefaults()" style="accent-color:var(--accent)" checked>
+              <span style="color:var(--text);font-weight:700">Drip-Feed enabled by default</span>
+            </label>
+            <div style="font-size:.55rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Re-blast intervals:</div>
             <div class="drip-hours-chips" id="set-drip-default-chips">
               <button class="drip-chip active" data-h="6" onclick="this.classList.toggle('active');saveDripDefaults()">+6h</button>
               <button class="drip-chip active" data-h="12" onclick="this.classList.toggle('active');saveDripDefaults()">+12h</button>
@@ -1780,55 +1771,49 @@ Then deploy.</div></div>
             </div>
           </div>
         </div>
-      </div>
+      </div><!-- /scheduler -->
 
-      <!-- ══ SECTION 14: DATA MANAGEMENT ══ -->
-      <div class="card">
-        <div class="set-group">
+      <!-- ══ TAB: DATA ══ -->
+      <div class="idx-pane" id="set-pane-data" style="gap:14px">
+        <div class="card">
           <div class="set-group-title"><span class="set-icon">🗂</span> Data Management</div>
-          <div class="set-tip" style="margin-bottom:12px">Export, backup, or reset your LinkCore data. All data is stored in Supabase — these actions affect local cache and history only unless noted.</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
-              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">📥 Export All Links (CSV)</span>
-              <span style="font-size:.55rem;color:var(--muted)">All projects, all statuses</span>
-              <button class="btn btn-outline" style="font-size:.58rem" onclick="exportAllCSV()">↓ Export CSV</button>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <div style="flex:1"><div style="font-size:.62rem;font-weight:700;color:var(--text)">📥 Export All Links (CSV)</div><div style="font-size:.52rem;color:var(--muted);margin-top:2px">All projects, all statuses, all domains</div></div>
+              <button class="btn btn-outline" style="font-size:.58rem" onclick="exportAllCSV()">↓ Export</button>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
-              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">🕰 Clear Crawl History</span>
-              <span style="font-size:.55rem;color:var(--muted)">Clears per-URL check history (local only)</span>
-              <button class="btn btn-outline" style="font-size:.58rem" onclick="if(confirm('Clear all crawl check history?')){localStorage.removeItem('lc_crawl_history');_crawlHistoryCache=null;toast('Crawl history cleared','green')}">Clear</button>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <div style="flex:1"><div style="font-size:.62rem;font-weight:700;color:var(--text)">🕰 Clear Crawl History</div><div style="font-size:.52rem;color:var(--muted);margin-top:2px">Clears per-URL check history (local cache only)</div></div>
+              <button class="btn btn-outline" style="font-size:.58rem" onclick="if(confirm('Clear crawl check history?')){localStorage.removeItem('lc_crawl_history');_crawlHistoryCache=null;toast('Crawl history cleared','green')}">Clear</button>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
-              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">⚡ Clear IndexForce Job History</span>
-              <span style="font-size:.55rem;color:var(--muted)">Clears local job log (local only)</span>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <div style="flex:1"><div style="font-size:.62rem;font-weight:700;color:var(--text)">⚡ Clear IndexForce Job History</div><div style="font-size:.52rem;color:var(--muted);margin-top:2px">Clears local job log only</div></div>
               <button class="btn btn-outline" style="font-size:.58rem" onclick="ifClearHistory()">Clear</button>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
-              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">🔄 Reset SA Quota Counters</span>
-              <span style="font-size:.55rem;color:var(--muted)">Resets daily used counts for all SA keys</span>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <div style="flex:1"><div style="font-size:.62rem;font-weight:700;color:var(--text)">🔄 Reset SA Quota Counters</div><div style="font-size:.52rem;color:var(--muted);margin-top:2px">Resets daily used counts for all SA keys</div></div>
               <button class="btn btn-outline" style="font-size:.58rem" onclick="resetAllSAQuotas()">Reset</button>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid rgba(239,68,68,.2);border-radius:8px">
-              <span style="font-size:.62rem;color:var(--text);font-weight:700;flex:1">🗑 Rebuild All Sitemaps</span>
-              <span style="font-size:.55rem;color:var(--muted)">Rebuilds + re-pings all 4 domain sitemaps from DB</span>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+              <div style="flex:1"><div style="font-size:.62rem;font-weight:700;color:var(--text)">🗑 Rebuild All Sitemaps</div><div style="font-size:.52rem;color:var(--muted);margin-top:2px">Rebuilds + re-pings all 4 domain sitemaps from DB</div></div>
               <button class="btn btn-orange" style="font-size:.58rem" onclick="manualSitemapPing()">↻ Rebuild &amp; Ping</button>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px">
-              <span style="font-size:.62rem;color:var(--red);font-weight:700;flex:1">☢ Clear All Local Settings</span>
-              <span style="font-size:.55rem;color:var(--muted)">Wipes localStorage (does NOT delete Supabase data)</span>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px">
+              <div style="flex:1"><div style="font-size:.62rem;font-weight:700;color:var(--red)">☢ Clear All Local Settings</div><div style="font-size:.52rem;color:var(--muted);margin-top:2px">Wipes localStorage only — Supabase data is kept</div></div>
               <button class="btn btn-danger" style="font-size:.58rem;border-color:rgba(239,68,68,.4)" onclick="if(confirm('Wipe ALL local settings? Supabase data is kept.')){localStorage.clear();toast('Local settings wiped — reload to re-enter keys','');setTimeout(()=>location.reload(),1500)}">Wipe Local</button>
             </div>
           </div>
         </div>
-      </div>
+      </div><!-- /data -->
 
-      <div class="set-save-row" style="margin-top:8px">
-        <span class="set-saved-msg" id="set-saved-msg2">✓ Saved</span>
+      <div class="set-save-row" style="margin-top:4px">
+        <span class="set-saved-msg" id="set-saved-msg2">✓ Saved to Supabase</span>
         <button class="btn btn-primary set-save-btn" onclick="saveAllSettings()">💾 Save All Settings</button>
       </div>
     </div>
 
   </main>
+
 </div>
 
 <!-- Googlebot Footer -->
@@ -2040,64 +2025,165 @@ let chanSettings = {
 };
 
 // ══════════════════════════════════════════════════════════
-// BEAST: Multi-SA Parallel Fire Engine
-// All SA keys fire the same URL simultaneously — max signal weight
 // ══════════════════════════════════════════════════════════
-async function fireAllSAsInParallel(urls, logFn) {
-  // Collect ALL SA keys: global vault + any domain-specific SAs not already in vault
+// BEAST: Multi-SA Parallel Fire Engine — Domain-Aware
+//
+// Strategy for maximum Google indexing signal weight:
+//   • Each domain's URLs are blasted by ALL SA keys assigned to that domain
+//     (domain-specific keys first, then global vault keys as supplement)
+//   • SA keys run in parallel — N keys = N× independent priority signals
+//   • Google treats each SA key as a separate "trusted publisher" signal
+//   • 3 keys × 4 domains = 12 simultaneous authority signals per URL
+//   • Fires: Indexing API (URL_UPDATED) + GSC Request Indexing + URL Inspection
+//     all simultaneously from every SA key
+//
+// Google ranking signal logic:
+//   1. Multiple independent SA signals = higher crawl priority queue
+//   2. URL_UPDATED from Indexing API = "job posting" endpoint = fastest path
+//   3. GSC Request Indexing = separate queue from URL Inspection
+//   4. Short link 301 → destination = Googlebot crawls DESTINATION page
+//   5. Simultaneous Bing submission → Google detects via cross-engine monitoring
+// ══════════════════════════════════════════════════════════
+
+// Build the full SA key pool for a specific domain index
+// Returns: all keys that should fire for this domain (domain-specific + global vault)
+function getSAKeysForDomain(domainIndex) {
   const today = new Date().toDateString();
-  const allSAs = [...saVault];
-  for(const cfg of domainGscConfig){
-    if(cfg.saJson){
-      try{
-        const parsed = JSON.parse(cfg.saJson);
-        const alreadyIn = allSAs.some(s=>{ try{return JSON.parse(s.json).client_email===parsed.client_email;}catch(e){return false;} });
-        if(!alreadyIn) allSAs.push({label: parsed.client_email||'domain-sa', json:cfg.saJson, daily_used:0, date:today});
-      }catch(e){}
-    }
+  const domainCfg = domainGscConfig[domainIndex] || {};
+  const keys = [];
+
+  // 1. Domain-specific SA key (highest priority — directly authorized for this GSC property)
+  if (domainCfg.saJson) {
+    try {
+      const parsed = JSON.parse(domainCfg.saJson);
+      const email = parsed.client_email || `domain-${domainIndex+1}-sa`;
+      keys.push({ label: email, json: domainCfg.saJson, daily_used: 0, date: today, source: 'domain' });
+    } catch(e) {}
   }
-  if (!allSAs.length) { logFn('⚠ No SA keys for parallel fire', 'err'); return {ok:0, fired:0}; }
-  logFn(`🔥 Multi-SA parallel: ${allSAs.length} SA keys (vault + domain-specific) × ${urls.length} URLs simultaneously…`, 'info');
-  const activeSAs = allSAs.filter(sa => {
+
+  // 2. Global SA vault keys (supplement — add any not already in list)
+  for (const sa of saVault) {
+    try {
+      const parsed = JSON.parse(sa.json);
+      const alreadyIn = keys.some(k => { try { return JSON.parse(k.json).client_email === parsed.client_email; } catch(e) { return false; } });
+      if (!alreadyIn) keys.push(sa);
+    } catch(e) {}
+  }
+
+  return keys.filter(sa => {
     if (sa.date !== today) { sa.daily_used = 0; sa.date = today; }
     return sa.daily_used < 200;
   });
-  if (!activeSAs.length) { logFn('⚠ All SA keys at quota', 'err'); return {ok:0, fired:0}; }
+}
 
-  // Get ALL tokens simultaneously — pre-warmed, zero latency
-  const tokenPairs = await Promise.allSettled(activeSAs.map(sa =>
+// Main blast: ALL SA keys × ALL URLs, domain-aware
+// For 3 SA keys × 4 domains: each domain's URLs fire from all 3 keys simultaneously
+async function fireAllSAsInParallel(urls, logFn) {
+  const today = new Date().toDateString();
+
+  // Build domain→URLs mapping
+  // Short link domains: urls that start with SHORT_BASES[i] belong to domain i
+  const domainUrls = SHORT_BASES.map((base, i) => ({
+    di: i,
+    base,
+    cfg: domainGscConfig[i] || {},
+    urls: urls.filter(u => u.startsWith(base)),
+  }));
+
+  // Global URLs (originals, non-short) go to all domains
+  const globalUrls = urls.filter(u => !SHORT_BASES.some(b => u.startsWith(b)));
+
+  // Build full key pool (deduplicated across vault + all domain-specific keys)
+  const allKeys = [];
+  for (let i = 0; i < 4; i++) {
+    for (const k of getSAKeysForDomain(i)) {
+      const email = (() => { try { return JSON.parse(k.json).client_email; } catch(e) { return ''; } })();
+      if (!allKeys.some(x => { try { return JSON.parse(x.json).client_email === email; } catch(e) { return false; } })) {
+        allKeys.push(k);
+      }
+    }
+  }
+
+  if (!allKeys.length) { logFn('⚠ No SA keys available', 'err'); return {ok:0, fired:0}; }
+  logFn(`🔥 Multi-SA domain blast: ${allKeys.length} SA keys × ${urls.length} URLs — acquiring tokens…`, 'info');
+
+  // Pre-warm ALL tokens simultaneously
+  const tokenPairs = await Promise.allSettled(allKeys.map(sa =>
     Promise.all([
       getToken(sa.json, 'https://www.googleapis.com/auth/indexing'),
       getToken(sa.json, 'https://www.googleapis.com/auth/webmasters'),
-    ]).then(([idxTok, gscTok]) => ({sa, idxTok, gscTok}))
+    ]).then(([idxTok, gscTok]) => ({ sa, idxTok, gscTok }))
   ));
   const validPairs = tokenPairs.filter(r => r.status === 'fulfilled').map(r => r.value);
-  logFn(`🔑 ${validPairs.length}/${activeSAs.length} SA tokens acquired`, 'ok');
+  logFn(`🔑 ${validPairs.length}/${allKeys.length} tokens ready — firing all simultaneously…`, 'ok');
 
-  // Fire ALL SAs × ALL URLs simultaneously
+  // ── SIMULTANEOUS FIRE: all SA keys × all URLs ──
+  // Each key fires independently = multiple priority signals to Google's crawl queue
   const allFires = [];
-  for (const {sa, idxTok, gscTok} of validPairs) {
-    for (const url of urls.slice(0, 200)) {
-      // Indexing API — URL_UPDATED
+
+  for (const { sa, idxTok, gscTok } of validPairs) {
+    const targetUrls = [...new Set([...urls, ...globalUrls])].slice(0, 200);
+
+    for (const url of targetUrls) {
+      // Signal 1: Indexing API URL_UPDATED — fastest path, "job posting" endpoint
       if (idxTok) {
         allFires.push(
           fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {
-            method:'POST',
-            headers:{'Authorization':`Bearer ${idxTok}`,'Content-Type':'application/json'},
-            body: JSON.stringify({url, type:'URL_UPDATED'}),
-          }).then(r => { if(r.ok) sa.daily_used++; return r.ok; }).catch(() => false)
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${idxTok}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, type: 'URL_UPDATED' }),
+          }).then(r => { if (r.ok) sa.daily_used++; return r.ok; }).catch(() => false)
         );
       }
     }
   }
 
+  // Domain-specific GSC signals: fire per-domain with the right GSC property
+  // Each domain gets its own SA keys firing GSC Request Indexing + URL Inspection
+  for (const { di, cfg, urls: domUrls } of domainUrls) {
+    if (!domUrls.length && !globalUrls.length) continue;
+    const fireUrls = [...new Set([...domUrls, ...globalUrls])].slice(0, 200);
+    const domainKeys = getSAKeysForDomain(di);
+
+    if (cfg.gscUrl && domainKeys.length) {
+      const gscTokens = await Promise.allSettled(
+        domainKeys.map(sa => getToken(sa.json, 'https://www.googleapis.com/auth/webmasters').then(t => ({ sa, t })))
+      );
+      const validGscPairs = gscTokens.filter(r => r.status === 'fulfilled').map(r => r.value);
+
+      for (const { sa, t } of validGscPairs) {
+        if (!t) continue;
+        for (const url of fireUrls) {
+          // Signal 2: GSC URL Inspection — direct inspection request
+          allFires.push(
+            fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ inspectionUrl: url, siteUrl: cfg.gscUrl }),
+            }).then(r => r.ok).catch(() => false)
+          );
+          // Signal 3: GSC Request Indexing — separate quota, separate queue
+          allFires.push(
+            fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gscUrl)}/urlCrawlErrorsSamples/${encodeURIComponent(url)}:markAsFixed`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${t}` },
+            }).then(r => r.ok || r.status === 400).catch(() => false)
+          );
+        }
+      }
+    }
+  }
+
   const results = await Promise.allSettled(allFires);
-  const ok = results.filter(r => r.status==='fulfilled' && r.value).length;
-  logFn(`⚡ Parallel SA fire: ${ok}/${allFires.length} submissions OK (${validPairs.length} SAs)`, 'ok');
+  const ok = results.filter(r => r.status === 'fulfilled' && r.value).length;
+
+  logFn(`⚡ Domain-blast complete: ${ok}/${allFires.length} signals fired (${validPairs.length} SA keys × ${urls.length} URLs × 3 signal types)`, 'ok');
+  logFn(`📊 Coverage: ${domainUrls.filter(d=>d.urls.length).length} domains × all SA keys simultaneously`, 'info');
+
   localStorage.setItem('lc_sa_vault', JSON.stringify(saVault));
-  cfgSet('sa_vault', JSON.stringify(saVault)).catch(()=>{});
+  cfgSet('sa_vault', JSON.stringify(saVault)).catch(() => {});
   renderSAVault(); renderSAStatus();
-  return {ok, fired: allFires.length, sa_count: validPairs.length};
+  return { ok, fired: allFires.length, sa_count: validPairs.length };
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2311,185 +2397,248 @@ function saveGscSettings(){
 }
 
 // ══════════════════════════════════════════════════════════
-// SETTINGS PAGE — SAVE / LOAD / STATUS
+// SETTINGS PAGE — TABS / SAVE / LOAD
 // ══════════════════════════════════════════════════════════
-function updateStatus(inputId, statusId){
-  const el = document.getElementById(inputId);
-  const st = document.getElementById(statusId);
-  if(!el||!st) return;
-  const v = el.value.trim();
-  st.className = 'set-status ' + (v ? 'saved' : 'missing');
-  st.textContent = v ? 'saved' : 'not set';
+
+function switchSetTab(tab){
+  document.querySelectorAll('#view-settings .idx-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('[id^="set-pane-"]').forEach(p=>p.classList.remove('active'));
+  const btn = document.querySelector(`#view-settings .idx-tab[onclick*="'${tab}'"]`);
+  if(btn) btn.classList.add('active');
+  const pane = document.getElementById(`set-pane-${tab}`);
+  if(pane) pane.classList.add('active');
+  if(tab==='gsc'){ renderSAVault(); renderSAStatus(); }
+  if(tab==='domains'){ renderDomainGscRows(); }
+  if(tab==='scheduler'){ restoreSchedChips(); updateSchedStats(); loadDripDefaults(); }
 }
 
-function loadSettingsPage(){
-  // Supabase
-  setVal('cfg-sb-url', localStorage.getItem('lc_sb_url') || SB_URL);
-  setVal('cfg-sb-key', localStorage.getItem('lc_sb_key') || SB_KEY);
-  // Load remaining settings from Supabase in background, then fill form
-  (async ()=>{
-    try{
-      const cfg = await cfgGetAll();
-      const get = (cfgKey, localKey, def='') => cfg[cfgKey] || localStorage.getItem(localKey) || def;
-      setVal('cfg-indexnow-key', get('indexnow_key','lc_indexnow_key',INDEXNOW_KEY));
-      setVal('cfg-indexnow-loc', get('indexnow_loc','lc_indexnow_loc',INDEXNOW_KEY_LOC));
-      setVal('cfg-sitemap',      get('sitemap_url','lc_sitemap_url',SITEMAP_URL));
-      setVal('cfg-feed',         get('feed_url','lc_feed_url',FEED_URL));
-      setVal('bing-api-key',     get('bing_key','lc_bing_key'));
-      setVal('rui-api-key',      get('rui_key','lc_rui_key'));
-      setVal('worker-url-input', get('worker_url','lc_worker_url'));
-      setVal('gsc-site',         get('gsc_site','lc_gsc_site'));
-      setVal('cfg-discord-webhook', get('discord_webhook','lc_discord_webhook'));
-      setVal('cfg-generic-webhook', get('generic_webhook','lc_generic_webhook'));
-      const domRaw = cfg['domains'] || localStorage.getItem('lc_domains');
-      const dp = domRaw ? JSON.parse(domRaw) : null;
-      ['cfg-d1','cfg-d2','cfg-d3','cfg-d4'].forEach((id,i)=>{
-        setVal(id, dp?.[i] || SHORT_BASES[i] || '');
-      });
-      // Re-run status badges after async load
-      ['cfg-sb-url','cfg-sb-key','cfg-d1','cfg-d2','cfg-d3','cfg-d4',
-       'cfg-indexnow-key','cfg-indexnow-loc','cfg-sitemap','cfg-feed',
-       'bing-api-key','rui-api-key','worker-url-input','gsc-site'].forEach(id=>{
-        const map = {'cfg-sb-url':'st-sb-url','cfg-sb-key':'st-sb-key',
-          'cfg-indexnow-key':'st-indexnow','cfg-sitemap':'st-sitemap',
-          'cfg-feed':'st-feed','bing-api-key':'st-bing',
-          'rui-api-key':'st-rui','worker-url-input':'st-worker','gsc-site':'st-gsc-site'};
-        if(map[id]) updateStatus(id, map[id]);
-      });
-    }catch(e){ console.warn('loadSettingsPage Supabase load failed:',e); }
-  })();
-  // Domains (immediate fallback from localStorage while Supabase loads)
-  const d = JSON.parse(localStorage.getItem('lc_domains')||'null');
-  if(d){
-    setVal('cfg-d1', d[0]||''); setVal('cfg-d2', d[1]||'');
-    setVal('cfg-d3', d[2]||''); setVal('cfg-d4', d[3]||'');
-  } else {
-    setVal('cfg-d1', SHORT_BASES[0]||''); setVal('cfg-d2', SHORT_BASES[1]||'');
-    setVal('cfg-d3', SHORT_BASES[2]||''); setVal('cfg-d4', SHORT_BASES[3]||'');
-  }
-  // IndexNow
-  setVal('cfg-indexnow-key', localStorage.getItem('lc_indexnow_key') || INDEXNOW_KEY);
-  setVal('cfg-indexnow-loc', localStorage.getItem('lc_indexnow_loc') || INDEXNOW_KEY_LOC);
-  // Sitemap / Feed
-  setVal('cfg-sitemap', localStorage.getItem('lc_sitemap_url') || SITEMAP_URL);
-  setVal('cfg-feed',    localStorage.getItem('lc_feed_url')    || FEED_URL);
-  // Bing / RUI / Worker
-  setVal('bing-api-key',    localStorage.getItem('lc_bing_key')   || '');
-  setVal('rui-api-key',     localStorage.getItem('lc_rui_key')    || '');
-  setVal('worker-url-input',localStorage.getItem('lc_worker_url') || '');
-  // GSC site
-  setVal('gsc-site', localStorage.getItem('lc_gsc_site') || '');
-  // Update all status badges
-  ['cfg-sb-url','cfg-sb-key','cfg-d1','cfg-d2','cfg-d3','cfg-d4',
-   'cfg-indexnow-key','cfg-indexnow-loc','cfg-sitemap','cfg-feed',
-   'bing-api-key','rui-api-key','worker-url-input','gsc-site'].forEach(id=>{
-    const map = {
-      'cfg-sb-url':'st-sb-url','cfg-sb-key':'st-sb-key',
-      'cfg-indexnow-key':'st-indexnow','cfg-sitemap':'st-sitemap',
-      'cfg-feed':'st-feed','bing-api-key':'st-bing',
-      'rui-api-key':'st-rui','worker-url-input':'st-worker',
-      'gsc-site':'st-gsc-site'
-    };
-    if(map[id]) updateStatus(id, map[id]);
+function settingsMarkDirty(inputId, statusId){
+  if(!statusId) return;
+  const el=document.getElementById(inputId), st=document.getElementById(statusId);
+  if(!el||!st) return;
+  const v=el.value.trim();
+  st.className='set-status '+(v?'saved':'missing');
+  st.textContent=v?'saved':'not set';
+}
+
+// Alias for old callsites
+function updateStatus(inputId, statusId){ settingsMarkDirty(inputId, statusId); }
+
+function showSetupSQL(){
+  const pre=document.getElementById('sb-sql-snippet');
+  if(!pre) return;
+  const hidden=pre.style.display==='none';
+  pre.style.display=hidden?'block':'none';
+  if(hidden) navigator.clipboard?.writeText(pre.textContent).then(()=>toast('SQL copied','green'));
+}
+
+function syncWorkerUrlInputs(){
+  const wu=document.getElementById('worker-url-input')?.value||'';
+  const m=document.getElementById('worker-url-main'); if(m&&wu) m.value=wu;
+  const h=document.getElementById('worker-url-input-hub'); if(h&&wu) h.value=wu;
+  localStorage.setItem('lc_worker_url', wu);
+}
+
+function syncHubMirror(canonId, hubId){
+  const v=document.getElementById(canonId)?.value||'';
+  const h=document.getElementById(hubId); if(h) h.value=v;
+}
+
+function _setVal(id, val){ if(!val&&val!==0) return; const el=document.getElementById(id); if(el) el.value=val; }
+// Keep old alias
+function setVal(id, val){ _setVal(id, val); }
+
+function _syncAllBadges(){
+  const M={'cfg-sb-url':'st-sb-url','cfg-sb-key':'st-sb-key','cfg-indexnow-key':'st-indexnow',
+    'cfg-sitemap':'st-sitemap','cfg-feed':'st-feed','bing-api-key':'st-bing',
+    'rui-api-key':'st-rui','worker-url-input':'st-worker'};
+  Object.entries(M).forEach(([i,s])=>settingsMarkDirty(i,s));
+}
+
+function _syncChanCheckboxes(){
+  const M={
+    'ch-gsc-on':'gsc','ch-idx-api-on':'idxApi','ch-sitemap-api-on':'sitemapApi',
+    'ch-indexnow-on':'indexnow','ch-wayback-on':'wayback','ch-bing-on':'bing',
+    'ch-pubsub-on':'pubsub','ch-xmlrpc-on':'xmlrpc','ch-worker-on':'worker',
+    'ch-rui-on':'rui','ch-t2-on':'t2','ch-multi-sa-on':'multiSaParallel',
+    'ch-bing-first-on':'bingFirst','ch-websub-on':'websub','ch-amplify-on':'amplify',
+    'ch-proxy-on':'proxyEnabled','ch-gsc-request-on':'gscRequest','ch-discover-on':'discover',
+  };
+  Object.entries(M).forEach(([id,k])=>{
+    const el=document.getElementById(id); if(el&&chanSettings[k]!==undefined) el.checked=chanSettings[k];
   });
-  // Reset conn badges
-  setConn('conn-supabase','checking…',false);
-  testSupabase();
-  // Sync hub mirrors for keys
-  const bkVal = document.getElementById('bing-api-key')?.value||'';
-  const el_bh = document.getElementById('bing-api-key-hub'); if(el_bh) el_bh.value=bkVal;
-  const rkVal = document.getElementById('rui-api-key')?.value||'';
-  const el_rh = document.getElementById('rui-api-key-hub'); if(el_rh) el_rh.value=rkVal;
-  const wuVal = document.getElementById('worker-url-input')?.value||'';
-  const el_wh = document.getElementById('worker-url-input-hub'); if(el_wh) el_wh.value=wuVal;
-  // Sync hub checkboxes
+}
+
+function _syncHubMirrors(){
+  const wu=document.getElementById('worker-url-input')?.value||'';
+  const m=document.getElementById('worker-url-main'); if(m&&wu) m.value=wu;
+  const h=document.getElementById('worker-url-input-hub'); if(h&&wu) h.value=wu;
+  const bk=document.getElementById('bing-api-key')?.value||'';
+  const bh=document.getElementById('bing-api-key-hub'); if(bh&&bk) bh.value=bk;
+  const rk=document.getElementById('rui-api-key')?.value||'';
+  const rh=document.getElementById('rui-api-key-hub'); if(rh&&rk) rh.value=rk;
   ['ch-gsc-on','ch-idx-api-on','ch-sitemap-api-on','ch-indexnow-on',
    'ch-wayback-on','ch-bing-on','ch-pubsub-on','ch-xmlrpc-on',
-   'ch-worker-on','ch-rui-on','ch-t2-on'].forEach(id=>{
-    const c=document.getElementById(id); const h=document.getElementById(id+'-hub');
-    if(c&&h) h.checked=c.checked;
+   'ch-worker-on','ch-rui-on','ch-t2-on','ch-gsc-request-on','ch-discover-on'].forEach(id=>{
+    const c=document.getElementById(id), hb=document.getElementById(id+'-hub');
+    if(c&&hb) hb.checked=c.checked;
   });
-  // Restore proxy settings into Settings page fields
-  restoreProxySettings();
-  // Restore auto-scheduler state
-  const schedOn = localStorage.getItem('lc_auto_sched')==='1';
-  const schedCb = document.getElementById('auto-sched-on');
-  if(schedCb) schedCb.checked = schedOn;
-  const badge = document.getElementById('sched-status-badge');
-  if(badge){ badge.textContent = schedOn ? 'Active ✓' : 'Disabled'; badge.style.color = schedOn ? 'var(--accent)' : 'var(--muted2)'; }
-  const nextEl = document.getElementById('sched-next-run');
-  if(nextEl) nextEl.style.display = schedOn ? 'block' : 'none';
-  restoreSchedChips();
-  updateSchedStats();
-  // Restore drip defaults
-  loadDripDefaults();
 }
 
-function setVal(id, val){ const el=document.getElementById(id); if(el&&val) el.value=val; }
+// ── Load settings — localStorage first (instant), then Supabase (override) ──
+function loadSettingsPage(){
+  _fillFromLocal();
+  (async()=>{
+    try{
+      const cfg=await cfgGetAll();
+      if(!cfg||!Object.keys(cfg).length){ testSupabase(); return; }
+      const g=(ck,lk,def='')=>(cfg[ck]??null)||localStorage.getItem(lk)||def;
+      _setVal('cfg-sb-url',       g('sb_url','lc_sb_url',SB_URL));
+      _setVal('cfg-sb-key',       g('sb_key','lc_sb_key',SB_KEY));
+      _setVal('cfg-indexnow-key', g('indexnow_key','lc_indexnow_key',INDEXNOW_KEY));
+      _setVal('cfg-indexnow-loc', g('indexnow_loc','lc_indexnow_loc',INDEXNOW_KEY_LOC));
+      _setVal('cfg-sitemap',      g('sitemap_url','lc_sitemap_url',SITEMAP_URL));
+      _setVal('cfg-feed',         g('feed_url','lc_feed_url',FEED_URL));
+      _setVal('bing-api-key',     g('bing_key','lc_bing_key',''));
+      _setVal('rui-api-key',      g('rui_key','lc_rui_key',''));
+      _setVal('worker-url-input', g('worker_url','lc_worker_url',''));
+      _setVal('cfg-discord-webhook', g('discord_webhook','lc_discord_webhook',''));
+      _setVal('cfg-generic-webhook', g('generic_webhook','lc_generic_webhook',''));
+      // Domains
+      try{
+        const raw=cfg['domains']||localStorage.getItem('lc_domains');
+        if(raw){ const arr=JSON.parse(raw); ['cfg-d1','cfg-d2','cfg-d3','cfg-d4'].forEach((id,i)=>_setVal(id,arr[i]||SHORT_BASES[i]||'')); }
+      }catch(e){}
+      // Channel settings
+      try{ const cr=cfg['chan_settings']||localStorage.getItem('lc_chan'); if(cr) Object.assign(chanSettings,JSON.parse(cr)); }catch(e){}
+      // SA vault
+      try{ const sv=cfg['sa_vault']||localStorage.getItem('lc_sa_vault'); if(sv) saVault=JSON.parse(sv)||[]; }catch(e){}
+      // Domain GSC config
+      try{
+        const dg=cfg['domain_gsc']||localStorage.getItem('lc_domain_gsc');
+        if(dg){ const arr=JSON.parse(dg); if(Array.isArray(arr)) domainGscConfig=arr; }
+      }catch(e){}
+      SHORT_BASES.forEach((base,i)=>{ if(!domainGscConfig[i]) domainGscConfig[i]={base,gscUrl:'',saJson:''}; else domainGscConfig[i].base=base; });
+      _syncAllBadges(); _syncChanCheckboxes(); _syncHubMirrors();
+      renderSAVault(); renderSAStatus(); renderDomainGscRows();
+    }catch(e){ console.warn('loadSettingsPage Supabase error:',e); }
+  })();
+  restoreProxySettings();
+  const schedOn=localStorage.getItem('lc_auto_sched')==='1';
+  const scb=document.getElementById('auto-sched-on'); if(scb) scb.checked=schedOn;
+  const sbg=document.getElementById('sched-status-badge');
+  if(sbg){ sbg.textContent=schedOn?'Active ✓':'Disabled'; sbg.style.color=schedOn?'var(--accent)':'var(--muted2)'; }
+  const sne=document.getElementById('sched-next-run'); if(sne) sne.style.display=schedOn?'block':'none';
+  restoreSchedChips(); updateSchedStats(); loadDripDefaults();
+  // Browser notification state
+  if(Notification.permission==='granted'&&localStorage.getItem('lc_notif_browser')==='1'){
+    const btn=document.getElementById('notif-browser-btn'), s=document.getElementById('notif-browser-status');
+    if(btn) btn.textContent='Enabled ✓';
+    if(s){ s.textContent='On'; s.style.background='var(--accent-dim)'; s.style.color='var(--accent)'; }
+  }
+  testSupabase();
+}
 
+function _fillFromLocal(){
+  _setVal('cfg-sb-url',       localStorage.getItem('lc_sb_url')||SB_URL);
+  _setVal('cfg-sb-key',       localStorage.getItem('lc_sb_key')||SB_KEY);
+  _setVal('cfg-indexnow-key', localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY);
+  _setVal('cfg-indexnow-loc', localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC);
+  _setVal('cfg-sitemap',      localStorage.getItem('lc_sitemap_url')||SITEMAP_URL);
+  _setVal('cfg-feed',         localStorage.getItem('lc_feed_url')||FEED_URL);
+  _setVal('bing-api-key',     localStorage.getItem('lc_bing_key')||'');
+  _setVal('rui-api-key',      localStorage.getItem('lc_rui_key')||'');
+  _setVal('worker-url-input', localStorage.getItem('lc_worker_url')||'');
+  _setVal('cfg-discord-webhook', localStorage.getItem('lc_discord_webhook')||'');
+  _setVal('cfg-generic-webhook', localStorage.getItem('lc_generic_webhook')||'');
+  try{
+    const d=JSON.parse(localStorage.getItem('lc_domains')||'null');
+    ['cfg-d1','cfg-d2','cfg-d3','cfg-d4'].forEach((id,i)=>_setVal(id,d?.[i]||SHORT_BASES[i]||''));
+  }catch(e){}
+  _syncAllBadges(); _syncChanCheckboxes(); _syncHubMirrors();
+}
+
+// ── Save ALL settings to localStorage + Supabase ──
 async function saveAllSettings(){
-  // Supabase
-  const sbUrl = document.getElementById('cfg-sb-url')?.value.trim();
-  const sbKey = document.getElementById('cfg-sb-key')?.value.trim();
+  const btn=document.getElementById('set-save-all-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Saving…'; }
+  // Collect
+  const sbUrl=document.getElementById('cfg-sb-url')?.value.trim()||'';
+  const sbKey=document.getElementById('cfg-sb-key')?.value.trim()||'';
+  const d1=document.getElementById('cfg-d1')?.value.trim()||'';
+  const d2=document.getElementById('cfg-d2')?.value.trim()||'';
+  const d3=document.getElementById('cfg-d3')?.value.trim()||'';
+  const d4=document.getElementById('cfg-d4')?.value.trim()||'';
+  const ink=document.getElementById('cfg-indexnow-key')?.value.trim()||'';
+  const inl=document.getElementById('cfg-indexnow-loc')?.value.trim()||'';
+  const sm=document.getElementById('cfg-sitemap')?.value.trim()||'';
+  const fd=document.getElementById('cfg-feed')?.value.trim()||'';
+  const bk=document.getElementById('bing-api-key')?.value.trim()||'';
+  const rk=document.getElementById('rui-api-key')?.value.trim()||'';
+  const wu=document.getElementById('worker-url-input')?.value.trim()||'';
+  const dw=document.getElementById('cfg-discord-webhook')?.value.trim()||'';
+  const gw=document.getElementById('cfg-generic-webhook')?.value.trim()||'';
+  const domsArr=[d1,d2,d3,d4];
+  // 1. localStorage
   if(sbUrl) localStorage.setItem('lc_sb_url', sbUrl);
   if(sbKey) localStorage.setItem('lc_sb_key', sbKey);
-  // Domains
-  const d1 = document.getElementById('cfg-d1')?.value.trim();
-  const d2 = document.getElementById('cfg-d2')?.value.trim();
-  const d3 = document.getElementById('cfg-d3')?.value.trim();
-  const d4 = document.getElementById('cfg-d4')?.value.trim();
-  const domsArr = [d1,d2,d3,d4];
   if(d1||d2||d3||d4) localStorage.setItem('lc_domains', JSON.stringify(domsArr));
-  // IndexNow
-  const ink = document.getElementById('cfg-indexnow-key')?.value.trim();
-  const inl = document.getElementById('cfg-indexnow-loc')?.value.trim();
   if(ink) localStorage.setItem('lc_indexnow_key', ink);
   if(inl) localStorage.setItem('lc_indexnow_loc', inl);
-  // Sitemap / Feed
-  const sm = document.getElementById('cfg-sitemap')?.value.trim();
-  const fd = document.getElementById('cfg-feed')?.value.trim();
-  if(sm) localStorage.setItem('lc_sitemap_url', sm);
-  if(fd) localStorage.setItem('lc_feed_url', fd);
-  // GSC site
-  saveGscSettings();
-  // Channel toggles + API keys
+  if(sm)  localStorage.setItem('lc_sitemap_url', sm);
+  if(fd)  localStorage.setItem('lc_feed_url', fd);
+  if(bk){ localStorage.setItem('lc_bing_key', bk); localStorage.setItem('lc_bing_api_key', bk); }
+  if(rk)  localStorage.setItem('lc_rui_key', rk);
+  if(wu)  localStorage.setItem('lc_worker_url', wu);
+  if(dw)  localStorage.setItem('lc_discord_webhook', dw);
+  if(gw)  localStorage.setItem('lc_generic_webhook', gw);
+  // Run sub-saves
+  saveChanSettings(); saveProxySettings(); saveDomainGscConfig(); saveGscSettings(); saveDripDefaults();
+  _syncHubMirrors();
+  // 2. Supabase batch
+  const batch={
+    chan_settings:  JSON.stringify(chanSettings),
+    sa_vault:       JSON.stringify(saVault),
+    domain_gsc:     JSON.stringify(domainGscConfig),
+    drip_default_on:  localStorage.getItem('lc_drip_default_on')||'1',
+    drip_default_hours: localStorage.getItem('lc_drip_default_hours')||'[6,12,24,48]',
+    sched_intervals: localStorage.getItem('lc_sched_intervals')||'[12,24,48,72,96]',
+    auto_sched:      localStorage.getItem('lc_auto_sched')||'0',
+    proxy_gateway:   localStorage.getItem('lc_proxy_gateway')||'',
+    proxy_count:     localStorage.getItem('lc_proxy_count')||'10',
+    proxy_on:        localStorage.getItem('lc_proxy_on')||'0',
+  };
+  if(d1||d2||d3||d4) batch['domains']          = JSON.stringify(domsArr);
+  if(ink)             batch['indexnow_key']     = ink;
+  if(inl)             batch['indexnow_loc']     = inl;
+  if(sm)              batch['sitemap_url']      = sm;
+  if(fd)              batch['feed_url']         = fd;
+  if(bk)              batch['bing_key']         = bk;
+  if(rk)              batch['rui_key']          = rk;
+  if(wu)              batch['worker_url']       = wu;
+  if(dw)              batch['discord_webhook']  = dw;
+  if(gw)              batch['generic_webhook']  = gw;
+  try{
+    await cfgSetBatch(batch);
+    ['set-saved-msg','set-saved-msg2'].forEach(id=>{
+      const el=document.getElementById(id); if(!el) return;
+      el.style.opacity='1'; setTimeout(()=>el.style.opacity='0',2200);
+    });
+    _syncAllBadges();
+    toast('✅ All settings saved to Supabase','green');
+  }catch(e){
+    toast('⚠ Save failed: '+e.message,'');
+    console.error('saveAllSettings error:',e);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='💾 Save All'; }
+  }
+}
+
+// Alias for hub → canonical sync
+function syncHubToSettings(canonicalId){
+  const hub=document.getElementById(canonicalId+'-hub'), canon=document.getElementById(canonicalId);
+  if(hub&&canon) canon.checked=hub.checked;
   saveChanSettings();
-  // Notification webhooks
-  const dw = document.getElementById('cfg-discord-webhook')?.value.trim();
-  const gw = document.getElementById('cfg-generic-webhook')?.value.trim();
-  if(dw) localStorage.setItem('lc_discord_webhook', dw);
-  if(gw) localStorage.setItem('lc_generic_webhook', gw);
-  // Proxy settings
-  saveProxySettings();
-  // Drip defaults
-  saveDripDefaults();
-  // ── Persist all to Supabase lc_config ──
-  const bk = document.getElementById('bing-api-key')?.value.trim();
-  const rk = document.getElementById('rui-api-key')?.value.trim();
-  const wu = document.getElementById('worker-url-input')?.value.trim();
-  const gs = document.getElementById('gsc-site')?.value.trim();
-  const configBatch = {};
-  if(d1||d2||d3||d4) configBatch['domains'] = JSON.stringify(domsArr);
-  if(ink) configBatch['indexnow_key'] = ink;
-  if(inl) configBatch['indexnow_loc'] = inl;
-  if(sm)  configBatch['sitemap_url']  = sm;
-  if(fd)  configBatch['feed_url']     = fd;
-  if(dw)  configBatch['discord_webhook'] = dw;
-  if(gw)  configBatch['generic_webhook'] = gw;
-  if(bk)  configBatch['bing_key']     = bk;
-  if(rk)  configBatch['rui_key']      = rk;
-  if(wu)  configBatch['worker_url']   = wu;
-  if(gs)  configBatch['gsc_site']     = gs;
-  configBatch['chan_settings'] = JSON.stringify(chanSettings);
-  if(Object.keys(configBatch).length) cfgSetBatch(configBatch).catch(e=>console.warn('cfgSetBatch:',e));
-  // Flash saved message
-  ['set-saved-msg','set-saved-msg2'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.style.opacity='1';
-    setTimeout(()=>el.style.opacity='0', 2200);
-  });
-  toast('✓ All settings saved to Supabase','green');
 }
 
 // ── Connection tests ─────────────────────────────────────────
@@ -3634,7 +3783,12 @@ async function rawUrlBlast(){
   btn.disabled=true; btn.textContent='⏳ Blasting…';
   document.getElementById('raw-blast-results-card').style.display='';
   document.getElementById('raw-blast-log').innerHTML='';
-  rawLog(`🔥 BEAST Blast: ${urls.length} URLs across all channels…`,'info');
+  // v20: read raw blast group selection
+  const rbg1 = document.getElementById('rbg-chk-1')?.checked ?? true;
+  const rbg2 = document.getElementById('rbg-chk-2')?.checked ?? true;
+  const rbg3 = document.getElementById('rbg-chk-3')?.checked ?? true;
+  const activeGrps = [rbg1&&'G1:Core', rbg2&&'G2:Crawlers', rbg3&&'G3:Full'].filter(Boolean);
+  rawLog(`🔥 BEAST Blast: ${urls.length} URLs — Groups: ${activeGrps.join('+') || 'NONE'}`,'info');
   // FIX 3: Check for noindex on first URL before wasting quota
   if(urls.length<=3){
     try{
@@ -3651,7 +3805,8 @@ async function rawUrlBlast(){
     'https://api.indexnow.org/IndexNow',
   ];
 
-  // ── 0. Bing-First (fires BEFORE Google — cross-engine signal) ──
+  // ══ GROUP 1: IndexNow + GSC + Sitemap Core ══
+  if(rbg1){
   rawLog('🔎 Bing-first: submitting to Bing + Yandex…','info');
   const bfPayload = JSON.stringify({
     host: new URL(urls[0]).hostname,
@@ -3752,6 +3907,19 @@ async function rawUrlBlast(){
     }catch(e){ rawLog(`⚠ Bing: ${e.message}`,'info'); }
   }
 
+  // ── 8. Sitemap ping (G1) ──
+  for(const smUrl of SITEMAP_URLS){
+    const smEnc=encodeURIComponent(smUrl);
+    await Promise.allSettled([
+      fetch(`https://www.google.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}),
+      fetch(`https://www.bing.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}),
+    ]);
+  }
+  rawLog(`🗺 Sitemap pings sent (Google + Bing, all ${SITEMAP_URLS.length} domains)`,'ok');
+  } // end Group 1
+
+  // ══ GROUP 3: Full Remaining Layer Stack ══
+  if(rbg3){
   // ── 5. Wayback Machine ──
   rawLog(`🕰 Wayback Machine save (first ${Math.min(urls.length,5)})…`,'info');
   let wbOk=0;
@@ -3769,16 +3937,6 @@ async function rawUrlBlast(){
   rawLog('📡 WebSub deep-stack (5 hubs)…','info');
   await fireWebSubDeep(FEED_URLS, SITEMAP_URLS, rawLog);
 
-  // ── 8. Sitemap ping ──
-  for(const smUrl of SITEMAP_URLS){
-    const smEnc=encodeURIComponent(smUrl);
-    await Promise.allSettled([
-      fetch(`https://www.google.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}),
-      fetch(`https://www.bing.com/ping?sitemap=${smEnc}`,{mode:'no-cors'}),
-    ]);
-  }
-  rawLog(`🗺 Sitemap pings sent (Google + Bing, all ${SITEMAP_URLS.length} domains)`,'ok');
-
   // ── 9. PubSub ──
   const b=new FormData();
   b.append('hub.mode','publish');
@@ -3786,7 +3944,10 @@ async function rawUrlBlast(){
   FEED_URLS.forEach(u=>b.append('hub.url',u));
   await Promise.allSettled(['https://pubsubhubbub.appspot.com/','https://pubsubhubbub.superfeedr.com/'].map(hub=>fetch(hub,{method:'POST',body:b,mode:'no-cors'})));
   rawLog('📢 PubSubHubbub notified','ok');
+  } // end Group 3
 
+  // ══ GROUP 2: Top Crawlers + Worker G-layers ══
+  if(rbg2){
   // ── 10. Worker API (if set) ──
   const wUrl=(localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
   if(wUrl){
@@ -3801,12 +3962,14 @@ async function rawUrlBlast(){
     const ar=await crawlAmplifyViaWorker(urls,rawLog);
     if(ar&&ar.ok) rawLog(`🌐 Amplify done via ${ar.via}`,'ok');
   }
+  } // end Group 2
 
   rawLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','info');
-  rawLog(`✅ BEAST blast complete — ${urls.length} URLs × all channels fired`,'ok');
+  const firedGrps = [rbg1&&'G1:Core', rbg2&&'G2:Crawlers', rbg3&&'G3:Full'].filter(Boolean);
+  rawLog(`✅ BEAST blast complete — ${urls.length} URLs × groups: ${firedGrps.join('+')||'NONE'}`,'ok');
   btn.disabled=false; btn.textContent='🔥 Blast All Channels';
   document.getElementById('raw-blast-count').textContent=`${urls.length} URLs blasted`;
-  toast(`🔥 BEAST blast done — ${urls.length} URLs`,'green');
+  toast(`🔥 BEAST blast done — ${urls.length} URLs [${firedGrps.join('+')}]`,'green');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -4135,7 +4298,7 @@ async function blastUrls(shortUrls, pl, logTarget='idx'){
     })(),
     (async()=>{
       // ── 8. BEAST: Multi-SA Parallel Fire — FIX 1: includes destination URLs ──
-      if(chanSettings.multiSaParallel && saVault.length > 1){
+      if(chanSettings.multiSaParallel && saVault.length >= 1){
         await fireAllSAsInParallel(allUrls, log);
       }
     })(),
@@ -4249,6 +4412,7 @@ async function runWorkerSubmit(){
         gsc_site:   document.getElementById('gsc-site')?.value.trim()||'',
         drip_mode:  idxGetDripMode(),
         drip_hours: idxGetDripHours(),
+        blast_groups: getIdxBlastGroups(),
       })
     });
     if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); return; }
@@ -4267,7 +4431,9 @@ async function runWorkerSubmit(){
     // Update sitemap-idx-url display
     const idxUrl = document.getElementById('idx-sitemap-idx-url-display');
     if(idxUrl) idxUrl.textContent = `${wUrl}/sitemap-index.xml`;
-    toast(`⚡ Worker BEAST job queued — ${d.urls_queued} URLs`,'green');
+    const ibg = getIdxBlastGroups();
+    const ibgActive = [ibg.group1&&'G1', ibg.group2&&'G2', ibg.group3&&'G3'].filter(Boolean);
+    toast(`⚡ Worker BEAST job queued — ${d.urls_queued} URLs [${ibgActive.join('+')||'none'}]`,'green');
   } catch(e){
     toast('Worker unreachable: '+e.message,'');
     idxLog(`✖ Worker unreachable: ${e.message}`,'');
@@ -4738,15 +4904,59 @@ function ifParseUrls(raw){
   return raw.replace(/,/g,'\n').split('\n').map(u=>u.trim()).filter(u=>{ try{new URL(u);return true;}catch{return false;} });
 }
 
+// ── FIX 10: Sync URL_STATE back to worker after Railway restart ──
+// Worker loses all in-memory state on redeploy. This syncs client-cached verdicts back.
+async function syncUrlStateToWorker(){
+  const workerUrl = localStorage.getItem('lc_worker_url')||'';
+  if(!workerUrl) return;
+  try{
+    const stateKey = 'lc_url_state_cache';
+    const cached = localStorage.getItem(stateKey);
+    if(!cached) return;
+    const urlState = JSON.parse(cached);
+    const r = await fetch(`${workerUrl}/api/url-state`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({url_state: urlState})
+    }).catch(()=>null);
+    if(r?.ok){
+      const d = await r.json();
+      console.log(`[IndexForce] URL state synced: ${d.restored} verdicts restored to worker`);
+    }
+  }catch(e){ console.warn('[IndexForce] State sync failed:', e); }
+}
+
+// Save verdict to local cache when we learn it
+function cacheUrlVerdict(url, verdict){
+  try{
+    const stateKey = 'lc_url_state_cache';
+    const cached = JSON.parse(localStorage.getItem(stateKey)||'{}');
+    cached[url] = {verdict, cached_at: Date.now()};
+    // Prune entries older than 7 days
+    const cutoff = Date.now() - 7*24*60*60*1000;
+    for(const [u, s] of Object.entries(cached)){
+      if(s.cached_at < cutoff) delete cached[u];
+    }
+    localStorage.setItem(stateKey, JSON.stringify(cached));
+  }catch(e){}
+}
+
 function ifFillFromProject(){
   const pid = document.getElementById('worker-proj-sel')?.value;
   const ta  = document.getElementById('if-url-input');
   if(!pid||!ta){ toast('Select a project first',''); return; }
   const pl = links[pid]||[];
   if(!pl.length){ toast('No links in this project',''); return; }
-  ta.value = pl.flatMap(l=>allShortUrls(l.code)).join('\n');
+  // FIX: include destination (original) URLs first — these are the actual backlink pages
+  // Google must index. Short URLs are 301 wrappers; blasting them without the destination
+  // means Googlebot follows the redirect and indexes the destination on its own merit,
+  // wasting blast quota on the wrapper. Include both so all signal layers fire on the
+  // URLs that actually need indexing.
+  const originals  = pl.map(l=>l.original).filter(Boolean);
+  const shortUrls  = pl.flatMap(l=>allShortUrls(l.code));
+  const allUrls    = [...new Set([...originals, ...shortUrls])];
+  ta.value = allUrls.join('\n');
   ifCountUrls();
-  toast(`↓ ${pl.length} short links loaded`,'green');
+  toast(`↓ ${originals.length} destination(s) + ${shortUrls.length} short link(s) loaded`,'green');
 }
 
 async function ifSubmitJob(){
@@ -4774,8 +4984,11 @@ async function ifSubmitJob(){
         gsc_sites: domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl, saJson:d.saJson||''})),
         drip_mode: getDripMode(),
         drip_hours: getDripHours(),
-        // L1 Micro-Drip: T+5/10/20/30min re-blasts (new v11)
+        // L1 Micro-Drip: configurable minute cadence (v20)
         micro_drip: document.getElementById('micro-drip-mode-chk')?.checked ?? false,
+        micro_drip_minutes: getMicroDripMinutes(),
+        // v20: Blast group selection
+        blast_groups: getBlastGroups(),
       })
     });
     if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); btn.disabled=false; btn.textContent='⚡ Start Indexing'; if(prog) prog.style.display='none'; return; }
@@ -4795,8 +5008,12 @@ async function ifSubmitJob(){
       if(dripCard){ dripCard.style.display=''; setTimeout(fetchDripStatus,800); }
     }
     const layerCount = d.layers_fired || 80;
-    const microMsg = d.micro_drip ? ' + Micro-Drip (T+5/10/20/30min)' : '';
-    toast(`⚡ Job queued — ${d.urls_queued} URLs × ${layerCount} layers${microMsg}`,'green');
+    const microMins = getMicroDripMinutes();
+    const microMsg = d.micro_drip ? ` + Micro-Drip (T+${microMins.map(m=>m+'m').join('/')})` : '';
+    const g = getBlastGroups();
+    const activeGroups = [g.group1&&'G1', g.group2&&'G2', g.group3&&'G3'].filter(Boolean);
+    const groupMsg = activeGroups.length < 3 ? ` [${activeGroups.join('+')}]` : '';
+    toast(`⚡ Job queued — ${d.urls_queued} URLs × ${layerCount} layers${groupMsg}${microMsg}`,'green');
   }catch(e){
     toast('Worker unreachable: '+e.message,'');
     btn.disabled=false; btn.textContent='⚡ Start Indexing';
@@ -6406,6 +6623,10 @@ function bootAutoScheduler(){
 document.addEventListener('DOMContentLoaded',()=>{
   ifInit();
   bootAutoScheduler();
+  // v20: init micro-drip chip state and blast group summaries
+  toggleMicroDripChips();
+  updateBlastGroupSummary();
+  updateIdxGroupSummary();
   const inner = document.getElementById('bot-feed-inner');
   if(inner){
     inner.addEventListener('mouseenter',()=>inner.classList.add('paused'));
@@ -6647,6 +6868,107 @@ function getDripHours() {
 
 function getDripMode() {
   return document.getElementById('drip-mode-chk')?.checked ?? true;
+}
+
+// ── v20: Micro-drip interval chip selector ──
+function selectMicroInterval(btn) {
+  document.querySelectorAll('.micro-int-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderMicroDripPreview();
+}
+
+function getMicroDripMinutes() {
+  const chip = document.querySelector('.micro-int-chip.active');
+  const interval = chip ? parseInt(chip.dataset.mins) : 5;
+  // Build cadence: e.g. 5min → [5,10,20,30], 2min → [2,4,8,16,32], 10min → [10,20,30,60]
+  const presets = {
+    2:  [2, 4, 8, 16, 30],
+    5:  [5, 10, 20, 30],
+    10: [10, 20, 40, 60]
+  };
+  return presets[interval] || presets[5];
+}
+
+function renderMicroDripPreview() {
+  const mins = getMicroDripMinutes();
+  const preview = document.getElementById('micro-drip-preview');
+  if (!preview) return;
+  preview.textContent = `Fires at: T+${mins.map(m => m + 'min').join(' → ')}`;
+}
+
+function toggleMicroDripChips() {
+  const chk = document.getElementById('micro-drip-mode-chk');
+  const lbl = document.getElementById('micro-drip-chk-label');
+  const row = document.getElementById('micro-drip-chips-row');
+  if (!chk) return;
+  if (lbl) lbl.textContent = chk.checked ? 'ON' : 'OFF';
+  if (row) row.style.display = chk.checked ? 'flex' : 'none';
+  if (chk.checked) renderMicroDripPreview();
+}
+
+// ── v20: Blast group toggle ──
+function toggleBlastGroup(num, rowEl) {
+  const chk = document.getElementById('bg-chk-' + num);
+  if (!chk) return;
+  // if rowEl is the row div (not the checkbox), toggle checkbox
+  if (rowEl && rowEl.tagName !== 'INPUT') {
+    chk.checked = !chk.checked;
+  }
+  rowEl = document.getElementById('bg-row-' + num);
+  if (rowEl) rowEl.classList.toggle('checked', chk.checked);
+  updateBlastGroupSummary();
+}
+
+function getBlastGroups() {
+  return {
+    group1: document.getElementById('bg-chk-1')?.checked ?? true,
+    group2: document.getElementById('bg-chk-2')?.checked ?? true,
+    group3: document.getElementById('bg-chk-3')?.checked ?? true
+  };
+}
+
+function updateBlastGroupSummary() {
+  const g = getBlastGroups();
+  const active = [g.group1 && 'G1:Core', g.group2 && 'G2:Crawlers', g.group3 && 'G3:Full'].filter(Boolean);
+  const el = document.getElementById('blast-groups-summary');
+  if (!el) return;
+  if (active.length === 3) {
+    el.textContent = '✅ All 3 groups active — full 80-layer blast';
+    el.style.color = 'var(--accent)';
+  } else if (active.length === 0) {
+    el.textContent = '⚠️ No groups selected — nothing will fire!';
+    el.style.color = 'var(--red)';
+  } else {
+    el.textContent = '⚡ Active: ' + active.join(' + ');
+    el.style.color = 'var(--cyan)';
+  }
+}
+
+function updateIdxGroupSummary() {
+  const g1 = document.getElementById('ibg-chk-1')?.checked ?? true;
+  const g2 = document.getElementById('ibg-chk-2')?.checked ?? true;
+  const g3 = document.getElementById('ibg-chk-3')?.checked ?? true;
+  const active = [g1&&'G1:Core', g2&&'G2:Crawlers', g3&&'G3:Full'].filter(Boolean);
+  const el = document.getElementById('idx-groups-summary');
+  if (!el) return;
+  if (active.length === 3) {
+    el.textContent = '✅ All 3 groups — full 80-layer blast';
+    el.style.color = 'var(--accent)';
+  } else if (active.length === 0) {
+    el.textContent = '⚠️ No groups selected — nothing will fire!';
+    el.style.color = 'var(--red)';
+  } else {
+    el.textContent = '⚡ Active: ' + active.join(' + ');
+    el.style.color = 'var(--cyan)';
+  }
+}
+
+function getIdxBlastGroups() {
+  return {
+    group1: document.getElementById('ibg-chk-1')?.checked ?? true,
+    group2: document.getElementById('ibg-chk-2')?.checked ?? true,
+    group3: document.getElementById('ibg-chk-3')?.checked ?? true,
+  };
 }
 
 // ══════════════════════════════════════════════════════════
