@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -518,7 +519,7 @@ textarea{resize:vertical;line-height:1.7}
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-logo">⚡</div>
-      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v18 · 16-Layer BEAST · Auto-blast</div></div>
+      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v18 · 70-Layer BEAST v10 · Auto-blast</div></div>
     </div>
     <div class="sb-label">Views</div>
     <button class="sb-btn active" onclick="showView('dashboard')"><span class="dot"></span> Dashboard</button>
@@ -638,7 +639,7 @@ textarea{resize:vertical;line-height:1.7}
       </div>
       <div class="card">
         <div class="card-label">📋 Paste URLs to Blast</div>
-        <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">One URL per line. Hits GSC Indexing API · IndexNow × 8 · Bing Webmaster Direct API · Wayback · XML-RPC × 45 · PubSubHubbub · Feed Aggregators × 47 · Sitemap ping — everything. No shortlink created.</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">One URL per line. Hits all 70 BEAST v10 layers: GSC Indexing API + Request Indexing · IndexNow × 10 · G-Layers (PageSpeed, AMP, Translate, CF Radar, Rendertron) · J-Layers (Fibonacci Drip, SA Quota Rotation, Cross-Domain Mesh) · K-Layers (Live Inspection, Superfeedr, SEO Bot Signal) · XML-RPC × 80 · WebSub × 10 hubs. No shortlink created.</div>
         <textarea id="raw-blast-input" rows="10" placeholder="https://somesite.com/backlink-page&#10;https://anothersite.com/your-link&#10;https://example.com/page-with-your-link"></textarea>
         <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
           <button class="btn btn-primary" id="raw-blast-btn" onclick="rawUrlBlast()">🔥 Blast All Channels</button>
@@ -667,7 +668,7 @@ textarea{resize:vertical;line-height:1.7}
 
     <div class="view" id="view-indexing">
       <div class="page-hdr">
-        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">16-layer BEAST blast · GSC Request Indexing · Google Discover Ping · Drip-Feed Re-blast · Link-Hub PageRank · IndexNow × 8 · XML-RPC × 80 · Crawl Amplify · Wayback</div></div>
+        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">70-layer BEAST v10 · GSC Request Indexing · Google Discover Ping · Fibonacci Drip · Adaptive Burst · IndexNow × 10 · XML-RPC × 80 · Crawl Amplify</div></div>
         <div class="hdr-btns"><button class="btn btn-outline" onclick="showView('dashboard')">← Back</button></div>
       </div>
       <div class="idx-tabs">
@@ -850,7 +851,7 @@ textarea{resize:vertical;line-height:1.7}
           </div>
           <div class="channel-card active-ch">
             <div class="ch-hdr"><span class="ch-icon">⚙</span><span class="ch-title">Worker API Blast — BEAST</span><span class="ch-badge badge-white">SERVER-SIDE</span></div>
-            <div class="ch-desc">12-layer server-side engine. No CORS limits, real TCP, multi-SA parallel fire. All layers run simultaneously.</div>
+            <div class="ch-desc">70-layer BEAST v10 engine. No CORS limits, real TCP, multi-SA parallel fire. All 70 layers run simultaneously.</div>
             <input id="worker-url-input-hub" placeholder="https://your-app.railway.app" style="margin:8px 0" oninput="document.getElementById('worker-url-input').value=this.value;saveChanSettings()">
             <label class="ch-toggle"><input type="checkbox" id="ch-worker-on-hub" onchange="syncHubToSettings('ch-worker-on')"> Enable (auto-fires on Submit)</label>
             <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px">
@@ -1076,7 +1077,7 @@ textarea{resize:vertical;line-height:1.7}
       <div class="page-hdr">
         <div>
           <div class="page-title">⚡ IndexForce</div>
-          <div class="page-sub">16-layer BEAST v7 · GSC Request Indexing · Google Discover Ping · Link-Hub PageRank · NewsArticle Schema · Drip-Feed · 24h Verify · DNS Prefetch · News Sitemap</div>
+          <div class="page-sub">70-layer BEAST v10 · GSC Request Indexing · Google Discover Ping · G-Layers (20) · J-Layers (14) · K-Layers (20) · Fibonacci Drip · Adaptive Burst · SA Quota Rotation</div>
         </div>
         <div class="hdr-btns">
           <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
@@ -1095,14 +1096,14 @@ textarea{resize:vertical;line-height:1.7}
           <div class="worker-dot" id="worker-dot"></div>
           <span id="worker-health-text" style="color:var(--muted)">Not connected — enter your Railway URL and test</span>
         </div>
-        <div class="hint" style="margin-top:6px">Deploy <strong>worker.py</strong> (BEAST v7) to Railway, paste the public URL above. All <strong>16 layers</strong> run server-side — no CORS limits, real TCP connections, drip scheduler, GSC Request Indexing, Google Discover ping, and 24h indexation verify.</div>
+        <div class="hint" style="margin-top:6px">Deploy <strong>worker_v10.py</strong> (BEAST v10) to Railway, paste the public URL above. All <strong>70 layers</strong> run server-side — no CORS limits, real TCP connections, drip scheduler, GSC Request Indexing, Google Discover ping, and 24h indexation verify.</div>
       </div>
 
       <!-- Submit card -->
       <div class="card">
         <div class="card-label">🚀 Submit URLs — 16-Layer BEAST Blast</div>
         <div style="font-size:.6rem;color:var(--muted);margin-bottom:10px">
-          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all 16 layers concurrently on Railway — including GSC Request Indexing, Google Discover Ping, NewsArticle Schema, DNS Prefetch, and News Sitemap injection.
+          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all 70 layers concurrently on Railway (BEAST v10) — including GSC Request Indexing, Google Discover Ping, NewsArticle Schema, DNS Prefetch, and News Sitemap injection.
         </div>
         <!-- Plan toggle -->
         <div class="plan-row">
@@ -1219,7 +1220,7 @@ textarea{resize:vertical;line-height:1.7}
 
       <!-- 16 Layers explained -->
       <div class="card">
-        <div class="card-label">🔬 What BEAST worker.py Fires (16 Layers, All Simultaneous)</div>
+        <div class="card-label">🔬 What BEAST worker_v10.py Fires (70 Layers, All Simultaneous)</div>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
           <div class="if-layer"><span class="if-layer-icon">🔥</span><div><div class="if-layer-name">Multi-SA Parallel Google Indexing API</div><div class="if-layer-detail">ALL SA keys × all URLs simultaneously — N× independent priority signals to Google's indexing queue vs sequential round-robin</div></div></div>
           <div class="if-layer"><span class="if-layer-icon">📋</span><div><div class="if-layer-name">GSC Request Indexing (NEW #1)</div><div class="if-layer-detail">Dedicated "Request Indexing" API — ~10 requests/day per GSC property per SA key, spread across all SA keys. This is the actual GSC button, exposed via API.</div></div></div>
@@ -3207,217 +3208,226 @@ async function fullBlastOnAdd(newLinks){
 
   sitemapLog(`🚀 Auto-blast started — ${originals.length} original(s) + ${allShorts.length} short(s) = ${fullUrlSet.length} total URLs`,'info');
 
-  // ── Step 1: Build & save all 4 sitemaps ──
+  // ── Phase 0: Build & save all 4 sitemaps (must complete first — signals reference them) ──
   const sitemapRows = await buildAndSaveAllSitemaps();
 
-  // ── Step 2: Google Indexing API — per-domain SA, all shorts + originals ──
-  if(chanSettings.idxApi){
-    let totalQueued=0, totalFailed=0;
-    // Fire each short-link domain with its own SA
-    for(let di=0; di<SHORT_BASES.length; di++){
+  // ── Phase 1: Authenticate ALL domain SA tokens in parallel ──
+  // Pre-fetch every token we'll need so no channel has to wait on auth.
+  const _domainTokens = await Promise.allSettled(
+    SHORT_BASES.map(async (base, di) => {
       const cfg = domainGscConfig[di]||{};
-      const domainUrls = newLinks.flatMap(l=>[SHORT_BASES[di]+l.code]);
-      const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/indexing');
-      if(!token){ sitemapLog(`⚠ Indexing API domain ${di+1}: no SA token`,'warn'); totalFailed+=domainUrls.length; continue; }
-      for(const url of domainUrls){
-        try{
-          const r = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
-            method:'POST', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      const [tIdx, tGsc] = await Promise.allSettled([
+        getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/indexing'),
+        getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters'),
+      ]);
+      return {
+        di, cfg,
+        tokenIdx: tIdx.status==='fulfilled' ? tIdx.value : null,
+        tokenGsc: tGsc.status==='fulfilled' ? tGsc.value : null,
+      };
+    })
+  );
+  const domainTokens = _domainTokens
+    .filter(r=>r.status==='fulfilled')
+    .map(r=>r.value);
+
+  // ── Phase 2: ALL signal channels fire in parallel ──
+  // No sequential awaits. No per-URL sleeps. Everything launches simultaneously.
+  const key    = document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY;
+  const keyLoc = document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC;
+  const INDEXNOW_EPS = [
+    'https://api.indexnow.org/indexnow','https://www.bing.com/indexnow',
+    'https://yandex.com/indexnow','https://search.seznam.cz/indexnow',
+    'https://indexnow.search.brave.com/indexnow','https://naver.me/indexnow',
+    'https://zeptosearch.com/indexnow','https://yep.com/indexnow',
+  ];
+
+  await Promise.allSettled([
+
+    // ── CH-1: Google Indexing API — all domains × all URLs in parallel ──
+    (async()=>{
+      if(!chanSettings.idxApi) return;
+      const fires = [];
+      for(const {di, cfg, tokenIdx} of domainTokens){
+        if(!tokenIdx){ sitemapLog(`⚠ Indexing API domain ${di+1}: no SA token`,'warn'); continue; }
+        const domainUrls = newLinks.map(l=>SHORT_BASES[di]+l.code);
+        fires.push(...domainUrls.map(url=>
+          fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
+            method:'POST', headers:{'Authorization':`Bearer ${tokenIdx}`,'Content-Type':'application/json'},
             body: JSON.stringify({url, type:'URL_UPDATED'})
-          });
-          if(r.ok||r.status===200){ totalQueued++; }
-          else{ totalFailed++; }
-        }catch(e){ totalFailed++; }
-        await new Promise(r=>setTimeout(r,80));
+          }).catch(()=>{})
+        ));
       }
-    }
-    // Also fire originals via the first available SA (best-effort)
-    const globalSa = getNextSA();
-    if(globalSa){
-      try{
-        const t = await getToken(globalSa.json,'https://www.googleapis.com/auth/indexing');
-        for(const url of originals){
-          try{
-            const r = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
+      // Originals via first available SA (best-effort)
+      const globalSa = getNextSA();
+      if(globalSa){
+        try{
+          const t = await getToken(globalSa.json,'https://www.googleapis.com/auth/indexing');
+          fires.push(...originals.map(url=>
+            fetch('https://indexing.googleapis.com/v3/urlNotifications:publish',{
               method:'POST', headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},
               body: JSON.stringify({url, type:'URL_UPDATED'})
-            });
-            if(r.ok||r.status===200){ totalQueued++; globalSa.daily_used++; }
-          }catch(e){}
-          await new Promise(r=>setTimeout(r,80));
-        }
-      }catch(e){}
-    }
-    sitemapLog(`⚡ Google Indexing API: ${totalQueued} URLs queued, ${totalFailed} failed`,'ok');
-    localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
-    cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
-  } else { sitemapLog('⚠ Indexing API: no SA keys — add one in Settings','warn'); }
-
-  // ── Step 3: GSC URL Inspection — per-domain, each short inspected against its own property ──
-  if(chanSettings.gsc){
-    let inspOk=0, inspTotal=0;
-    for(let di=0; di<SHORT_BASES.length; di++){
-      const cfg = domainGscConfig[di]||{};
-      if(!cfg.gscUrl){ sitemapLog(`⚠ GSC Inspection domain ${di+1}: no GSC property set`,'warn'); continue; }
-      const token = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
-      if(!token){ sitemapLog(`⚠ GSC Inspection domain ${di+1}: no SA token`,'warn'); continue; }
-      // Inspect this domain's short URLs + originals
-      const inspectUrls = [...originals, ...newLinks.map(l=>SHORT_BASES[di]+l.code)];
-      inspTotal += inspectUrls.length;
-      for(const url of inspectUrls){
-        try{
-          const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{
-            method:'POST',
-            headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-            body: JSON.stringify({inspectionUrl:url, siteUrl:cfg.gscUrl})
-          });
-          if(r.ok){ const d=await r.json(); const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED'; inspOk++;
-            const match = newLinks.find(l=>SHORT_BASES[di]+l.code===url||l.original===url);
-            if(match){ await sbPatch('lc_links',`id=eq.${match.id}`,{verdict:v,submitted:true}); match.verdict=v; match.submitted=true; }
-          }
+            }).then(r=>{ if(r.ok) globalSa.daily_used++; }).catch(()=>{})
+          ));
         }catch(e){}
-        await new Promise(r=>setTimeout(r,200));
       }
-    }
-    sitemapLog(`🔍 GSC Inspection: ${inspOk}/${inspTotal} URLs inspected across ${SHORT_BASES.length} domains`,'ok');
-    localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
-    cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
-  }
+      const res = await Promise.allSettled(fires);
+      const ok  = res.filter(r=>r.status==='fulfilled'&&r.value?.ok).length;
+      sitemapLog(`⚡ Google Indexing API: ${ok}/${fires.length} URLs queued`,'ok');
+      localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+      cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
+    })(),
 
-  // ── Step 4: IndexNow bulk submit — originals + all shorts, all 8 engines ──
-  if(chanSettings.indexnow){
-    const key = document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY;
-    const keyLoc = document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC;
-    // Derive host from primary domain
-    const primaryHost = (()=>{ try{return new URL(SHORT_BASES[0]).hostname;}catch(e){return 'flexygist.com.ng';} })();
-    const INDEXNOW_ENDPOINTS = [
-      'https://api.indexnow.org/indexnow','https://www.bing.com/indexnow',
-      'https://yandex.com/indexnow','https://search.seznam.cz/indexnow',
-      'https://indexnow.search.brave.com/indexnow','https://naver.me/indexnow',
-      'https://zeptosearch.com/indexnow','https://yep.com/indexnow',
-    ];
-    // Split by host — IndexNow requires urlList to share the same host as `host` param.
-    // Group: shorts by their domain, originals by their own host
-    const byHost = {};
-    for(const url of fullUrlSet){
-      try{
-        const h = new URL(url).hostname;
-        if(!byHost[h]) byHost[h]=[];
-        byHost[h].push(url);
-      }catch(e){}
-    }
-    let inOk=0, inFail=0;
-    for(const [host, urls] of Object.entries(byHost)){
-      // Find matching keyLocation (use primary keyLoc for all for simplicity)
-      const payload = JSON.stringify({host, key, keyLocation: keyLoc, urlList: urls});
-      const results = await Promise.allSettled(
-        INDEXNOW_ENDPOINTS.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload}))
+    // ── CH-2: GSC URL Inspection — all domains × all URLs in parallel ──
+    (async()=>{
+      if(!chanSettings.gsc) return;
+      const fires = [];
+      for(const {di, cfg, tokenGsc} of domainTokens){
+        if(!cfg.gscUrl){ sitemapLog(`⚠ GSC Inspection domain ${di+1}: no GSC property set`,'warn'); continue; }
+        if(!tokenGsc){   sitemapLog(`⚠ GSC Inspection domain ${di+1}: no SA token`,'warn'); continue; }
+        const inspectUrls = [...originals, ...newLinks.map(l=>SHORT_BASES[di]+l.code)];
+        fires.push(...inspectUrls.map(url=>
+          fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{
+            method:'POST',
+            headers:{'Authorization':`Bearer ${tokenGsc}`,'Content-Type':'application/json'},
+            body: JSON.stringify({inspectionUrl:url, siteUrl:cfg.gscUrl})
+          }).then(async r=>{
+            if(r.ok){
+              const d=await r.json();
+              const v=d?.inspectionResult?.indexStatusResult?.verdict||'SUBMITTED';
+              const match=newLinks.find(l=>SHORT_BASES[di]+l.code===url||l.original===url);
+              if(match){ await sbPatch('lc_links',`id=eq.${match.id}`,{verdict:v,submitted:true}); match.verdict=v; match.submitted=true; }
+            }
+          }).catch(()=>{})
+        ));
+      }
+      const res = await Promise.allSettled(fires);
+      const ok  = res.filter(r=>r.status==='fulfilled').length;
+      sitemapLog(`🔍 GSC Inspection: ${ok}/${fires.length} URLs inspected across ${SHORT_BASES.length} domains`,'ok');
+      localStorage.setItem('lc_sa_vault',JSON.stringify(saVault));
+      cfgSet('sa_vault',JSON.stringify(saVault)).catch(()=>{});
+    })(),
+
+    // ── CH-3: IndexNow × 8 engines — all hosts, all URLs ──
+    (async()=>{
+      if(!chanSettings.indexnow) return;
+      const byHost = {};
+      for(const url of fullUrlSet){ try{const h=new URL(url).hostname;if(!byHost[h])byHost[h]=[];byHost[h].push(url);}catch(e){} }
+      const tasks = [];
+      for(const [host,urls] of Object.entries(byHost)){
+        const payload = JSON.stringify({host, key, keyLocation:keyLoc, urlList:urls});
+        tasks.push(...INDEXNOW_EPS.map(ep=>fetch(ep,{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},body:payload}).catch(()=>{})));
+      }
+      const res = await Promise.allSettled(tasks);
+      const ok  = res.filter(r=>r.status==='fulfilled'&&(r.value?.ok||r.value?.status===202||r.value?.status===200)).length;
+      sitemapLog(`📡 IndexNow: ${ok}/${tasks.length} engine hits across ${Object.keys(byHost).length} host(s) (${fullUrlSet.length} URLs)`,'ok');
+    })(),
+
+    // ── CH-4: GSC Sitemaps API — delete + re-add all domains in parallel ──
+    (async()=>{
+      if(!chanSettings.sitemapApi) return;
+      const tasks = domainTokens.filter(({cfg})=>cfg.gscUrl).map(async({di,cfg,tokenGsc})=>{
+        if(!tokenGsc){ sitemapLog(`⚠ Sitemaps API domain ${di+1}: no SA token`,'warn'); return; }
+        const smUrl   = SITEMAP_URLS[di];
+        const base    = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gscUrl)}/sitemaps/${encodeURIComponent(smUrl)}`;
+        const hdrs    = {'Authorization':`Bearer ${tokenGsc}`,'Content-Type':'application/json'};
+        try{
+          await fetch(base,{method:'DELETE',headers:hdrs}).catch(()=>{});
+          await new Promise(r=>setTimeout(r,400)); // brief gap between DELETE and PUT — GSC requirement
+          const r = await fetch(base,{method:'PUT',headers:hdrs});
+          sitemapLog(r.ok||r.status===204 ? `🗺 Sitemap re-added: ${cfg.gscUrl} ✓` : `🗺 Sitemap ${cfg.gscUrl}: HTTP ${r.status}`,'ok');
+        }catch(e){ sitemapLog(`⚠ Sitemaps API domain ${di+1}: ${e.message}`,'warn'); }
+      });
+      await Promise.allSettled(tasks);
+    })(),
+
+    // ── CH-5: Sitemap pings (Google + Bing) ──
+    (async()=>{
+      await fireSitemapSignals(allShorts, sitemapRows, 'auto');
+    })(),
+
+    // ── CH-6: RSS/Atom feed auto-update + ping aggregators ──
+    (async()=>{
+      await autoUpdateAndPingFeeds(newLinks);
+    })(),
+
+    // ── CH-7: Wayback Machine — parallel saves, no per-URL sleeps ──
+    (async()=>{
+      if(!chanSettings.wayback) return;
+      const cap     = Math.min(fullUrlSet.length, 15);
+      const targets = fullUrlSet.slice(0, cap);
+      sitemapLog(`🕰 Wayback Machine — saving ${cap} URLs…`,'info');
+      const res = await Promise.allSettled(
+        targets.map(url=>fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'}).catch(()=>{}))
       );
-      inOk += results.filter(r=>r.status==='fulfilled'&&(r.value.ok||r.value.status===202||r.value.status===200)).length;
-      inFail += results.filter(r=>r.status==='rejected'||r.value?.status>=400).length;
-    }
-    sitemapLog(`📡 IndexNow: ${inOk} engine responses OK across ${Object.keys(byHost).length} host(s) (${fullUrlSet.length} URLs)`,'ok');
-  }
+      const wbOk = res.filter(r=>r.status==='fulfilled').length;
+      await Promise.allSettled(
+        newLinks.map(l=>sbPatch('lc_links',`id=eq.${l.id}`,{wayback_saved:true}).then(()=>{l.wayback_saved=true;}).catch(()=>{}))
+      );
+      sitemapLog(`🕰 Wayback: ${wbOk}/${cap} URLs archived`,'ok');
+      if(fullUrlSet.length>15) sitemapLog(`🕰 Wayback: rate-limited to 15 — ${fullUrlSet.length-15} remaining skipped`,'warn');
+    })(),
 
-  // ── Step 5: GSC Sitemaps API — each domain deletes + re-adds its own sitemap with its own SA ──
-  if(chanSettings.sitemapApi){
-    let smOk=0, smTotal=0;
-    for(let di=0; di<SHORT_BASES.length; di++){
-      const cfg = domainGscConfig[di]||{};
-      if(!cfg.gscUrl){ continue; }
-      const t = await getSaTokenForDomain(cfg,'https://www.googleapis.com/auth/webmasters');
-      if(!t){ sitemapLog(`⚠ Sitemaps API domain ${di+1}: no SA token`,'warn'); continue; }
-      const siteEnc = encodeURIComponent(cfg.gscUrl);
-      const smUrl   = SITEMAP_URLS[di];
-      const smEnc   = encodeURIComponent(smUrl);
-      const hdrs    = {'Authorization':`Bearer ${t}`,'Content-Type':'application/json'};
-      smTotal++;
-      try{
-        await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`,{method:'DELETE',headers:hdrs});
-        await new Promise(r=>setTimeout(r,400));
-        const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${siteEnc}/sitemaps/${smEnc}`,{method:'PUT',headers:hdrs});
-        if(r.ok||r.status===204) smOk++;
-      }catch(e){ sitemapLog(`⚠ Sitemaps API domain ${di+1}: ${e.message}`,'warn'); }
-    }
-    if(smTotal>0) sitemapLog(`🗺 GSC Sitemaps API: ${smOk}/${smTotal} domain sitemaps re-submitted (each via its own SA)`,'ok');
-  }
+    // ── CH-8: XML-RPC Ping Blast — all targets launched in parallel ──
+    (async()=>{
+      if(!chanSettings.xmlrpc) return;
+      sitemapLog('💥 XML-RPC ping blast…','info');
+      const pingTargets = [...originals, ...newLinks.map(l=>allShortUrls(l.code)[0])].slice(0,5);
+      await Promise.allSettled(pingTargets.map(url=>xmlrpcPingBlast(url,'auto').catch(()=>{})));
+    })(),
 
-  // ── Step 6: Sitemap pings (Google + Bing) for all 4 domains ──
-  await fireSitemapSignals(allShorts, sitemapRows, 'auto');
-
-  // ── Step 7: RSS/Atom feed auto-update + ping aggregators ──
-  await autoUpdateAndPingFeeds(newLinks);
-
-  // ── Step 8: Wayback Machine — originals + all shorts ──
-  if(chanSettings.wayback){
-    sitemapLog(`🕰 Wayback Machine — saving ${Math.min(fullUrlSet.length,20)} URLs…`,'info');
-    let wbOk=0;
-    for(const url of fullUrlSet.slice(0,20)){
-      try{ await fetch(`https://web.archive.org/save/${encodeURIComponent(url)}`,{mode:'no-cors'}); wbOk++; }catch(e){}
-      await new Promise(r=>setTimeout(r,350));
-    }
-    // Mark original links as wayback_saved
-    for(const l of newLinks){
-      await sbPatch('lc_links',`id=eq.${l.id}`,{wayback_saved:true}).catch(()=>{});
-      l.wayback_saved=true;
-    }
-    sitemapLog(`🕰 Wayback: ${wbOk}/${Math.min(fullUrlSet.length,20)} URLs archived`,'ok');
-    if(fullUrlSet.length>20) sitemapLog(`🕰 Wayback: rate-limited to 20 — remaining ${fullUrlSet.length-20} skipped`,'warn');
-  }
-
-  // ── Step 9: XML-RPC Ping Blast — fire for EACH original + each primary short ──
-  if(chanSettings.xmlrpc){
-    sitemapLog('💥 XML-RPC ping blast…','info');
-    const pingTargets = [...originals, ...newLinks.map(l=>allShortUrls(l.code)[0])];
-    for(const url of pingTargets.slice(0,5)){ // cap at 5 to avoid flooding
-      await xmlrpcPingBlast(url,'auto');
-      await new Promise(r=>setTimeout(r,200));
-    }
-  }
-
-  // ── Step 10: Cloudflare Worker relay (if configured) ──
-  if(chanSettings.worker){
-    const wUrl = document.getElementById('worker-url-input')?.value.trim()||localStorage.getItem('lc_worker_url')||'';
-    if(wUrl){
+    // ── CH-9: Worker BEAST v10 relay ──
+    (async()=>{
+      if(!chanSettings.worker) return;
+      const wUrl = (document.getElementById('worker-url-input')?.value.trim()||localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+      if(!wUrl) return;
       try{
         const r = await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({raw_urls:fullUrlSet.join('\n'), plan:'free', gsc_site:(domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||'', gsc_sites:domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''}))})});
-        if(r.ok){ const d=await r.json(); sitemapLog(`⚙ Worker relay: job ${d.job_id} — ${d.urls_queued} URLs queued`,'ok'); }
+          body:JSON.stringify({
+            raw_urls:  fullUrlSet.join('\n'),
+            plan:      'free',
+            gsc_site:  (domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||'',
+            gsc_sites: domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''})),
+          })});
+        if(r.ok){ const d=await r.json(); sitemapLog(`⚙ Worker BEAST v10: job ${d.job_id} — ${d.urls_queued} URLs × 70 layers`,'ok'); }
         else{ sitemapLog(`⚙ Worker relay: HTTP ${r.status}`,'warn'); }
       }catch(e){ sitemapLog(`⚠ Worker relay: ${e.message}`,'warn'); }
-    }
-  }
+    })(),
 
-  // ── Mark all submitted in DB ──
-  for(const l of newLinks){
-    if(!l.submitted){
-      await sbPatch('lc_links',`id=eq.${l.id}`,{submitted:true}).catch(()=>{});
-      l.submitted=true;
-    }
-  }
+    // ── CH-10: Link-Hub / Crawl-Hub ping — all domains in parallel ──
+    (async()=>{
+      sitemapLog('🕷 Pinging /link-hub on all domains…','info');
+      const hubTasks = SHORT_BASES.flatMap(base=>{
+        try{
+          const hubUrl = base.replace('/link/','') + '/link-hub';
+          const h = new URL(base).hostname;
+          return [
+            fetch(hubUrl,{method:'HEAD',mode:'no-cors'}).catch(()=>{}),
+            fetch('https://api.indexnow.org/indexnow',{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},
+              body:JSON.stringify({host:h, key, keyLocation:keyLoc, urlList:[hubUrl]})}).catch(()=>{}),
+          ];
+        }catch(e){ return []; }
+      });
+      await Promise.allSettled(hubTasks);
+      sitemapLog('🕷 /link-hub pinged on all 4 domains','ok');
+    })(),
 
-  // ── Enhancement #4: Crawl Hub / Link Hub ping ──
-  // Touch /link-hub on all 4 domains so Googlebot sees fresh links immediately
-  sitemapLog('🕷 Pinging /link-hub on all domains (crawl trigger)…','info');
-  for(const base of SHORT_BASES){
-    try{
-      const hubUrl = base.replace('/link/','') + '/link-hub';
-      await fetch(hubUrl, {method:'HEAD', mode:'no-cors'}).catch(()=>{});
-      // Submit link-hub itself to IndexNow so Googlebot prioritises crawling it
-      const key = document.getElementById('cfg-indexnow-key')?.value.trim()||localStorage.getItem('lc_indexnow_key')||INDEXNOW_KEY;
-      const keyLoc = document.getElementById('cfg-indexnow-loc')?.value.trim()||localStorage.getItem('lc_indexnow_loc')||INDEXNOW_KEY_LOC;
-      const h = new URL(base).hostname;
-      await fetch('https://api.indexnow.org/indexnow',{method:'POST',headers:{'Content-Type':'application/json; charset=utf-8'},
-        body:JSON.stringify({host:h, key, keyLocation:keyLoc, urlList:[hubUrl]})}).catch(()=>{});
-    }catch(e){}
-  }
-  sitemapLog('🕷 /link-hub pinged on all 4 domains','ok');
+    // ── CH-11: Bing Webmaster Direct ──
+    (async()=>{
+      await bingDirectSubmit(fullUrlSet, 'auto');
+    })(),
 
-  // ── Enhancement #1/#9: Bing Webmaster Direct URL Submission ──
-  await bingDirectSubmit(fullUrlSet, 'auto');
+  ]); // ← all 11 channels complete
+
+  // ── Mark all submitted in DB (batch) ──
+  await Promise.allSettled(
+    newLinks.filter(l=>!l.submitted).map(l=>
+      sbPatch('lc_links',`id=eq.${l.id}`,{submitted:true}).then(()=>{l.submitted=true;}).catch(()=>{})
+    )
+  );
 
   renderAll();
-  sitemapLog(`✅ Auto-blast complete — ${fullUrlSet.length} URLs across all channels`,'ok');
+  sitemapLog(`✅ Auto-blast complete — ${fullUrlSet.length} URLs across 11 parallel channels`,'ok');
   toast(`🚀 ${fullUrlSet.length} URLs blasted (originals + all 4 shorts)!`,'green');
 }
 
@@ -3768,7 +3778,7 @@ async function rawUrlBlast(){
   if(wUrl){
     try{
       const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:(domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||document.getElementById('gsc-site')?.value.trim()||'',gsc_sites:domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''})),drip_mode:getDripMode(),drip_hours:getDripHours()})});
-      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
+      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 70 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
     }catch(e){ rawLog(`⚠ Worker: ${e.message}`,'info'); }
   }
   // ── 11. Residential Proxy Crawl Amplification ──
@@ -4136,7 +4146,7 @@ async function blastUrls(shortUrls, pl, logTarget='idx'){
           log('⚙ Worker API blast…','info');
           try{
             const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:allUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||'',drip_mode:getDripMode(),drip_hours:getDripHours()})});
-            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
+            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 70 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
             else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
           }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
         }
@@ -4229,7 +4239,7 @@ async function runWorkerSubmit(){
     });
     if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); return; }
     const d = await r.json();
-    idxLog(`⚡ Worker BEAST: job ${d.job_id} queued — ${d.urls_queued} URLs × 16 layers × ${d.sa_keys_loaded||0} SA keys`,'ok');
+    idxLog(`⚡ Worker BEAST: job ${d.job_id} queued — ${d.urls_queued} URLs × 70 layers × ${d.sa_keys_loaded||0} SA keys`,'ok');
     // Show drip status bar if drip was enabled
     if(d.drip_mode && idxGetDripHours().length){
       const nextAt = Date.now()/1000 + idxGetDripHours()[0]*3600;
@@ -4768,7 +4778,7 @@ async function ifSubmitJob(){
       const dripCard = document.getElementById('drip-active-card');
       if(dripCard){ dripCard.style.display=''; setTimeout(fetchDripStatus,800); }
     }
-    toast(`⚡ Job queued — ${d.urls_queued} URLs across 16 layers`,'green');
+    toast(`⚡ Job queued — ${d.urls_queued} URLs across 70 layers`,'green');
   }catch(e){
     toast('Worker unreachable: '+e.message,'');
     btn.disabled=false; btn.textContent='⚡ Start Indexing';
