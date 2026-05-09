@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -519,7 +520,7 @@ textarea{resize:vertical;line-height:1.7}
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-logo">⚡</div>
-      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v18 · 70-Layer BEAST v10 · Auto-blast</div></div>
+      <div><div class="brand-name">LinkCore</div><div class="brand-sub">v19 · 80-Layer BEAST v11 · Auto-blast</div></div>
     </div>
     <div class="sb-label">Views</div>
     <button class="sb-btn active" onclick="showView('dashboard')"><span class="dot"></span> Dashboard</button>
@@ -639,7 +640,7 @@ textarea{resize:vertical;line-height:1.7}
       </div>
       <div class="card">
         <div class="card-label">📋 Paste URLs to Blast</div>
-        <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">One URL per line. Hits all 70 BEAST v10 layers: GSC Indexing API + Request Indexing · IndexNow × 10 · G-Layers (PageSpeed, AMP, Translate, CF Radar, Rendertron) · J-Layers (Fibonacci Drip, SA Quota Rotation, Cross-Domain Mesh) · K-Layers (Live Inspection, Superfeedr, SEO Bot Signal) · XML-RPC × 80 · WebSub × 10 hubs. No shortlink created.</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:10px">One URL per line. Hits all 80 BEAST v11 layers: GSC Indexing API + Request Indexing · GA4 Measurement Protocol (J11) · IndexNow × 10 · G-Layers (PageSpeed, AMP, Translate, CF Radar, Rendertron) · J-Layers (Fibonacci Drip, SA Quota Rotation, Cross-Domain Mesh) · K-Layers (Live Inspection, Superfeedr, SEO Bot Signal) · L-Layers (Micro-Drip, Browser Crawl, Social Graph) · M-Layers (Priority Queue, HTTP/2 Push, Multi-Region Health) · XML-RPC × 80 · WebSub × 10 hubs. No shortlink created.</div>
         <textarea id="raw-blast-input" rows="10" placeholder="https://somesite.com/backlink-page&#10;https://anothersite.com/your-link&#10;https://example.com/page-with-your-link"></textarea>
         <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
           <button class="btn btn-primary" id="raw-blast-btn" onclick="rawUrlBlast()">🔥 Blast All Channels</button>
@@ -668,7 +669,7 @@ textarea{resize:vertical;line-height:1.7}
 
     <div class="view" id="view-indexing">
       <div class="page-hdr">
-        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">70-layer BEAST v10 · GSC Request Indexing · Google Discover Ping · Fibonacci Drip · Adaptive Burst · IndexNow × 10 · XML-RPC × 80 · Crawl Amplify</div></div>
+        <div><div class="page-title">🚀 Indexing Hub</div><div class="page-sub">80-layer BEAST v11 · GA4 Measurement Protocol · GSC Request Indexing · Google Discover Ping · Fibonacci Drip · Micro-Drip · Adaptive Burst · IndexNow × 10 · XML-RPC × 80 · Priority Queue · Multi-Region Health</div></div>
         <div class="hdr-btns"><button class="btn btn-outline" onclick="showView('dashboard')">← Back</button></div>
       </div>
       <div class="idx-tabs">
@@ -851,7 +852,7 @@ textarea{resize:vertical;line-height:1.7}
           </div>
           <div class="channel-card active-ch">
             <div class="ch-hdr"><span class="ch-icon">⚙</span><span class="ch-title">Worker API Blast — BEAST</span><span class="ch-badge badge-white">SERVER-SIDE</span></div>
-            <div class="ch-desc">70-layer BEAST v10 engine. No CORS limits, real TCP, multi-SA parallel fire. All 70 layers run simultaneously.</div>
+            <div class="ch-desc">80-layer BEAST v11 engine. No CORS limits, real TCP, multi-SA parallel fire. All 80 layers run simultaneously including GA4 Measurement Protocol, M-Layer Priority Queue, and Micro-Drip scheduler.</div>
             <input id="worker-url-input-hub" placeholder="https://your-app.railway.app" style="margin:8px 0" oninput="document.getElementById('worker-url-input').value=this.value;saveChanSettings()">
             <label class="ch-toggle"><input type="checkbox" id="ch-worker-on-hub" onchange="syncHubToSettings('ch-worker-on')"> Enable (auto-fires on Submit)</label>
             <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px">
@@ -1077,7 +1078,7 @@ textarea{resize:vertical;line-height:1.7}
       <div class="page-hdr">
         <div>
           <div class="page-title">⚡ IndexForce</div>
-          <div class="page-sub">70-layer BEAST v10 · GSC Request Indexing · Google Discover Ping · G-Layers (20) · J-Layers (14) · K-Layers (20) · Fibonacci Drip · Adaptive Burst · SA Quota Rotation</div>
+          <div class="page-sub">80-layer BEAST v11 · GSC Request Indexing · GA4 Measurement Protocol · G-Layers (20) · J-Layers (14) · K-Layers (20) · L-Layers (10) · M-Layers (18) · Micro-Drip · Priority Queue</div>
         </div>
         <div class="hdr-btns">
           <button class="btn btn-outline" onclick="showView('dashboard')">← Back</button>
@@ -1096,14 +1097,14 @@ textarea{resize:vertical;line-height:1.7}
           <div class="worker-dot" id="worker-dot"></div>
           <span id="worker-health-text" style="color:var(--muted)">Not connected — enter your Railway URL and test</span>
         </div>
-        <div class="hint" style="margin-top:6px">Deploy <strong>worker_v10.py</strong> (BEAST v10) to Railway, paste the public URL above. All <strong>70 layers</strong> run server-side — no CORS limits, real TCP connections, drip scheduler, GSC Request Indexing, Google Discover ping, and 24h indexation verify.</div>
+        <div class="hint" style="margin-top:6px">Deploy <strong>worker_v11.py</strong> (BEAST v11) to Railway, paste the public URL above. All <strong>80 layers</strong> run server-side — no CORS limits, real TCP connections, GA4 Measurement Protocol (J11), M-Layers (Priority Queue, Multi-Region Health Broadcast), micro-drip scheduler, GSC Request Indexing, and Google Discover ping.</div>
       </div>
 
       <!-- Submit card -->
       <div class="card">
-        <div class="card-label">🚀 Submit URLs — 16-Layer BEAST Blast</div>
+        <div class="card-label">🚀 Submit URLs — 80-Layer BEAST v11 Blast</div>
         <div style="font-size:.6rem;color:var(--muted);margin-bottom:10px">
-          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all 70 layers concurrently on Railway (BEAST v10) — including GSC Request Indexing, Google Discover Ping, NewsArticle Schema, DNS Prefetch, and News Sitemap injection.
+          Choose a project to auto-fill short links, or paste raw URLs directly below. Worker fires all <strong>80 layers</strong> concurrently on Railway (BEAST v11) — including GA4 Measurement Protocol (J11), GSC Request Indexing, Google Discover Ping, Priority Queue Scoring, Micro-Drip (T+5/10/20/30min), Fibonacci Drip, and 19 M-Layers.
         </div>
         <!-- Plan toggle -->
         <div class="plan-row">
@@ -1137,6 +1138,19 @@ textarea{resize:vertical;line-height:1.7}
           <label class="ch-toggle">
             <input type="checkbox" id="drip-mode-chk" checked>
             <span style="color:var(--blue);font-size:.6rem">ON</span>
+          </label>
+        </div>
+        <!-- ══ v19: Micro-Drip toggle (L1 scheduler — T+5/10/20/30min) ══ -->
+        <div class="drip-toggle-row" id="micro-drip-toggle-row" style="margin-top:6px">
+          <div style="flex:1">
+            <div class="drip-toggle-label">⚡ Micro-Drip Re-Blast <span style="font-size:.5rem;color:var(--accent);font-weight:400;text-transform:uppercase;letter-spacing:.06em;margin-left:4px">L1 — NEW v11</span></div>
+            <div style="font-size:.52rem;color:var(--muted);margin-top:2px">
+              Additional micro re-blasts at T+5min, T+10min, T+20min, T+30min — maximizes the first-hour crawl window.
+            </div>
+          </div>
+          <label class="ch-toggle">
+            <input type="checkbox" id="micro-drip-mode-chk">
+            <span style="color:var(--cyan);font-size:.6rem">OFF</span>
           </label>
         </div>
         <div class="drip-status-bar" id="drip-status-bar">
@@ -1220,7 +1234,7 @@ textarea{resize:vertical;line-height:1.7}
 
       <!-- 16 Layers explained -->
       <div class="card">
-        <div class="card-label">🔬 What BEAST worker_v10.py Fires (70 Layers, All Simultaneous)</div>
+        <div class="card-label">🔬 What BEAST worker_v11.py Fires (70 Layers, All Simultaneous)</div>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
           <div class="if-layer"><span class="if-layer-icon">🔥</span><div><div class="if-layer-name">Multi-SA Parallel Google Indexing API</div><div class="if-layer-detail">ALL SA keys × all URLs simultaneously — N× independent priority signals to Google's indexing queue vs sequential round-robin</div></div></div>
           <div class="if-layer"><span class="if-layer-icon">📋</span><div><div class="if-layer-name">GSC Request Indexing (NEW #1)</div><div class="if-layer-detail">Dedicated "Request Indexing" API — ~10 requests/day per GSC property per SA key, spread across all SA keys. This is the actual GSC button, exposed via API.</div></div></div>
@@ -3376,7 +3390,7 @@ async function fullBlastOnAdd(newLinks){
       await Promise.allSettled(pingTargets.map(url=>xmlrpcPingBlast(url,'auto').catch(()=>{})));
     })(),
 
-    // ── CH-9: Worker BEAST v10 relay ──
+    // ── CH-9: Worker BEAST v11 relay ──
     (async()=>{
       if(!chanSettings.worker) return;
       const wUrl = (document.getElementById('worker-url-input')?.value.trim()||localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
@@ -3389,7 +3403,7 @@ async function fullBlastOnAdd(newLinks){
             gsc_site:  (domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||'',
             gsc_sites: domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''})),
           })});
-        if(r.ok){ const d=await r.json(); sitemapLog(`⚙ Worker BEAST v10: job ${d.job_id} — ${d.urls_queued} URLs × 70 layers`,'ok'); }
+        if(r.ok){ const d=await r.json(); sitemapLog(`⚙ Worker BEAST v11: job ${d.job_id} — ${d.urls_queued} URLs × 80 layers`,'ok'); }
         else{ sitemapLog(`⚙ Worker relay: HTTP ${r.status}`,'warn'); }
       }catch(e){ sitemapLog(`⚠ Worker relay: ${e.message}`,'warn'); }
     })(),
@@ -3778,7 +3792,7 @@ async function rawUrlBlast(){
   if(wUrl){
     try{
       const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:urls.join('\n'),plan:'pro',gsc_site:(domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl||document.getElementById('gsc-site')?.value.trim()||'',gsc_sites:domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl,saJson:d.saJson||''})),drip_mode:getDripMode(),drip_hours:getDripHours()})});
-      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 70 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
+      if(r.ok){ const d=await r.json(); rawLog(`⚙ Worker BEAST: job ${d.job_id} — ${d.urls_queued} URLs × 80 layers × ${d.sa_keys_loaded||0} server SA keys`,'ok'); }
     }catch(e){ rawLog(`⚠ Worker: ${e.message}`,'info'); }
   }
   // ── 11. Residential Proxy Crawl Amplification ──
@@ -4146,7 +4160,7 @@ async function blastUrls(shortUrls, pl, logTarget='idx'){
           log('⚙ Worker API blast…','info');
           try{
             const r=await fetch(`${wUrl}/api/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_urls:allUrls.join('\n'),plan:'free',gsc_site:document.getElementById('gsc-site')?.value.trim()||'',drip_mode:getDripMode(),drip_hours:getDripHours()})});
-            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 70 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
+            if(r.ok){ const d=await r.json(); log(`⚙ Worker BEAST: job ${d.job_id} queued (${d.urls_queued} URLs × 80 layers × ${d.sa_keys_loaded||0} SAs)`,'ok'); }
             else{ log(`⚙ Worker: HTTP ${r.status}`,'info'); }
           }catch(e){ log(`⚠ Worker: ${e.message}`,'info'); }
         }
@@ -4239,7 +4253,7 @@ async function runWorkerSubmit(){
     });
     if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); return; }
     const d = await r.json();
-    idxLog(`⚡ Worker BEAST: job ${d.job_id} queued — ${d.urls_queued} URLs × 70 layers × ${d.sa_keys_loaded||0} SA keys`,'ok');
+    idxLog(`⚡ Worker BEAST: job ${d.job_id} queued — ${d.urls_queued} URLs × 80 layers × ${d.sa_keys_loaded||0} SA keys`,'ok');
     // Show drip status bar if drip was enabled
     if(d.drip_mode && idxGetDripHours().length){
       const nextAt = Date.now()/1000 + idxGetDripHours()[0]*3600;
@@ -4753,19 +4767,21 @@ async function ifSubmitJob(){
       body: JSON.stringify({
         raw_urls: raw,
         plan: ifPlan,
-        user_id: 'linkcore-v18',
-        // Legacy single field — first configured domain (backward compat with older workers)
+        user_id: 'linkcore-v19',
+        // Gap #2 Fix: legacy single field — first configured domain (backward compat)
         gsc_site: (domainGscConfig.find(d=>d.gscUrl)||{}).gscUrl || document.getElementById('gsc-site')?.value.trim() || '',
-        // Full per-domain config for workers that support it
+        // Gap #2 Fix: full per-domain SA config for v11 worker multi-SA routing
         gsc_sites: domainGscConfig.filter(d=>d.gscUrl).map(d=>({gscUrl:d.gscUrl, saJson:d.saJson||''})),
         drip_mode: getDripMode(),
         drip_hours: getDripHours(),
+        // L1 Micro-Drip: T+5/10/20/30min re-blasts (new v11)
+        micro_drip: document.getElementById('micro-drip-mode-chk')?.checked ?? false,
       })
     });
     if(!r.ok){ const t=await r.text(); toast(`Worker error: HTTP ${r.status}`,''); btn.disabled=false; btn.textContent='⚡ Start Indexing'; if(prog) prog.style.display='none'; return; }
     const d = await r.json();
     ifCurrentJobId = d.job_id;
-    const stub = {job_id:d.job_id, status:'queued', url_count:d.urls_queued, urls_skipped:d.urls_skipped||0, queued_at:new Date().toISOString(), plan:ifPlan, worker_url:wUrl, drip_mode:d.drip_mode};
+    const stub = {job_id:d.job_id, status:'queued', url_count:d.urls_queued, urls_skipped:d.urls_skipped||0, queued_at:new Date().toISOString(), plan:ifPlan, worker_url:wUrl, drip_mode:d.drip_mode, micro_drip:d.micro_drip};
     ifSaveHistory(stub);
     ifRenderJobCard(stub);
     ifRenderHistory();
@@ -4778,7 +4794,9 @@ async function ifSubmitJob(){
       const dripCard = document.getElementById('drip-active-card');
       if(dripCard){ dripCard.style.display=''; setTimeout(fetchDripStatus,800); }
     }
-    toast(`⚡ Job queued — ${d.urls_queued} URLs across 70 layers`,'green');
+    const layerCount = d.layers_fired || 80;
+    const microMsg = d.micro_drip ? ' + Micro-Drip (T+5/10/20/30min)' : '';
+    toast(`⚡ Job queued — ${d.urls_queued} URLs × ${layerCount} layers${microMsg}`,'green');
   }catch(e){
     toast('Worker unreachable: '+e.message,'');
     btn.disabled=false; btn.textContent='⚡ Start Indexing';
@@ -4816,12 +4834,20 @@ function ifRenderJobCard(job){
   if(!wrap) return;
   wrap.style.display='block';
   const res = job.results||{};
-  const ld  = job.layer_detail||{};  // full 16-layer detail from /api/status
+  const ld  = job.layer_detail||{};  // full 80-layer detail from /api/status
   const isComplete = job.status==='complete';
   const isRunning  = job.status==='running';
   const isQueued   = job.status==='queued';
   const isFailed   = job.status==='failed';
   const layerState = isComplete?'on':isRunning?'pulse':'off';
+  const layersFired = job.results?.layers_fired || (ld && Object.keys(ld).length) || 80;
+
+  // ── v11 M-layer stats ──
+  const m17 = ld.m17_verdict_retry||{};
+  const m18 = ld.m18_priority_queue||{};
+  const j11 = ld.j11_ga4_measurement||{};
+  const k18 = ld.k18_bing_verify_loop||{};
+  const k19 = ld.k19_pinterest_rich_pin||{};
 
   const statsHtml = (isComplete||isRunning) ? `
     <div class="if-job-stats">
@@ -4829,8 +4855,126 @@ function ifRenderJobCard(job){
       <div class="if-stat"><div class="if-stat-v blue">${res.pings_fired!=null?res.pings_fired.toLocaleString():'—'}</div><div class="if-stat-l">Pings Fired</div></div>
       <div class="if-stat"><div class="if-stat-v orange">${res.pings_ok!=null?res.pings_ok.toLocaleString():'—'}</div><div class="if-stat-l">Pings OK</div></div>
       <div class="if-stat"><div class="if-stat-v purple">${res.indexnow_ok!=null?res.indexnow_ok:'—'}</div><div class="if-stat-l">IndexNow</div></div>
+      <div class="if-stat"><div class="if-stat-v" style="color:var(--cyan)">${layersFired}</div><div class="if-stat-l">Layers Fired</div></div>
     </div>`
   : `<div style="padding:10px 14px;font-size:.6rem;color:var(--muted)">${isQueued?'⏳ Queued — worker will pick up in seconds…':'⏳ Processing…'}</div>`;
+
+  // ── Advanced layer panel: v8/v9/v10/v11/v12 ──
+  const ADV_LAYER_MAP = [
+    // v8 G-layers
+    {k:'g1_gsc_batch_submit',     icon:'🟢', name:'G1 GSC Batch Submit',      fn: d=>`${d.g1_gsc_batch_ok||d.ok||0} OK`},
+    {k:'g2_pagespeed_bulk',       icon:'📊', name:'G2 PageSpeed Bulk',         fn: d=>`${d.g2_pagespeed_ok||0}/${d.g2_pagespeed_fired||0} OK`},
+    {k:'g3_mobile_friendly_bulk', icon:'📱', name:'G3 Mobile-Friendly',        fn: d=>`${d.g3_mobile_ok||0} tested`},
+    {k:'g4_rich_results_test',    icon:'✨', name:'G4 Rich Results Test',      fn: d=>`${d.g4_rich_ok||0} tested`},
+    {k:'g5_amp_cache_ping',       icon:'⚡', name:'G5 AMP Cache Ping',         fn: d=>`${d.g5_amp_ok||0}/${d.g5_amp_fired||0} OK`},
+    {k:'g6_google_translate',     icon:'🌐', name:'G6 Google Translate Fetch', fn: d=>`${d.g6_translate_ok||0} fetched`},
+    {k:'g7_cloudflare_radar',     icon:'☁', name:'G7 Cloudflare Radar',       fn: d=>`${d.g7_cf_ok||0} scanned`},
+    {k:'g8_common_crawl',         icon:'🕸', name:'G8 Common Crawl',           fn: d=>`${d.g8_cc_ok||0} nominated`},
+    {k:'g9_bing_content',         icon:'🔵', name:'G9 Bing Content Submit',    fn: d=>`${d.g9_bing_content_ok||0} submitted`},
+    {k:'g10_yandex_full',         icon:'🟡', name:'G10 Yandex Full',           fn: d=>`${d.g10_yandex_ok||0} OK`},
+    {k:'g11_multi_engine_sitemap',icon:'🗺', name:'G11 Multi-Engine Sitemap',  fn: d=>`${d.g11_multi_ok||0} engines`},
+    {k:'g12_rendertron',          icon:'🖥', name:'G12 Rendertron',            fn: d=>`${d.g12_render_ok||0} rendered`},
+    {k:'g13_rss_mega_bomb',       icon:'📡', name:'G13 RSS Mega Bomb',         fn: d=>`${d.g13_rss_ok||0}/${d.g13_rss_fired||0} OK`},
+    {k:'g14_schema_crawl',        icon:'📋', name:'G14 Schema Crawl',          fn: d=>`${d.g14_schema_ok||0} validated`},
+    {k:'g15_wayback_flood',       icon:'🕰', name:'G15 Wayback Flood',         fn: d=>`${d.g15_wb_ok||0} archived`},
+    {k:'g16_authority_warm',      icon:'🔥', name:'G16 Authority Warm',        fn: d=>`${d.g16_auth_ok||0} warmed`},
+    {k:'g17_indexnow_mega',       icon:'⚡', name:'G17 IndexNow Mega',         fn: d=>`${d.g17_inow_ok||0}/${d.g17_inow_fired||0} OK`},
+    {k:'g18_websub_mega',         icon:'📢', name:'G18 WebSub Mega',           fn: d=>`${d.g18_wsub_ok||0}/${d.g18_wsub_fired||0} OK`},
+    {k:'g19_google_cache_trigger',icon:'💾', name:'G19 Google Cache Trigger',  fn: d=>`${d.g19_cache_ok||0} triggered`},
+    {k:'g20_adaptive_burst',      icon:'🌊', name:'G20 Adaptive Burst',        fn: d=>`${d.g20_burst_ok||0} fired`},
+    // v9 J-layers
+    {k:'j1_sa_quota_blast',       icon:'🔑', name:'J1 SA Quota Rotated Blast', fn: d=>`${d.j1_ok||0}/${d.j1_fired||0} OK · ${d.j1_sa_count||0} keys`},
+    {k:'j2_delete_resubmit',      icon:'🔄', name:'J2 Delete+Resubmit Cycle',  fn: d=>`${d.j2_ok||0} URLs cycled`},
+    {k:'j3_crawl_stats_reblast',  icon:'📈', name:'J3 Crawl Stats Reblast',   fn: d=>`${d.j3_ok||0} reblasted`},
+    {k:'j4_gcloud_origin_fetch',  icon:'☁', name:'J4 GCloud Origin Fetch',    fn: d=>`${d.j4_ok||0}/${d.j4_fired||0} OK`},
+    {k:'j5_cdn_prewarmer',        icon:'🌐', name:'J5 CDN Prewarmer',          fn: d=>`${d.j5_ok||0}/${d.j5_fired||0} OK`},
+    {k:'j6_robots_audit',         icon:'🤖', name:'J6 Robots Header Audit',    fn: d=>`${d.j6_ok||0} audited`},
+    {k:'j7_fibonacci_drip',       icon:'🔢', name:'J7 Fibonacci Drip',         fn: d=>`${d.j7_scheduled||0} blasts scheduled`},
+    {k:'j8_cross_domain_mesh',    icon:'🕸', name:'J8 Cross-Domain Mesh',      fn: d=>`${d.j8_ok||0}/${d.j8_fired||0} signals`},
+    {k:'j9_canonical_collapse',   icon:'🔗', name:'J9 Canonical Collapse',     fn: d=>`${d.j9_ok||0} collapsed`},
+    {k:'j10_crawl_depth_flatten', icon:'📐', name:'J10 Crawl Depth Flatten',   fn: d=>`${d.j10_ok||0}/${d.j10_fired||0} OK`},
+    {k:'j11_ga4_measurement',     icon:'📊', name:'J11 GA4 Measurement (★)',   fn: d=>d.skipped?'⚠ Set GA4_MEASUREMENT_ID':`${d.j11_events_sent||0} events sent`},
+    {k:'j12_superfeedr_publish',  icon:'📡', name:'J12 Superfeedr Publish',    fn: d=>`${d.j12_ok||0} feeds published`},
+    {k:'j13_verdict_feedback_loop',icon:'🔎',name:'J13 Verdict Feedback Loop', fn: d=>`${d.j13_indexed||0} indexed · ${d.j13_crawled||0} crawled`},
+    {k:'j14_webmention_blast',    icon:'💬', name:'J14 Webmention Blast',      fn: d=>`${d.j14_ok||0}/${d.j14_fired||0} OK`},
+    // v10 K-layers
+    {k:'k1_gsc_live_inspection',  icon:'🔍', name:'K1 GSC Live Inspection',    fn: d=>`${d.k1_ok||0}/${d.k1_fired||0} OK`},
+    {k:'k2_amp_validator_blast',  icon:'⚡', name:'K2 AMP Validator',          fn: d=>`${d.k2_ok||0} validated`},
+    {k:'k3_rich_results_live',    icon:'✨', name:'K3 Rich Results Live',      fn: d=>`${d.k3_ok||0} tested`},
+    {k:'k4_google_vision_fetch',  icon:'👁', name:'K4 Google Vision Fetch',    fn: d=>`${d.k4_ok||0}/${d.k4_fired||0} fetched`},
+    {k:'k5_google_web_risk',      icon:'🛡', name:'K5 Google Web Risk',        fn: d=>`${d.k5_ok||0} checked`},
+    {k:'k6_news_sitemap_pulse',   icon:'📰', name:'K6 News Sitemap Pulse',     fn: d=>`${d.k6_ok||0} pinged`},
+    {k:'k7_feedfetcher_trigger',  icon:'📡', name:'K7 Feedfetcher Trigger',    fn: d=>`${d.k7_ok||0}/${d.k7_fired||0} triggered`},
+    {k:'k8_gtm_preview_fetch',    icon:'🏷', name:'K8 GTM Preview Fetch',      fn: d=>`${d.k8_ok||0} fetched`},
+    {k:'k9_pagespeed_quad',       icon:'📊', name:'K9 PageSpeed Quad Strategy',fn: d=>`${d.k9_ok||0}/${d.k9_fired||0} OK`},
+    {k:'k10_translate_flood',     icon:'🌐', name:'K10 Translate Flood',       fn: d=>`${d.k10_ok||0}/${d.k10_fired||0} langs`},
+    {k:'k11_websub_closed_loop',  icon:'🔁', name:'K11 WebSub Closed Loop',    fn: d=>`${d.k11_ok||0}/${d.k11_fired||0} OK`},
+    {k:'k12_superfeedr_push',     icon:'📢', name:'K12 Superfeedr Push',       fn: d=>`${d.k12_ok||0} pushed`},
+    {k:'k13_rss_cloud_notify',    icon:'☁', name:'K13 RSS Cloud Notify',       fn: d=>`${d.k13_ok||0}/${d.k13_fired||0} OK`},
+    {k:'k14_ifttt_sheets_bridge', icon:'🔀', name:'K14 IFTTT Sheets Bridge',   fn: d=>d.skipped?'⚠ Set IFTTT_WEBHOOK_KEY':`${d.k14_ok||0} triggers fired`},
+    {k:'k15_fastly_purge_prime',  icon:'🌩', name:'K15 Fastly Purge+Prime',    fn: d=>d.skipped?'⚠ Set FASTLY_API_KEY':`${d.k15_ok||0} purged`},
+    {k:'k16_cf_purge_radar',      icon:'☁', name:'K16 CF Purge+Radar',        fn: d=>d.skipped?'⚠ Set CF_API_TOKEN':`${d.k16_ok||0} purged`},
+    {k:'k17_akamai_trace',        icon:'🌐', name:'K17 Akamai Trace',          fn: d=>d.skipped?'Not configured':`${d.k17_ok||0} traced`},
+    {k:'k18_bing_verify_loop',    icon:'🔵', name:'K18 Bing Verify Loop',      fn: d=>`${d.k18_ok||0}/${d.k18_fired||0} verified`},
+    {k:'k19_pinterest_rich_pin',  icon:'📌', name:'K19 Pinterest Rich Pin',    fn: d=>`${d.k19_ok||0}/${d.k19_fired||0} pinned`},
+    {k:'k20_seo_bot_signal',      icon:'🤖', name:'K20 SEO Bot Signal',        fn: d=>`${d.k20_ok||0} signals fired`},
+    // v11 L-layers
+    {k:'l1_micro_drip_scheduler', icon:'⏱', name:'L1 Micro-Drip Scheduler',   fn: d=>`Active · T+${(d.minutes||[]).join('/')}`},
+    {k:'l2_google_render_trigger',icon:'🖥', name:'L2 Google Render Trigger',  fn: d=>`${d.l2_ok||0}/${d.l2_fired||0} rendered`},
+    {k:'l3_delete_resubmit_all_sa',icon:'🔄',name:'L3 Delete+Resubmit All SA',fn: d=>`${d.l3_ok||0} cycled`},
+    {k:'l4_discovery_api_mesh',   icon:'🔍', name:'L4 Discovery API Mesh',     fn: d=>`${d.l4_ok||0}/${d.l4_fired||0} OK`},
+    {k:'l5_social_graph_injection',icon:'📣',name:'L5 Social Graph Injection', fn: d=>`${d.l5_ok||0}/${d.l5_fired||0} injected`},
+    {k:'l6_cdn_edge_broadcast',   icon:'🌐', name:'L6 CDN Edge Broadcast',     fn: d=>`${d.l6_ok||0}/${d.l6_fired||0} OK`},
+    {k:'l7_schema_validator_mesh',icon:'📋', name:'L7 Schema Validator Mesh',  fn: d=>`${d.l7_ok||0} validated`},
+    {k:'l8_browser_crawl_signal', icon:'🌐', name:'L8 Browser Crawl Signal',   fn: d=>`${d.l8_ok||0}/${d.l8_fired||0} fetched`},
+    {k:'l9_rss_ecosystem_flood',  icon:'📡', name:'L9 RSS Ecosystem Flood',    fn: d=>`${d.l9_ok||0}/${d.l9_fired||0} submitted`},
+    {k:'l10_authority_link_graph',icon:'🔗', name:'L10 Authority Link Graph',  fn: d=>`${d.l10_ok||0}/${d.l10_fired||0} injected`},
+    // v12 M-layers
+    {k:'m1_amp_live_validator',   icon:'⚡', name:'M1 AMP Live Validator',     fn: d=>`${d.m1_ok||0}/${d.m1_fired||0} OK`},
+    {k:'m2_google_search_ref',    icon:'🔍', name:'M2 Google Search Self-Ref', fn: d=>`${d.m2_ok||0}/${d.m2_fired||0} OK`},
+    {k:'m3_googlebot_image',      icon:'🖼', name:'M3 Googlebot Image Trigger',fn: d=>`${d.m3_ok||0}/${d.m3_fired||0} triggered`},
+    {k:'m4_google_vision_url',    icon:'👁', name:'M4 Google Vision URL Fetch',fn: d=>`${d.m4_ok||0}/${d.m4_fired||0} fetched`},
+    {k:'m5_google_shopping',      icon:'🛒', name:'M5 Google Shopping Crawler',fn: d=>`${d.m5_ok||0}/${d.m5_fired||0} crawled`},
+    {k:'m6_hn_producthunt',       icon:'🚀', name:'M6 HN + Product Hunt',      fn: d=>`${d.m6_ok||0}/${d.m6_fired||0} submitted`},
+    {k:'m7_wikipedia_ping',       icon:'📚', name:'M7 Wikipedia External Ping',fn: d=>`${d.m7_ok||0}/${d.m7_fired||0} pinged`},
+    {k:'m8_github_live_injection',icon:'🐱', name:'M8 GitHub Live Injection',  fn: d=>`${d.m8_ok||0}/${d.m8_fired||0} injected`},
+    {k:'m9_dev_medium_hashnode',  icon:'✍', name:'M9 Dev/Medium/Hashnode',    fn: d=>`${d.m9_ok||0}/${d.m9_fired||0} OK`},
+    {k:'m10_oembed_consumer_mesh',icon:'🔗', name:'M10 oEmbed Consumer Mesh',  fn: d=>`${d.m10_oembed_ok||0}/${d.m10_oembed_fired||0} OK`},
+    {k:'m12_all_engine_blast',    icon:'🌍', name:'M12 All-Engine Blast',      fn: d=>`${d.m12_engines_ok||0}/${d.m12_engines_fired||0} OK`},
+    {k:'m13_common_crawl_nom',    icon:'🕸', name:'M13 Common Crawl Nomination',fn:d=>`${d.m13_cc_ok||0}/${d.m13_cc_fired||0} nominated`},
+    {k:'m14_cf_workers_ai',       icon:'☁', name:'M14 CF Workers AI Fetch',   fn: d=>`${d.m14_cf_ok||0}/${d.m14_cf_fired||0} OK`},
+    {k:'m15_firebase_dynamic',    icon:'🔥', name:'M15 Firebase Dynamic Link', fn: d=>d.skipped?'Set FIREBASE_API_KEY':`${d.m15_firebase_ok||0}/${d.m15_firebase_fired||0} OK`},
+    {k:'m16_exponential_reblast', icon:'📈', name:'M16 Exponential Re-Blast',  fn: d=>`${d.m16_scheduled||0} blasts scheduled`},
+    {k:'m17_verdict_gated_retry', icon:'🎯', name:'M17 Verdict-Gated Retry',   fn: d=>`${d.m17_indexed||0} indexed · ${d.m17_crawled_not_indexed||0} escalated`},
+    {k:'m18_priority_queue',      icon:'📊', name:'M18 Priority Queue',        fn: d=>`${d.m18_full||0} FULL · ${d.m18_tier2||0} TIER2 · avg ${d.m18_avg_score||0}`},
+    {k:'m19_http2_push',          icon:'🚀', name:'M19 HTTP/2 Push Simulation',fn: d=>`${d.m19_push_ok||0}/${d.m19_push_fired||0} OK`},
+    {k:'m20_multi_region_health', icon:'🌍', name:'M20 Multi-Region Health',   fn: d=>`${d.m20_regional_ok||0}/${d.m20_regional_fired||0} · ${d.m20_regions||4} regions`},
+  ];
+
+  const advLayerHtml = isComplete && Object.keys(ld).length > 0 ? `
+    <details style="border-top:1px solid var(--border)">
+      <summary style="cursor:pointer;padding:8px 14px;font-size:.56rem;color:var(--muted);user-select:none;display:flex;align-items:center;gap:6px;list-style:none">
+        <span style="color:var(--accent)">▸</span>
+        <span>${layersFired} total layers fired — show v8/v9/v10/v11/v12 advanced detail</span>
+        <span style="margin-left:auto;font-size:.5rem;color:var(--muted2)">${ADV_LAYER_MAP.length} layers</span>
+      </summary>
+      <div style="padding:8px 14px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:5px">
+        ${ADV_LAYER_MAP.map(({k,icon,name,fn})=>{
+          const d = ld[k];
+          if(!d) return '';
+          const isSkipped = d.skipped;
+          const detail = isSkipped ? (d.reason||'Skipped') : fn(d);
+          const dotCls = isSkipped ? 'if-dot-off' : 'if-dot-on';
+          return `<div style="padding:5px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;display:flex;align-items:flex-start;gap:6px">
+            <div class="if-layer-dot ${dotCls}" style="margin-top:3px;flex-shrink:0"></div>
+            <div style="min-width:0">
+              <div style="font-size:.54rem;color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${icon} ${name}</div>
+              <div style="font-size:.5rem;color:${isSkipped?'var(--muted2)':'var(--muted)'};line-height:1.4;margin-top:1px">${he(detail)}</div>
+            </div>
+          </div>`;
+        }).filter(Boolean).join('')}
+      </div>
+    </details>` : '';
 
   wrap.innerHTML = `<div class="card" style="padding:0;overflow:hidden">
     <div class="if-job-hdr">
@@ -4839,6 +4983,7 @@ function ifRenderJobCard(job){
       <span style="font-size:.62rem;color:var(--text);margin-left:4px">${(job.url_count||0)} URLs · ${(job.plan||ifPlan).toUpperCase()}</span>
       <span style="font-size:.5rem;color:var(--muted2);margin-left:6px">${new Date(job.queued_at||Date.now()).toLocaleString()}</span>
       <span class="if-job-id">${he((job.job_id||'').slice(0,18))}…</span>
+      ${job.micro_drip?`<span style="font-size:.48rem;color:var(--cyan);background:var(--cyan-dim);border:1px solid rgba(6,182,212,.25);border-radius:4px;padding:1px 6px;margin-left:4px">⚡ MICRO-DRIP</span>`:''}
       ${isComplete||isFailed?`<button class="if-resubmit-btn" onclick="ifResubmit('${he(job.job_id||'')}')">↻ Resubmit</button>`:''}
       ${isComplete?`<button class="btn btn-purple" style="font-size:.5rem;padding:3px 9px;margin-left:4px" onclick="runVerify('${he(job.job_id||'')}')" title="Poll GSC Inspection API for indexation verdict">🔍 Verify</button>`:''}
     </div>
@@ -4849,18 +4994,19 @@ function ifRenderJobCard(job){
       ${ifLayerRow('📰','RSS Feed Injection','l3',isComplete?'on':'off',isComplete?'Feed submitted to 10 aggregators (Feedly, FeedBurner…)':'Waiting…')}
       ${ifLayerRow('🗺','Sitemap Submission','l4',isComplete?'on':'off',isComplete?'Pinged Google + Bing + Yandex sitemaps':'Waiting…')}
       ${ifLayerRow('💨','Cache Bust + Wayback','l5',isComplete?'on':'off',res.cache_bust_ok!=null?`${res.cache_bust_ok} cache endpoints busted`:'Waiting…')}
-      ${ifLayerRow('🔍','Google Indexing API','l6',res.google_ok&&res.google_ok!=='skipped'?'on':'off',res.google_ok&&res.google_ok!=='skipped'?`${res.google_ok} URLs submitted`:'Optional — set GOOGLE_INDEXING_SA on Railway')}
+      ${ifLayerRow('🔍','Google Indexing API','l6',ld.google_indexing&&!ld.google_indexing?.skipped?'on':res.google_ok&&res.google_ok!=='skipped'?'on':'off',ld.google_indexing?.google_indexing_ok!=null?`${ld.google_indexing.google_indexing_ok}/${ld.google_indexing.google_indexing_fired} OK · ${ld.google_indexing.sa_count||0} SA keys`:res.google_ok&&res.google_ok!=='skipped'?`${res.google_ok} URLs submitted`:'Set SA_KEYS_JSON on Railway')}
       ${ifLayerRow('✅','24h Indexation Verify','l7',res.verify_result?'on':'off',res.verify_result?`${res.verify_result.indexed}/${res.verify_result.checked} confirmed — ${res.verify_result.index_rate}`:'Fires automatically 24h after submit')}
-      ${ifLayerRow('🔗','Link-Hub Injection','l8',res.link_hub_injection?'on':'off',res.link_hub_injection?`${res.link_hub_injection.link_hub_urls_stored||0} URLs · ${res.link_hub_injection.link_hub_domains_warmed||0} domains warmed`:'PageRank flow via /link-hub with ItemList schema')}
-      ${ifLayerRow('🗺','Sitemap-Index Ping','l9',res.sitemap_index_ping?'on':'off',res.sitemap_index_ping?`${res.sitemap_index_ping.sitemap_index_pings_ok||0}/${res.sitemap_index_ping.sitemap_index_pings_fired||0} OK`:'Per-domain sitemap-index.xml pings (per-domain, no cross-domain)')}
-      ${ifLayerRow('🟢','GSC Request Indexing','l10',ld.gsc_request_indexing&&!ld.gsc_request_indexing.skipped?'on':'off',ld.gsc_request_indexing&&!ld.gsc_request_indexing.skipped?`${ld.gsc_request_indexing.gsc_request_indexing_ok||0}/${ld.gsc_request_indexing.gsc_request_indexing_fired||0} OK · ${ld.gsc_request_indexing.sa_count||0} SA keys`:'NEW #1 — Dedicated GSC "Request Indexing" API (10 req/day/key)')}
-      ${ifLayerRow('🌐','Google Discover Ping','l11',ld.google_discover_ping&&!ld.google_discover_ping.skipped?'on':'off',ld.google_discover_ping?`${ld.google_discover_ping.google_discover_pings_ok||0}/${ld.google_discover_ping.google_discover_pings_fired||0} OK`:'NEW #3 — google.com/ping + bing.com/ping for all sitemaps')}
-      ${ifLayerRow('🔎','GSC URL Inspection','l12',ld.gsc_inspection&&!ld.gsc_inspection.skipped?'on':'off',ld.gsc_inspection&&!ld.gsc_inspection.skipped?`${ld.gsc_inspection.gsc_inspection_ok||0}/${ld.gsc_inspection.gsc_inspection_fired||0} OK · fires EVERY blast`:'FIX #2 — Pull trigger, forces scheduler re-eval on every blast')}
-      ${ifLayerRow('🔵','Bing Webmaster API','l13',ld.bing_webmaster&&!ld.bing_webmaster.skipped?'on':'off',ld.bing_webmaster&&!ld.bing_webmaster.skipped?`${ld.bing_webmaster.bing_ok||0}/${ld.bing_webmaster.bing_total||0} hosts OK`:'Direct Bing URL submission (BING_API_KEY env var)')}
+      ${ifLayerRow('🔗','Link-Hub Injection','l8',ld.link_hub_injection&&!ld.link_hub_injection?.skipped?'on':res.link_hub_injection?'on':'off',ld.link_hub_injection?.link_hub_urls_stored!=null?`${ld.link_hub_injection.link_hub_urls_stored||0} URLs · ${ld.link_hub_injection.link_hub_domains_warmed||0} domains warmed`:'PageRank flow via /link-hub with ItemList schema')}
+      ${ifLayerRow('🗺','Sitemap-Index Ping','l9',ld.sitemap_index_ping?'on':res.sitemap_index_ping?'on':'off',ld.sitemap_index_ping?.sitemap_index_pings_ok!=null?`${ld.sitemap_index_ping.sitemap_index_pings_ok||0}/${ld.sitemap_index_ping.sitemap_index_pings_fired||0} OK`:'Per-domain sitemap-index.xml pings')}
+      ${ifLayerRow('🟢','GSC Request Indexing','l10',ld.gsc_request_indexing&&!ld.gsc_request_indexing?.skipped?'on':'off',ld.gsc_request_indexing&&!ld.gsc_request_indexing.skipped?`${ld.gsc_request_indexing.gsc_request_indexing_ok||0}/${ld.gsc_request_indexing.gsc_request_indexing_fired||0} OK · ${ld.gsc_request_indexing.sa_count||0} SA keys`:'Dedicated GSC "Request Indexing" API (10 req/day/key)')}
+      ${ifLayerRow('🌐','Google Discover Ping','l11',ld.google_discover_ping&&!ld.google_discover_ping?.skipped?'on':'off',ld.google_discover_ping?`${ld.google_discover_ping.google_discover_pings_ok||0}/${ld.google_discover_ping.google_discover_pings_fired||0} OK`:'google.com/ping + bing.com/ping for all sitemaps')}
+      ${ifLayerRow('🔎','GSC URL Inspection','l12',ld.gsc_inspection&&!ld.gsc_inspection?.skipped?'on':'off',ld.gsc_inspection&&!ld.gsc_inspection.skipped?`${ld.gsc_inspection.gsc_inspection_ok||0}/${ld.gsc_inspection.gsc_inspection_fired||0} OK · fires EVERY blast`:'Forces scheduler re-eval on every blast')}
+      ${ifLayerRow('🔵','Bing Webmaster API','l13',ld.bing_webmaster&&!ld.bing_webmaster?.skipped?'on':'off',ld.bing_webmaster&&!ld.bing_webmaster.skipped?`${ld.bing_webmaster.bing_ok||0}/${ld.bing_webmaster.bing_total||0} hosts OK`:'Direct Bing URL submission (BING_API_KEY env var)')}
       ${ifLayerRow('📡','WebSub / PubSubHubbub','l14',ld.websub?'on':'off',ld.websub?`${ld.websub.websub_ok||0}/${ld.websub.websub_fired||0} notifications OK`:'4 WebSub hubs — PubSubHubbub, Superfeedr, WebSubHub, Switchboard')}
       ${ifLayerRow('🏛','Wayback Machine','l15',ld.wayback?'on':'off',ld.wayback?`${ld.wayback.wayback_ok||0}/${ld.wayback.wayback_attempted||0} archived`:'archive.org save — URL existence signal in Google link graph')}
-      ${ifLayerRow('🔄','Crawl Amplify','l16',ld.crawl_amplify&&!ld.crawl_amplify.skipped?'on':'off',ld.crawl_amplify&&!ld.crawl_amplify.skipped?`${ld.crawl_amplify.amplify_ok||0}/${ld.crawl_amplify.amplify_attempted||0} fetched via proxy`:'Residential proxy fetch — PROXY_GATEWAY env var required')}
+      ${ifLayerRow('📊','GA4 Measurement (★)','l16',ld.j11_ga4_measurement&&!ld.j11_ga4_measurement?.skipped?'on':'off',ld.j11_ga4_measurement&&!ld.j11_ga4_measurement.skipped?`${ld.j11_ga4_measurement.j11_events_sent||0} page_view events sent to GA4`:'⚡ Set GA4_MEASUREMENT_ID + GA4_API_SECRET on Railway — highest-impact layer')}
     </div>
+    ${advLayerHtml}
     <div class="verify-panel" id="verify-${he(job.job_id||'')}">
       <div class="verify-panel-hdr">🔍 GSC Indexation Verdict</div>
       <div id="verify-rows-${he(job.job_id||'')}" style="padding:10px 14px;color:var(--muted);font-size:.6rem">
@@ -4868,7 +5014,7 @@ function ifRenderJobCard(job){
       </div>
     </div>
     <div class="if-notice ${isComplete?'ok':isFailed?'err':'pending'}">
-      ${isComplete?'✅ All layers complete. If URLs are not indexed within 72h, use Escalation tab to re-blast.'
+      ${isComplete?`✅ All ${layersFired} layers complete. If URLs are not indexed within 72h, use Escalation tab to re-blast.`
         :isFailed?'⚠ '+he(job.error||'Job failed — check Railway logs')
         :'⏳ '+STATUS_LABEL[job.status]+' — polling every 4 seconds…'}
     </div>
@@ -6564,6 +6710,16 @@ setInterval(async () => {
     document.querySelectorAll('.drip-chip').forEach(chip => {
       chip.addEventListener('click', () => chip.classList.toggle('active'));
     });
+    // Wire micro-drip toggle label
+    const microChk = document.getElementById('micro-drip-mode-chk');
+    const microRow = document.getElementById('micro-drip-toggle-row');
+    if(microChk) {
+      const updateMicroLabel = () => {
+        const span = microRow?.querySelector('.ch-toggle span');
+        if(span){ span.textContent = microChk.checked ? 'ON' : 'OFF'; span.style.color = microChk.checked ? 'var(--cyan)' : 'var(--muted)'; }
+      };
+      microChk.addEventListener('change', updateMicroLabel);
+    }
     const workerUrl = localStorage.getItem('lc_worker_url') || '';
     const idx = document.getElementById('sitemap-idx-url-display');
     if (idx && workerUrl) idx.textContent = `${workerUrl}/sitemap-index.xml`;
