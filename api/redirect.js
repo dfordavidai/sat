@@ -72,6 +72,22 @@ export default async function handler(request, context) {
     return proxyToWorker(request, '/api/submit');
   }
 
+  // ── /api/sa-keys — internal endpoint for Railway worker to fetch SA keys ──
+  if (path === '/api/sa-keys') {
+    const secret = request.headers.get('x-internal-secret');
+    if (!secret || secret !== process.env.INTERNAL_SECRET) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    const keys = JSON.parse(process.env.SA_KEYS_JSON || '[]');
+    return new Response(JSON.stringify({ keys }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   // ── /link/:code ───────────────────────────────────────────────────────────
   const code = (parts[0] === 'link' ? parts[1] : null)
             || (parts[0] && parts[0] !== 'link' ? parts[0] : null)
