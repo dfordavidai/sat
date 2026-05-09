@@ -1,5 +1,5 @@
 /**
- * LinkCore — Vercel Edge Function  v20.0
+ * LinkCore — Vercel Edge Function  v20.1
  *
  * STRATEGY CHANGE from v18/v19:
  * ─────────────────────────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ export default async function handler(request, context) {
       'Link': [
         `<${target}>; rel="preconnect"`,
         `<https://${targetHost}>; rel="dns-prefetch"`,
-        `<https://${domainName}/link-hub>; rel="canonical"`,
+        `<${shortUrl}>; rel="canonical"`,
       ].join(', '),
       'X-Redirect-By':          'LinkCore-v20',
       'X-Destination':          target,
@@ -165,12 +165,20 @@ async function fireBackgroundSignals({ target, code, shortUrl, domainName, SB_UR
 
   await Promise.allSettled([
 
-    // 1. Increment hit counter in Supabase
-    fetch(`${SB_URL}/rest/v1/rpc/increment_hits`, {
-      method:  'POST',
-      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ link_code: code }),
-    }),
+    // 1. Increment hit counter in Supabase (atomic SQL increment — no RPC function needed)
+    fetch(`${SB_URL}/rest/v1/ic_short_links?code=eq.${encodeURIComponent(code)}`, {
+      method:  'PATCH',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body:    JSON.stringify({ hits: `hits+1` }),
+    }).catch(() =>
+      // Fallback: try RPC if the PATCH raw expression isn't supported
+      fetch(`${SB_URL}/rest/v1/rpc/increment_hits`, {
+        method:  'POST',
+        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ link_code: code }),
+      })
+    ),
 
     // 2. Crawl-ping — fires all 13 Vercel Edge crawl methods against the destination
     fetch(`https://${domainName}/api/crawl-ping`, {
@@ -238,16 +246,14 @@ async function fireBackgroundSignals({ target, code, shortUrl, domainName, SB_UR
 
     // 11. Google Translate — Google's own servers fetch and render the destination
     fetch(`https://translate.google.com/translate?sl=auto&tl=en&u=${enc}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36' },
-    }),
-
-    // 12. AMP cache fetch — triggers AMP crawler for the destination
-    fetch(`https://cdn.ampproject.org/c/s/${target.replace(/^https?:\/\//, '')}`, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
-      redirect: 'manual',
     }),
 
-    // 13. Sitemap ping for the short link's domain sitemap
+    // 12. Rich Results Test — verified Googlebot crawl specifically for JSON-LD structured data
+    //     Triggers Google's structured data crawler to read + validate the JSON-LD on the short link page
+    fetch(`https://search.google.com/test/rich-results/result?url=${encodeURIComponent(shortUrl)}`),
+
+    // 14. Sitemap ping for the short link's domain sitemap
     fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(`https://${domainName}/sitemap.xml`)}`),
     fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(`https://${domainName}/sitemap.xml`)}`),
 
