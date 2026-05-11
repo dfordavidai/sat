@@ -5747,97 +5747,98 @@ function loadPagePreview(url, gscScreenshot){
 }
 
 // ── Build Destination Index Status for right panel ───────────────
-function buildDestSectionHtml(originalUrl, siteCheck, destGscRes){
+function buildDestSectionHtml(originalUrl, siteCheck){
   if(!originalUrl) return '';
-  const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:6px;font-size:.5rem">↗ verify on Google</a>`;
+  const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:4px;font-size:.5rem">↗ verify</a>`;
 
-  // ── Primary: siteCheck = live site:URL query against Google/Bing ──
-  // This is the real-world answer: is the page actually in Google's index right now?
-  // destGscRes is not used for external destination URLs (different GSC property — unreliable).
-  let crawlLabel, crawlColor, crawlIcon, crawlNote;
-
-  if(siteCheck){
-    if(siteCheck.indexed === true){
-      crawlLabel = `Indexed${siteCheck.count > 0 ? ' ('+siteCheck.count+' result'+(siteCheck.count!==1?'s':'')+')' : ''}`;
-      crawlColor = 'var(--accent)'; crawlIcon = '✅';
-      const src = siteCheck.source==='bing' ? 'Bing' : siteCheck.source==='worker' ? 'Worker' : 'Google';
-      crawlNote  = `Source: live site: search (${src})`;
-    } else if(siteCheck.indexed === false){
-      crawlLabel = 'Not Indexed — 0 results';
-      crawlColor = 'var(--red)'; crawlIcon = '❌';
-      crawlNote  = `Source: live site: search (${siteCheck.source||'Google'}). Page not in index.`;
-    } else {
-      // null = inconclusive
-      crawlLabel = 'Could not confirm';
-      crawlColor = 'var(--muted)'; crawlIcon = '⚠';
-      crawlNote  = siteCheck.error||'site: check inconclusive — verify manually';
-    }
+  let statusHtml='';
+  let noteHtml='';
+  if(!siteCheck || siteCheck.indexed===null && !siteCheck?.error){
+    statusHtml=`<span style="color:var(--muted2)">⟳ Checking…</span>${verifyLink}`;
+  } else if(siteCheck.error || siteCheck.indexed===null){
+    statusHtml=`<span style="color:var(--orange)">⚠ Could not determine</span>${verifyLink}`;
+    noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">${he(siteCheck.error||'')}</div>`;
   } else {
-    crawlLabel = '⟳ Running site: check…';
-    crawlColor = 'var(--muted2)'; crawlIcon = '';
-    crawlNote  = null;
+    const indexed=siteCheck.indexed;
+    const count=siteCheck.count;
+    const color=indexed?'var(--accent)':'var(--red)';
+    // Only show count if we have a confident number; don't show "10 results" from proxy noise
+    const countLabel = (indexed && count!==null && count > 0) ? ` (${count} result${count!==1?'s':''})` : '';
+    const label=indexed?`✅ Indexed${countLabel}`:'❌ Not Indexed';
+    statusHtml=`<span style="color:${color};font-weight:700">${label}</span>${verifyLink}`;
+    // Show source + note that count is approximate when from proxy
+    if(indexed && siteCheck.source && siteCheck.source!=='worker'){
+      noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">via ${he(siteCheck.source)} · count is approximate — ↗ verify for exact</div>`;
+    }
   }
 
   return `<div class="crawl-section">
-    <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page — Real Google Index Status</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">via live site: search</span></div>
+    <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
     <div class="crawl-section-body single">
       <div class="crawl-kv">
-        <div class="ck">Google Index</div>
-        <div class="cv" style="color:${crawlColor};font-weight:700;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-          ${crawlIcon ? crawlIcon+' ' : ''}${he(crawlLabel)}${verifyLink}
-        </div>
+        <div class="ck">site: result</div>
+        <div class="cv" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">${statusHtml}</div>
+        ${noteHtml}
       </div>
-      ${crawlNote ? `<div class="crawl-kv"><div class="ck">Check Method</div><div class="cv" style="color:var(--muted)">${he(crawlNote)}</div></div>` : ''}
     </div>
   </div>`;
 }
 
-function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, siteCheck, destGscRes){
+function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, siteCheck){
   const idx  = res.indexStatusResult||{};
   const mob  = res.mobileUsabilityResult||{};
   const rich = res.richResultsResult||{};
   const amp  = res.ampResult||{};
+  const shortVerdict = idx.verdict||'UNKNOWN';
 
-  // ── Short-link GSC data (always redirect — informational only) ──
-  const shortVerdict  = idx.verdict||'UNKNOWN';
-
-  // ── Top banner: driven by siteCheck — the REAL Google result for the destination URL ──
-  // siteCheck = { indexed: bool|null, count: number|null, source: string, error: string|null }
-  // This is a live site:URL query against Google/Bing — this is what actually shows in search.
+  // ── Top banner: ALWAYS driven by siteCheck (live site: Google check on the destination) ──
+  // The short-link GSC verdict is always "Crawled / Not Indexed / Redirect error" by design —
+  // it's a 301 redirect, not a landing page. siteCheck is the real answer.
   let vClass, vIcon, vLabel, vSub;
   if(siteCheck && siteCheck.indexed === true){
-    vClass='pass'; vIcon='✅'; vLabel='Indexed on Google';
-    const src = siteCheck.source==='bing' ? 'Bing' : 'Google';
-    vSub=`Destination page found in ${src} search index${siteCheck.count>0?' ('+siteCheck.count+' result'+(siteCheck.count!==1?'s':'')+')':''}.`;
+    vClass='pass'; vIcon='✅';
+    vLabel='Indexed on Google';
+    const src = siteCheck.source==='bing'?'Bing':siteCheck.source==='bing-html'?'Bing':siteCheck.source==='worker'?'Worker':'Google';
+    const countLabel = siteCheck.count > 0 ? ` (${siteCheck.count} result${siteCheck.count!==1?'s':''})` : '';
+    vSub=`Destination page found in ${src} search index${countLabel}.`;
   } else if(siteCheck && siteCheck.indexed === false){
-    vClass='fail'; vIcon='❌'; vLabel='Not Indexed';
-    vSub='Destination page returned no results in Google search (site: check). Not currently indexed.';
+    vClass='fail'; vIcon='❌';
+    vLabel='Not Indexed';
+    vSub='Destination page returned no results in Google search (site: check).';
   } else if(siteCheck && siteCheck.indexed === null){
-    // Check ran but inconclusive — show with note
-    vClass='pending'; vIcon='⏳'; vLabel='Index Status Unknown';
-    vSub=siteCheck.error||'Could not confirm index status — click ↗ verify to check manually on Google.';
+    vClass='pending'; vIcon='⏳';
+    vLabel='Index Status Unknown';
+    vSub=siteCheck.error||'Could not confirm — click ↗ verify to check manually.';
   } else {
-    // siteCheck still pending or no originalUrl
-    vClass='pending'; vIcon='⏳'; vLabel='Checking Google…';
-    vSub='Running live site: check against Google search…';
+    // No siteCheck result yet (originalUrl missing or still loading)
+    vClass='pending'; vIcon='⏳';
+    vLabel='Checking Google…';
+    vSub='Running live site: check…';
   }
+
+  // Destination Page Index Status section removed per user request
+  let destHtml = '';
 
   let html=`<div class="crawl-verdict-banner ${vClass}">
     <span class="cvb-icon">${vIcon}</span>
     <div><div class="cvb-label ${vClass}">${vLabel}</div>${vSub?`<div class="cvb-sub">${he(vSub)}</div>`:''}</div>
   </div>
-  ${buildDiagnosisPanel(shortVerdict, idx, shortUrl)}
-  ${buildDestSectionHtml(originalUrl, siteCheck, destGscRes)}
+  ${buildDiagnosisPanel(shortVerdict, idx)}
   <div class="crawl-section">
-    <div class="crawl-section-hdr" style="background:rgba(100,100,100,0.04)"><span class="cs-icon">🔗</span><span style="color:var(--muted)">Short Link GSC Data</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">(redirect — informational)</span></div>
+    <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">📄</span><span style="color:var(--accent)">Index Status</span></div>
     <div class="crawl-section-body">
-      ${kv('Verdict',humanVerdict(shortVerdict),shortVerdict==='PASS'?'pass':shortVerdict==='NEUTRAL'?'neutral':shortVerdict==='FAIL'?'bad':'')}
+      ${kv('Verdict',humanVerdict(shortVerdict),shortVerdict==='PASS'?'pass':shortVerdict==='NEUTRAL'?'neutral':shortVerdict==='FAIL'?'fail':'')}
       ${kv('Coverage',humanCoverageState(idx.coverageState||'—'))}
+      ${kv('Robots.txt',humanRobotsTxt(idx.robotsTxtState||'—'),robotsColor(idx.robotsTxtState))}
+      ${kv('Indexing',humanIndexingState(idx.indexingState||'—'),indexingColor(idx.indexingState))}
       ${kv('Page Fetch',humanPageFetch(idx.pageFetchState||'—'),fetchColor(idx.pageFetchState))}
       ${kv('Last Crawl',idx.lastCrawlTime?fmtDate(idx.lastCrawlTime):'Never crawled',idx.lastCrawlTime?'good':'warn')}
       ${kv('Crawled As',idx.crawledAs||'—','blue')}
+      ${kv('Google Canonical',idx.googleCanonical?shortUrl===idx.googleCanonical?'✓ Matches':'⚠ '+idx.googleCanonical.slice(0,50):'—',idx.googleCanonical&&idx.googleCanonical===shortUrl?'good':'warn')}
     </div>
-  </div>`;
+  </div>
+  ${buildDestSectionHtml(originalUrl, siteCheck)}
+  ${destHtml}`;
   // Only add Rich Results if there's actual data (useful, not noise)
   if(rich.verdict||(rich.detectedItems&&rich.detectedItems.length)){
     const ri=rich.detectedItems||[];
@@ -5886,7 +5887,7 @@ function humanCoverageState(s){
 }
 
 // ── Actionable diagnosis panel ────────────────────────────────────
-function buildDiagnosisPanel(verdict, idx, shortUrl=''){
+function buildDiagnosisPanel(verdict, idx){
   const coverage = idx.coverageState||'';
   const robots   = idx.robotsTxtState||'';
   const indexing = idx.indexingState||'';
@@ -5904,15 +5905,8 @@ function buildDiagnosisPanel(verdict, idx, shortUrl=''){
     issues.push({icon:'⚠️',issue:'Soft 404 — page returns 200 but looks empty',fix:'Add meaningful content. Google treats thin/empty pages as 404s.'});
   if(fetch_==='NOT_FOUND'||fetch_==='ACCESS_DENIED'||fetch_==='SERVER_ERROR')
     issues.push({icon:'❌',issue:`Fetch failed: ${humanPageFetch(fetch_)}`,fix:'Fix the server error / 404 / access block, then use GSC URL Inspection to request re-crawl.'});
-  if(fetch_==='REDIRECT_ERROR'){
-    // Check if this is a known short-link domain — redirect is expected/by design
-    const isShortLink = SHORT_BASES.some(base=>{ try{return shortUrl.startsWith(base);}catch(e){return false;} });
-    if(isShortLink){
-      issues.push({icon:'🔗',issue:'Short link redirect — GSC sees this URL as a redirect (301), not a landing page',fix:'This is expected. Your short link correctly 301-redirects to the destination page. Google follows this redirect and crawls the destination. Check the "Destination Page Index Status" section below for the actual indexing state of your backlink page.'});
-    } else {
-      issues.push({icon:'⚠️',issue:'Redirect chain error',fix:'Ensure redirects resolve to a 200 in ≤5 hops with no redirect loops.'});
-    }
-  }
+  if(fetch_==='REDIRECT_ERROR')
+    issues.push({icon:'⚠️',issue:'Redirect chain error',fix:'Ensure redirects resolve to a 200 in ≤5 hops with no redirect loops.'});
 
   if(verdict==='NEUTRAL' && (coverage.includes('not indexed')||coverage.includes('currently not indexed'))){
     if(!idx.referringUrls||!idx.referringUrls.length)
@@ -6371,13 +6365,12 @@ function getNextProxy(){ const p=PROXY_POOL[_proxyIdx % PROXY_POOL.length]; _pro
 // Returns {indexed:bool|null, count:int|null, source:str, error:str|null}
 async function checkIndexedViaSite(targetUrl){
   const workerUrl = localStorage.getItem('lc_worker_url')||'';
-  // Use site:exact-url for precise single-page check
   const siteQuery = `site:${targetUrl}`;
 
-  // Method 1: Route through the tool's own Cloudflare Worker (most reliable)
+  // ── Method 1: Cloudflare Worker (most reliable — server-side, no proxy) ──
   if(workerUrl){
     try{
-      const r = await fetch(`${workerUrl}/api/site-check?url=${encodeURIComponent(targetUrl)}`, {signal:AbortSignal.timeout(8000)});
+      const r = await fetch(`${workerUrl}/api/site-check?url=${encodeURIComponent(targetUrl)}`,{signal:AbortSignal.timeout(8000)});
       if(r.ok){
         const d = await r.json();
         if(d && typeof d.indexed !== 'undefined') return {indexed:d.indexed, count:d.count||0, source:'worker', error:null};
@@ -6385,88 +6378,120 @@ async function checkIndexedViaSite(targetUrl){
     }catch(e){}
   }
 
-  // Method 2: Google via CORS proxies — parse HTML carefully
-  // NOTE: Google obfuscates counts through proxies. We only trust the count if we
-  // can parse it from result-stats. Otherwise we just confirm indexed:true/false with count:1.
   const CORS_PROXIES = [
     (u)=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
     (u)=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
     (u)=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   ];
+
+  // ── Method 2: Google site: search via CORS proxies ──
+  // STRICT detection only — no loose HTML signals that fire on "no results" pages.
+  // The root cause of false positives: Google's "no results" page still contains
+  // class="g", data-sokoban-container, and domain mentions in the query echo.
+  // We ONLY trust actual result card class names (yuRUbf, tF2Cxc, LC20lb, MjjYud).
   const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(siteQuery)}&num=10&hl=en&gl=us`;
 
   for(const proxyFn of CORS_PROXIES){
     try{
-      const r = await fetch(proxyFn(googleSearchUrl), {signal:AbortSignal.timeout(10000)});
+      const r = await fetch(proxyFn(googleSearchUrl),{signal:AbortSignal.timeout(12000)});
       if(!r.ok) continue;
       let html='';
       try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
-      if(!html || html.length < 500) continue;
+      if(!html || html.length < 800) continue;
 
-      // Definitive "not indexed" signals
-      if(/did not match any documents/i.test(html) ||
-         /your search.*did not match/i.test(html) ||
-         /No results found for/i.test(html)){
-        return {indexed:false, count:0, source:'google', error:null};
-      }
+      // ── Step 1: Definitive NOT-indexed signals — check these FIRST ──
+      // These strings only appear when Google has zero results.
+      const notIndexed =
+        /did not match any documents/i.test(html) ||
+        /your search.*did not match/i.test(html)  ||
+        /No results found for/i.test(html)         ||
+        /没有与.*相符的文档/i.test(html)            ||  // Chinese locale
+        /Aucun document.*ne correspond/i.test(html);    // French locale
 
-      // Count actual result <h3> entries that contain the target domain
-      // This is far more accurate than trusting Google's stated "About X results"
-      let domain='';
-      try{ domain=new URL(targetUrl).hostname; }catch(e){}
+      if(notIndexed) return {indexed:false, count:0, source:'google', error:null};
 
-      // Count result blocks that match our domain
-      const resultBlockRe = /class="[^"]*(?:yuRUbf|tF2Cxc|LC20lb|MjjYud|kvH3mc)[^"]*"/g;
-      const blocks = (html.match(resultBlockRe)||[]).length;
-      const domainMentions = domain ? (html.match(new RegExp(domain.replace('.','\\.'),'g'))||[]).length : 0;
+      // ── Step 2: STRICT result card detection ──
+      // Only these class names appear on actual result <div> cards.
+      // They do NOT appear in Google's no-results page chrome.
+      // yuRUbf = result link wrapper, tF2Cxc = result block, LC20lb = result title,
+      // MjjYud = result container (newer layout), VwiC3b = snippet text
+      const RESULT_CARD_RE = /class="(?:[^"]*\s)?(?:yuRUbf|tF2Cxc|LC20lb|MjjYud|VwiC3b)(?:\s[^"]*)?"/g;
+      const cardMatches = html.match(RESULT_CARD_RE)||[];
 
-      const hasResults = blocks > 0 || domainMentions > 2 ||
-        html.includes('class="g"') || html.includes('data-sokoban-container') ||
-        html.includes('/search?q=related:');
+      // Also check for result-stats div — only present when results exist
+      const statsMatch = html.match(/id=["']result-stats["'][^>]*>[\s\S]{0,80}?([\d,]+)\s+result/i)
+                      || html.match(/About\s+([\d,]+)\s+results?\s*\(/i);
 
-      if(hasResults){
-        // Only extract count from result-stats — it's the only reliable place
-        // "About X results" is wildly inaccurate for site: queries through proxies
-        const statsMatch = html.match(/id=["']result-stats["'][^>]*>[^<]*([\d,]+)\s+result/i)
-                        || html.match(/About ([\d,]+) results?\s*\([\d.]+/i);
-        // Use block count as a sanity cap — if parsed count >> blocks, trust blocks
-        let count = 1;
+      // Must have BOTH: at least one result card AND result-stats (or multiple cards)
+      // This eliminates false positives where proxy returns partial/cached HTML
+      const hasRealResults = cardMatches.length >= 1 && (statsMatch || cardMatches.length >= 2);
+
+      if(hasRealResults){
+        let count = cardMatches.length;
         if(statsMatch){
-          const parsed = parseInt(statsMatch[1].replace(/,/g,''))||1;
-          // For site:exact-url the real count is almost always 1-3
-          // If proxy returns inflated number (e.g. 10 when only 1 result shows), cap it
-          count = blocks > 0 ? Math.min(parsed, Math.max(blocks, 1)) : parsed;
-        } else if(blocks > 0){
-          count = blocks;
+          const parsed = parseInt(statsMatch[1].replace(/,/g,''),10)||1;
+          // Cap at cardMatches.length to prevent wildly inflated proxy counts
+          // For site:exact-url real count is almost always 1–5
+          count = cardMatches.length > 0 ? Math.min(parsed, Math.max(cardMatches.length, 1)) : Math.min(parsed, 50);
         }
         return {indexed:true, count, source:'google', error:null};
+      }
+
+      // ── Step 3: If we got a valid HTML page but no result cards → not indexed ──
+      // A real Google SERP with results will always have at least one yuRUbf/tF2Cxc card.
+      // If we have a big HTML doc with no cards, it's a no-results SERP.
+      if(html.length > 5000 && cardMatches.length === 0){
+        return {indexed:false, count:0, source:'google', error:null};
       }
     }catch(e){ continue; }
   }
 
-  // Method 3: Bing RSS — cleaner result count, less obfuscation
+  // ── Method 3: Bing RSS — cleaner, structured, no obfuscation ──
+  // Bing RSS wraps each result in <item> tags — much easier to parse accurately.
   const bingUrl = `https://www.bing.com/search?q=${encodeURIComponent(siteQuery)}&format=rss`;
   for(const proxyFn of CORS_PROXIES){
     try{
-      const r = await fetch(proxyFn(bingUrl), {signal:AbortSignal.timeout(10000)});
+      const r = await fetch(proxyFn(bingUrl),{signal:AbortSignal.timeout(12000)});
       if(!r.ok) continue;
       let html='';
       try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
-      if(!html) continue;
+      if(!html || html.length < 200) continue;
+
       const items = (html.match(/<item>/g)||[]).length;
       if(items > 0){
         const totalMatch = html.match(/totalResults[^>]*>(\d+)/i);
-        const total = totalMatch ? parseInt(totalMatch[1])||items : items;
-        // Again cap: items is what we actually see, total from header can be inflated
+        const total = totalMatch ? parseInt(totalMatch[1],10)||items : items;
         return {indexed:true, count:Math.min(total, Math.max(items,1)), source:'bing', error:null};
       }
-      if(/no results|0 results/i.test(html)){
+      // Bing RSS with channel but no <item> = no results
+      if(html.includes('<channel>') || /no results|0 results/i.test(html)){
         return {indexed:false, count:0, source:'bing', error:null};
       }
     }catch(e){ continue; }
   }
 
-  return {indexed:null, count:null, source:'none', error:'Check failed — click ↗ verify to check manually'};
+  // ── Method 4: Bing plain HTML fallback ──
+  const bingHtmlUrl = `https://www.bing.com/search?q=${encodeURIComponent(siteQuery)}&count=10`;
+  for(const proxyFn of CORS_PROXIES){
+    try{
+      const r = await fetch(proxyFn(bingHtmlUrl),{signal:AbortSignal.timeout(12000)});
+      if(!r.ok) continue;
+      let html='';
+      try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
+      if(!html || html.length < 500) continue;
+
+      // Bing "no results" signals
+      if(/No results found for/i.test(html) || /did not return any results/i.test(html)){
+        return {indexed:false, count:0, source:'bing-html', error:null};
+      }
+      // Bing result items use class="b_algo"
+      const bingCards = (html.match(/class="b_algo"/g)||[]).length;
+      if(bingCards > 0) return {indexed:true, count:bingCards, source:'bing-html', error:null};
+      if(html.length > 3000 && bingCards === 0) return {indexed:false, count:0, source:'bing-html', error:null};
+    }catch(e){ continue; }
+  }
+
+  return {indexed:null, count:null, source:'none', error:'All checks failed — click ↗ verify on Google'};
 }
 
 // ── Re-submit button inside crawl modal ──────────────────────────
@@ -6483,9 +6508,7 @@ async function openCrawlDetails(shortUrl, originalUrl){
   const histPanel = document.getElementById('crawl-hist-panel');
   if(histPanel){ histPanel.style.display='none'; }
   const urlBar = document.getElementById('crawl-url-bar');
-  // Show short link → original destination clearly
-  const shortDisplay = shortUrl ? `<span style="color:var(--accent);font-weight:700">Short:</span> <a href="${he(shortUrl)}" target="_blank" style="color:var(--cyan);text-decoration:none" title="${he(shortUrl)}">${he(shortUrl.slice(0,60))}${shortUrl.length>60?'…':''}</a> <span style="color:var(--muted2);margin:0 4px">→</span>` : '';
-  urlBar.innerHTML = `${shortDisplay}<span>Original:</span> <a href="${he(originalUrl)}" target="_blank" style="color:var(--text);text-decoration:none" title="${he(originalUrl)}">${he(originalUrl.slice(0,70))}${originalUrl.length>70?'…':''}</a>`;
+  urlBar.innerHTML = `<span>Original:</span> ${he(originalUrl.slice(0,90))}${originalUrl.length>90?'…':''}`;
   const sections = document.getElementById('crawl-sections');
   sections.innerHTML = `<div class="crawl-loading"><div class="spin">⟳</div><div>Querying Google Search Console…</div></div>`;
   // Show loading state in preview while GSC loads
@@ -6501,16 +6524,11 @@ async function openCrawlDetails(shortUrl, originalUrl){
   try{
     const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
 
-    // Run GSC inspection on short URL + real Google site: check for destination — in parallel
-    // NOTE: destGscRes via GSC API is intentionally removed — GSC URL Inspection requires the
-    // inspectionUrl to belong to the verified siteUrl property. External destination URLs
-    // (e.g. kikyus.net) don't belong to our GSC property, so GSC would return garbage/error.
-    // The authoritative real-Google check for the destination is checkIndexedViaSite().
+    // Run GSC inspection on short URL + site: check on destination in parallel
     const [r, siteCheck] = await Promise.all([
       fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})}),
       originalUrl ? checkIndexedViaSite(originalUrl) : Promise.resolve(null)
     ]);
-    const destGscRes = null; // destination is an external URL — not in our GSC property
 
     if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
     const data = await r.json();
@@ -6524,7 +6542,7 @@ async function openCrawlDetails(shortUrl, originalUrl){
     const verdict = result.indexStatusResult?.verdict||'UNKNOWN';
     const coverage = result.indexStatusResult?.coverageState||'';
     saveCrawlResult(shortUrl, verdict, coverage);
-    renderCrawlDetails(sections, result, shortUrl, originalUrl, null, siteCheck, destGscRes);
+    renderCrawlDetails(sections, result, shortUrl, originalUrl, null, siteCheck);
     renderCrawlHistory(shortUrl);
   }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
 }
