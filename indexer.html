@@ -5747,10 +5747,11 @@ function loadPagePreview(url, gscScreenshot){
 }
 
 // ── Build Destination Index Status for right panel ───────────────
-function buildDestSectionHtml(originalUrl, siteCheck){
+function buildDestSectionHtml(originalUrl, siteCheck, destGscRes){
   if(!originalUrl) return '';
   const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:4px;font-size:.5rem">↗ verify</a>`;
 
+  // ── site: index check row ──
   let statusHtml='';
   let noteHtml='';
   if(!siteCheck || siteCheck.indexed===null && !siteCheck?.error){
@@ -5762,14 +5763,52 @@ function buildDestSectionHtml(originalUrl, siteCheck){
     const indexed=siteCheck.indexed;
     const count=siteCheck.count;
     const color=indexed?'var(--accent)':'var(--red)';
-    // Only show count if we have a confident number; don't show "10 results" from proxy noise
     const countLabel = (indexed && count!==null && count > 0) ? ` (${count} result${count!==1?'s':''})` : '';
     const label=indexed?`✅ Indexed${countLabel}`:'❌ Not Indexed';
     statusHtml=`<span style="color:${color};font-weight:700">${label}</span>${verifyLink}`;
-    // Show source + note that count is approximate when from proxy
     if(indexed && siteCheck.source && siteCheck.source!=='worker'){
       noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">via ${he(siteCheck.source)} · count is approximate — ↗ verify for exact</div>`;
     }
+  }
+
+  // ── GSC destination inspection rows (crawl state + last crawl) ──
+  let gscRowsHtml = '';
+  if(destGscRes){
+    const di = destGscRes?.inspectionResult?.indexStatusResult||{};
+    const destVerdict = di.verdict||'UNKNOWN';
+    const destFetch   = di.pageFetchState||'';
+    const destCoverage= di.coverageState||'';
+    const lastCrawl   = di.lastCrawlTime;
+    const crawledAs   = di.crawledAs||'';
+
+    // Crawl state label
+    let crawlLabel='', crawlColor='var(--muted2)';
+    if(destVerdict==='PASS'){
+      crawlLabel='✅ Indexed'; crawlColor='var(--accent)';
+    } else if(lastCrawl && (destVerdict==='NEUTRAL'||destFetch==='SUCCESSFUL'||destCoverage.toLowerCase().includes('crawled'))){
+      crawlLabel='🔵 Crawled (not indexed)'; crawlColor='var(--blue)';
+    } else if(destCoverage.toLowerCase().includes('discovered')){
+      crawlLabel='⏳ Discovered — not yet crawled'; crawlColor='var(--orange)';
+    } else if(destFetch==='REDIRECT_ERROR'||destCoverage.toLowerCase().includes('redirect')){
+      crawlLabel='↪ Redirect detected'; crawlColor='var(--orange)';
+    } else if(destFetch==='NOT_FOUND'||destFetch==='ACCESS_DENIED'||destFetch==='SERVER_ERROR'){
+      crawlLabel=`❌ Fetch failed (${humanPageFetch(destFetch)})`; crawlColor='var(--red)';
+    } else if(!lastCrawl){
+      crawlLabel='🕷 Never crawled'; crawlColor='var(--muted2)';
+    } else {
+      crawlLabel=humanCoverageState(destCoverage)||humanVerdict(destVerdict); crawlColor='var(--muted)';
+    }
+
+    gscRowsHtml = `
+      <div class="crawl-kv" style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px">
+        <div class="ck">Destination Crawl State</div>
+        <div class="cv" style="color:${crawlColor};font-weight:700">${crawlLabel}</div>
+      </div>
+      <div class="crawl-kv">
+        <div class="ck">Last Crawled (dest.)</div>
+        <div class="cv ${lastCrawl?'good':'warn'}">${lastCrawl?fmtDate(lastCrawl):'Never'}</div>
+      </div>
+      ${crawledAs?`<div class="crawl-kv"><div class="ck">Crawled As</div><div class="cv blue">${he(crawledAs)}</div></div>`:''}`;
   }
 
   return `<div class="crawl-section">
@@ -5780,11 +5819,12 @@ function buildDestSectionHtml(originalUrl, siteCheck){
         <div class="cv" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">${statusHtml}</div>
         ${noteHtml}
       </div>
+      ${gscRowsHtml}
     </div>
   </div>`;
 }
 
-function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, siteCheck){
+function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, siteCheck, destGscRes){
   const idx  = res.indexStatusResult||{};
   const mob  = res.mobileUsabilityResult||{};
   const rich = res.richResultsResult||{};
@@ -5801,7 +5841,7 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
     <span class="cvb-icon">${vIcon}</span>
     <div><div class="cvb-label ${vClass}">${vLabel}</div>${idx.coverageState?`<div class="cvb-sub">${he(humanCoverageState(idx.coverageState))}</div>`:''}</div>
   </div>
-  ${buildDiagnosisPanel(verdict, idx)}
+  ${buildDiagnosisPanel(verdict, idx, shortUrl)}
   <div class="crawl-section">
     <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">📄</span><span style="color:var(--accent)">Index Status</span></div>
     <div class="crawl-section-body">
@@ -5815,7 +5855,7 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
       ${kv('Google Canonical',idx.googleCanonical?shortUrl===idx.googleCanonical?'✓ Matches':'⚠ '+idx.googleCanonical.slice(0,50):'—',idx.googleCanonical&&idx.googleCanonical===shortUrl?'good':'warn')}
     </div>
   </div>
-  ${buildDestSectionHtml(originalUrl, siteCheck)}
+  ${buildDestSectionHtml(originalUrl, siteCheck, destGscRes)}
   ${destHtml}`;
   // Only add Rich Results if there's actual data (useful, not noise)
   if(rich.verdict||(rich.detectedItems&&rich.detectedItems.length)){
@@ -5865,7 +5905,7 @@ function humanCoverageState(s){
 }
 
 // ── Actionable diagnosis panel ────────────────────────────────────
-function buildDiagnosisPanel(verdict, idx){
+function buildDiagnosisPanel(verdict, idx, shortUrl=''){
   const coverage = idx.coverageState||'';
   const robots   = idx.robotsTxtState||'';
   const indexing = idx.indexingState||'';
@@ -5883,8 +5923,15 @@ function buildDiagnosisPanel(verdict, idx){
     issues.push({icon:'⚠️',issue:'Soft 404 — page returns 200 but looks empty',fix:'Add meaningful content. Google treats thin/empty pages as 404s.'});
   if(fetch_==='NOT_FOUND'||fetch_==='ACCESS_DENIED'||fetch_==='SERVER_ERROR')
     issues.push({icon:'❌',issue:`Fetch failed: ${humanPageFetch(fetch_)}`,fix:'Fix the server error / 404 / access block, then use GSC URL Inspection to request re-crawl.'});
-  if(fetch_==='REDIRECT_ERROR')
-    issues.push({icon:'⚠️',issue:'Redirect chain error',fix:'Ensure redirects resolve to a 200 in ≤5 hops with no redirect loops.'});
+  if(fetch_==='REDIRECT_ERROR'){
+    // Check if this is a known short-link domain — redirect is expected/by design
+    const isShortLink = SHORT_BASES.some(base=>{ try{return shortUrl.startsWith(base);}catch(e){return false;} });
+    if(isShortLink){
+      issues.push({icon:'🔗',issue:'Short link redirect — GSC sees this URL as a redirect (301), not a landing page',fix:'This is expected. Your short link correctly 301-redirects to the destination page. Google follows this redirect and crawls the destination. Check the "Destination Page Index Status" section below for the actual indexing state of your backlink page.'});
+    } else {
+      issues.push({icon:'⚠️',issue:'Redirect chain error',fix:'Ensure redirects resolve to a 200 in ≤5 hops with no redirect loops.'});
+    }
+  }
 
   if(verdict==='NEUTRAL' && (coverage.includes('not indexed')||coverage.includes('currently not indexed'))){
     if(!idx.referringUrls||!idx.referringUrls.length)
@@ -6455,7 +6502,9 @@ async function openCrawlDetails(shortUrl, originalUrl){
   const histPanel = document.getElementById('crawl-hist-panel');
   if(histPanel){ histPanel.style.display='none'; }
   const urlBar = document.getElementById('crawl-url-bar');
-  urlBar.innerHTML = `<span>Original:</span> ${he(originalUrl.slice(0,90))}${originalUrl.length>90?'…':''}`;
+  // Show short link → original destination clearly
+  const shortDisplay = shortUrl ? `<span style="color:var(--accent);font-weight:700">Short:</span> <a href="${he(shortUrl)}" target="_blank" style="color:var(--cyan);text-decoration:none" title="${he(shortUrl)}">${he(shortUrl.slice(0,60))}${shortUrl.length>60?'…':''}</a> <span style="color:var(--muted2);margin:0 4px">→</span>` : '';
+  urlBar.innerHTML = `${shortDisplay}<span>Original:</span> <a href="${he(originalUrl)}" target="_blank" style="color:var(--text);text-decoration:none" title="${he(originalUrl)}">${he(originalUrl.slice(0,70))}${originalUrl.length>70?'…':''}</a>`;
   const sections = document.getElementById('crawl-sections');
   sections.innerHTML = `<div class="crawl-loading"><div class="spin">⟳</div><div>Querying Google Search Console…</div></div>`;
   // Show loading state in preview while GSC loads
@@ -6471,9 +6520,10 @@ async function openCrawlDetails(shortUrl, originalUrl){
   try{
     const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
 
-    // Run GSC inspection on short URL + site: check on destination in parallel
-    const [r, siteCheck] = await Promise.all([
+    // Run GSC inspection on short URL + destination GSC inspection + site: check — all in parallel
+    const [r, destGscRes, siteCheck] = await Promise.all([
       fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})}),
+      originalUrl ? fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:originalUrl,siteUrl:site})}).then(r=>r.ok?r.json():null).catch(()=>null) : Promise.resolve(null),
       originalUrl ? checkIndexedViaSite(originalUrl) : Promise.resolve(null)
     ]);
 
@@ -6489,7 +6539,7 @@ async function openCrawlDetails(shortUrl, originalUrl){
     const verdict = result.indexStatusResult?.verdict||'UNKNOWN';
     const coverage = result.indexStatusResult?.coverageState||'';
     saveCrawlResult(shortUrl, verdict, coverage);
-    renderCrawlDetails(sections, result, shortUrl, originalUrl, null, siteCheck);
+    renderCrawlDetails(sections, result, shortUrl, originalUrl, null, siteCheck, destGscRes);
     renderCrawlHistory(shortUrl);
   }catch(e){ sections.innerHTML=`<div class="crawl-error">❌ ${he(e.message)}</div>`; }
 }
