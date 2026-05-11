@@ -5749,77 +5749,70 @@ function loadPagePreview(url, gscScreenshot){
 // ── Build Destination Index Status for right panel ───────────────
 function buildDestSectionHtml(originalUrl, siteCheck, destGscRes){
   if(!originalUrl) return '';
-  const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:4px;font-size:.5rem">↗ verify</a>`;
+  const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:6px;font-size:.5rem">↗ verify on Google</a>`;
 
-  // ── site: index check row ──
-  let statusHtml='';
-  let noteHtml='';
-  if(!siteCheck || siteCheck.indexed===null && !siteCheck?.error){
-    statusHtml=`<span style="color:var(--muted2)">⟳ Checking…</span>${verifyLink}`;
-  } else if(siteCheck.error || siteCheck.indexed===null){
-    statusHtml=`<span style="color:var(--orange)">⚠ Could not determine</span>${verifyLink}`;
-    noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">${he(siteCheck.error||'')}</div>`;
-  } else {
-    const indexed=siteCheck.indexed;
-    const count=siteCheck.count;
-    const color=indexed?'var(--accent)':'var(--red)';
-    const countLabel = (indexed && count!==null && count > 0) ? ` (${count} result${count!==1?'s':''})` : '';
-    const label=indexed?`✅ Indexed${countLabel}`:'❌ Not Indexed';
-    statusHtml=`<span style="color:${color};font-weight:700">${label}</span>${verifyLink}`;
-    if(indexed && siteCheck.source && siteCheck.source!=='worker'){
-      noteHtml=`<div style="font-size:.44rem;color:var(--muted);margin-top:3px">via ${he(siteCheck.source)} · count is approximate — ↗ verify for exact</div>`;
-    }
-  }
-
-  // ── GSC destination inspection rows (crawl state + last crawl) ──
-  let gscRowsHtml = '';
+  // ── Primary: use destGscRes (authoritative GSC inspection of destination) ──
   if(destGscRes){
-    const di = destGscRes?.inspectionResult?.indexStatusResult||{};
-    const destVerdict = di.verdict||'UNKNOWN';
-    const destFetch   = di.pageFetchState||'';
-    const destCoverage= di.coverageState||'';
-    const lastCrawl   = di.lastCrawlTime;
-    const crawledAs   = di.crawledAs||'';
+    const di           = destGscRes?.inspectionResult?.indexStatusResult||{};
+    const destVerdict  = di.verdict||'UNKNOWN';
+    const destFetch    = di.pageFetchState||'';
+    const destCoverage = di.coverageState||'';
+    const lastCrawl    = di.lastCrawlTime;
+    const crawledAs    = di.crawledAs||'';
+    const destScreenshot = destGscRes?.inspectionResult?.screenshotUrl||null;
 
-    // Crawl state label
-    let crawlLabel='', crawlColor='var(--muted2)';
+    // Definitive crawl state
+    let crawlLabel, crawlColor, crawlIcon;
     if(destVerdict==='PASS'){
-      crawlLabel='✅ Indexed'; crawlColor='var(--accent)';
-    } else if(lastCrawl && (destVerdict==='NEUTRAL'||destFetch==='SUCCESSFUL'||destCoverage.toLowerCase().includes('crawled'))){
-      crawlLabel='🔵 Crawled (not indexed)'; crawlColor='var(--blue)';
-    } else if(destCoverage.toLowerCase().includes('discovered')){
-      crawlLabel='⏳ Discovered — not yet crawled'; crawlColor='var(--orange)';
+      crawlLabel='Indexed (1 result)'; crawlColor='var(--accent)'; crawlIcon='✅';
+    } else if(lastCrawl && destVerdict==='NEUTRAL'){
+      crawlLabel='Crawled — not indexed'; crawlColor='var(--blue)'; crawlIcon='🔵';
+    } else if(destCoverage.toLowerCase().includes('discovered')||(!lastCrawl&&destVerdict==='NEUTRAL')){
+      crawlLabel='Discovered — not yet crawled'; crawlColor='var(--orange)'; crawlIcon='⏳';
     } else if(destFetch==='REDIRECT_ERROR'||destCoverage.toLowerCase().includes('redirect')){
-      crawlLabel='↪ Redirect detected'; crawlColor='var(--orange)';
-    } else if(destFetch==='NOT_FOUND'||destFetch==='ACCESS_DENIED'||destFetch==='SERVER_ERROR'){
-      crawlLabel=`❌ Fetch failed (${humanPageFetch(destFetch)})`; crawlColor='var(--red)';
+      crawlLabel='Redirect detected'; crawlColor='var(--orange)'; crawlIcon='↪';
+    } else if(destFetch==='NOT_FOUND'){
+      crawlLabel='404 Not Found'; crawlColor='var(--red)'; crawlIcon='❌';
+    } else if(destFetch==='ACCESS_DENIED'||destFetch==='SERVER_ERROR'){
+      crawlLabel=`Fetch failed — ${humanPageFetch(destFetch)}`; crawlColor='var(--red)'; crawlIcon='❌';
     } else if(!lastCrawl){
-      crawlLabel='🕷 Never crawled'; crawlColor='var(--muted2)';
+      crawlLabel='Never crawled'; crawlColor='var(--muted2)'; crawlIcon='🕷';
     } else {
-      crawlLabel=humanCoverageState(destCoverage)||humanVerdict(destVerdict); crawlColor='var(--muted)';
+      crawlLabel=humanCoverageState(destCoverage)||humanVerdict(destVerdict); crawlColor='var(--muted)'; crawlIcon='ℹ';
     }
 
-    gscRowsHtml = `
-      <div class="crawl-kv" style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px">
-        <div class="ck">Destination Crawl State</div>
-        <div class="cv" style="color:${crawlColor};font-weight:700">${crawlLabel}</div>
+    const coverageLabel = humanCoverageState(destCoverage);
+
+    return `<div class="crawl-section">
+      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">via GSC inspection</span></div>
+      <div class="crawl-section-body">
+        <div class="crawl-kv">
+          <div class="ck">Google Index</div>
+          <div class="cv" style="color:${crawlColor};font-weight:700;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            ${crawlIcon} ${he(crawlLabel)}${verifyLink}
+          </div>
+        </div>
+        ${coverageLabel?`<div class="crawl-kv"><div class="ck">Coverage</div><div class="cv">${he(coverageLabel)}</div></div>`:''}
+        <div class="crawl-kv">
+          <div class="ck">Last Crawled</div>
+          <div class="cv ${lastCrawl?'good':'warn'}">${lastCrawl?fmtDate(lastCrawl):'Never'}</div>
+        </div>
+        ${crawledAs?`<div class="crawl-kv"><div class="ck">Crawled As</div><div class="cv blue">${he(crawledAs)}</div></div>`:''}
+        ${kv('Page Fetch',humanPageFetch(destFetch||'—'),fetchColor(destFetch))}
+        ${di.robotsTxtState?kv('Robots.txt',humanRobotsTxt(di.robotsTxtState),robotsColor(di.robotsTxtState)):''}
+        ${di.indexingState?kv('Indexing',humanIndexingState(di.indexingState),indexingColor(di.indexingState)):''}
       </div>
-      <div class="crawl-kv">
-        <div class="ck">Last Crawled (dest.)</div>
-        <div class="cv ${lastCrawl?'good':'warn'}">${lastCrawl?fmtDate(lastCrawl):'Never'}</div>
-      </div>
-      ${crawledAs?`<div class="crawl-kv"><div class="ck">Crawled As</div><div class="cv blue">${he(crawledAs)}</div></div>`:''}`;
+    </div>`;
   }
 
+  // ── Fallback: still loading or destGscRes not available ──
   return `<div class="crawl-section">
     <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
     <div class="crawl-section-body single">
       <div class="crawl-kv">
-        <div class="ck">site: result</div>
-        <div class="cv" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">${statusHtml}</div>
-        ${noteHtml}
+        <div class="ck">Google Index</div>
+        <div class="cv" style="color:var(--muted2)">⟳ Querying GSC for destination…${verifyLink}</div>
       </div>
-      ${gscRowsHtml}
     </div>
   </div>`;
 }
@@ -5829,34 +5822,67 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
   const mob  = res.mobileUsabilityResult||{};
   const rich = res.richResultsResult||{};
   const amp  = res.ampResult||{};
-  const verdict = idx.verdict||'UNKNOWN';
-  const vClass  = verdict==='PASS'?'pass': verdict==='NEUTRAL'?'neutral': verdict==='FAIL'?'fail':'pending';
-  const vIcon   = verdict==='PASS'?'✅': verdict==='NEUTRAL'?'🔵': verdict==='FAIL'?'❌':'⏳';
-  const vLabel  = verdict==='PASS'?'Indexed': verdict==='NEUTRAL'?'Crawled / Not Indexed': verdict==='FAIL'?'Not Indexed (Error)':'Unknown / Pending';
 
-  // Destination Page Index Status section removed per user request
-  let destHtml = '';
+  // ── Short-link GSC data (always redirect — informational only) ──
+  const shortVerdict  = idx.verdict||'UNKNOWN';
+
+  // ── Destination GSC data — this is the truth we show at the top ──
+  const dIdx       = destGscRes?.inspectionResult?.indexStatusResult||null;
+  const destVerdict= dIdx?.verdict||'UNKNOWN';
+  const destCoverage=dIdx?.coverageState||'';
+  const destFetch  = dIdx?.pageFetchState||'';
+  const destLastCrawl=dIdx?.lastCrawlTime||null;
+
+  // Build top-banner from DESTINATION verdict (what matters)
+  let vClass, vIcon, vLabel, vSub;
+  if(dIdx){
+    if(destVerdict==='PASS'){
+      vClass='pass'; vIcon='✅'; vLabel='Indexed on Google';
+      vSub='Destination page is live in Google search results.';
+    } else if(destVerdict==='NEUTRAL' && destLastCrawl){
+      vClass='neutral'; vIcon='🔵'; vLabel='Crawled / Not Indexed';
+      vSub=humanCoverageState(destCoverage)||'Google crawled the destination but chose not to index it.';
+    } else if(destVerdict==='NEUTRAL'){
+      vClass='pending'; vIcon='⏳'; vLabel='Discovered / Not Yet Crawled';
+      vSub='Google found the destination but has not crawled it yet.';
+    } else if(destVerdict==='FAIL'){
+      vClass='fail'; vIcon='❌'; vLabel='Not Indexed (Error)';
+      vSub=humanCoverageState(destCoverage)||humanPageFetch(destFetch)||'Destination page has a crawl error.';
+    } else {
+      // destGscRes came back but verdict unknown — fall back to short-link verdict contextually
+      vClass='pending'; vIcon='⏳'; vLabel='Status Unknown';
+      vSub='Could not determine destination page status from GSC.';
+    }
+  } else {
+    // No destGscRes yet — show short link result with context note
+    if(shortVerdict==='PASS'){
+      vClass='pass'; vIcon='✅'; vLabel='Indexed on Google'; vSub='';
+    } else if(shortVerdict==='NEUTRAL'){
+      vClass='neutral'; vIcon='🔵'; vLabel='Crawled / Not Indexed';
+      vSub=humanCoverageState(idx.coverageState||'');
+    } else if(shortVerdict==='FAIL'){
+      vClass='fail'; vIcon='❌'; vLabel='Not Indexed (Error)'; vSub='';
+    } else {
+      vClass='pending'; vIcon='⏳'; vLabel='Unknown / Pending'; vSub='';
+    }
+  }
 
   let html=`<div class="crawl-verdict-banner ${vClass}">
     <span class="cvb-icon">${vIcon}</span>
-    <div><div class="cvb-label ${vClass}">${vLabel}</div>${idx.coverageState?`<div class="cvb-sub">${he(humanCoverageState(idx.coverageState))}</div>`:''}</div>
+    <div><div class="cvb-label ${vClass}">${vLabel}</div>${vSub?`<div class="cvb-sub">${he(vSub)}</div>`:''}</div>
   </div>
-  ${buildDiagnosisPanel(verdict, idx, shortUrl)}
+  ${buildDiagnosisPanel(destVerdict!=='UNKNOWN'?destVerdict:shortVerdict, dIdx||idx, shortUrl)}
+  ${buildDestSectionHtml(originalUrl, siteCheck, destGscRes)}
   <div class="crawl-section">
-    <div class="crawl-section-hdr" style="background:rgba(0,255,136,0.04)"><span class="cs-icon">📄</span><span style="color:var(--accent)">Index Status</span></div>
+    <div class="crawl-section-hdr" style="background:rgba(100,100,100,0.04)"><span class="cs-icon">🔗</span><span style="color:var(--muted)">Short Link GSC Data</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">(redirect — informational)</span></div>
     <div class="crawl-section-body">
-      ${kv('Verdict',humanVerdict(verdict),vClass)}
+      ${kv('Verdict',humanVerdict(shortVerdict),shortVerdict==='PASS'?'pass':shortVerdict==='NEUTRAL'?'neutral':shortVerdict==='FAIL'?'bad':'')}
       ${kv('Coverage',humanCoverageState(idx.coverageState||'—'))}
-      ${kv('Robots.txt',humanRobotsTxt(idx.robotsTxtState||'—'),robotsColor(idx.robotsTxtState))}
-      ${kv('Indexing',humanIndexingState(idx.indexingState||'—'),indexingColor(idx.indexingState))}
       ${kv('Page Fetch',humanPageFetch(idx.pageFetchState||'—'),fetchColor(idx.pageFetchState))}
       ${kv('Last Crawl',idx.lastCrawlTime?fmtDate(idx.lastCrawlTime):'Never crawled',idx.lastCrawlTime?'good':'warn')}
       ${kv('Crawled As',idx.crawledAs||'—','blue')}
-      ${kv('Google Canonical',idx.googleCanonical?shortUrl===idx.googleCanonical?'✓ Matches':'⚠ '+idx.googleCanonical.slice(0,50):'—',idx.googleCanonical&&idx.googleCanonical===shortUrl?'good':'warn')}
     </div>
-  </div>
-  ${buildDestSectionHtml(originalUrl, siteCheck, destGscRes)}
-  ${destHtml}`;
+  </div>`;
   // Only add Rich Results if there's actual data (useful, not noise)
   if(rich.verdict||(rich.detectedItems&&rich.detectedItems.length)){
     const ri=rich.detectedItems||[];
