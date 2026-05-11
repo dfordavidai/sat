@@ -797,7 +797,7 @@ textarea{resize:vertical;line-height:1.7}
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
             <button class="btn btn-primary" style="font-size:.55rem" onclick="copySitemapIdxUrl()">⧉ Copy URL</button>
             <button class="btn btn-blue" style="font-size:.55rem" onclick="pingGoogleSitemapIdx()">📡 Ping Google</button>
-            <button class="btn btn-cyan" style="font-size:.55rem" onclick="pingBingSitemapIdx()">📡 Ping Bing</button>
+            <!-- Bing ping removed — Google-only verification -->
           </div>
         </div>
 
@@ -1345,7 +1345,7 @@ textarea{resize:vertical;line-height:1.7}
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
           <button class="btn btn-primary" style="font-size:.55rem" onclick="copySitemapIdxUrl()">⧉ Copy URL</button>
           <button class="btn btn-blue" style="font-size:.55rem" onclick="pingGoogleSitemapIdx()">📡 Ping Google</button>
-          <button class="btn btn-cyan" style="font-size:.55rem" onclick="pingBingSitemapIdx()">📡 Ping Bing</button>
+          <!-- Bing ping removed — Google-only verification -->
         </div>
       </div>
 
@@ -5795,12 +5795,17 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
   // The short-link GSC verdict is always "Crawled / Not Indexed / Redirect error" by design —
   // it's a 301 redirect, not a landing page. siteCheck is the real answer.
   let vClass, vIcon, vLabel, vSub;
-  if(siteCheck && siteCheck.indexed === true){
+  // Only trust Google sources for "Indexed" — Bing indexes much faster and causes false positives.
+  const isGoogleSource = siteCheck && !['bing','bing-rss','bing-html'].includes(siteCheck.source);
+  if(siteCheck && siteCheck.indexed === true && isGoogleSource){
     vClass='pass'; vIcon='✅';
     vLabel='Indexed on Google';
-    const src = siteCheck.source==='bing'?'Bing':siteCheck.source==='bing-html'?'Bing':siteCheck.source==='worker'?'Worker':'Google';
     const countLabel = siteCheck.count > 0 ? ` (${siteCheck.count} result${siteCheck.count!==1?'s':''})` : '';
-    vSub=`Destination page found in ${src} search index${countLabel}.`;
+    vSub=`Destination page confirmed in Google search index${countLabel}.`;
+  } else if(siteCheck && siteCheck.indexed === true && !isGoogleSource){
+    vClass='pending'; vIcon='⏳';
+    vLabel='Not Yet Indexed on Google';
+    vSub='Not yet confirmed in Google index. Google may take longer than Bing — check back soon.';
   } else if(siteCheck && siteCheck.indexed === false){
     vClass='fail'; vIcon='❌';
     vLabel='Not Indexed';
@@ -7306,15 +7311,9 @@ async function pingGoogleSitemapIdx() {
   }
 }
 
+// pingBingSitemapIdx removed — Google-only verification mode
 async function pingBingSitemapIdx() {
-  const workerUrl = localStorage.getItem('lc_worker_url') || '';
-  const idxUrl = encodeURIComponent(`${workerUrl}/sitemap-index.xml`);
-  try {
-    await fetch(`https://www.bing.com/ping?sitemap=${idxUrl}`, { mode: 'no-cors' });
-    toast('✅ Pinged Bing with sitemap-index.xml', 'green');
-  } catch {
-    toast('Ping sent (CORS expected — Bing received it)', 'green');
-  }
+  toast('Bing ping disabled — Google-only mode', '');
 }
 
 // v18 — ifSubmitJob now natively includes drip_mode, drip_hours, gsc_site (no monkey-patch needed)
