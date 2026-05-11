@@ -6364,134 +6364,47 @@ function getNextProxy(){ const p=PROXY_POOL[_proxyIdx % PROXY_POOL.length]; _pro
 // ── Destination index check via worker relay + multi-proxy fallback ──────
 // Returns {indexed:bool|null, count:int|null, source:str, error:str|null}
 async function checkIndexedViaSite(targetUrl){
-  const workerUrl = localStorage.getItem('lc_worker_url')||'';
-  const siteQuery = `site:${targetUrl}`;
+  const workerUrl = (localStorage.getItem('lc_worker_url')||'').replace(/\/$/,'');
+  const siteQuery  = `site:${targetUrl}`;
+  let targetDomain = '';
+  try{ targetDomain = new URL(targetUrl).hostname.toLowerCase(); }catch(e){}
 
-  // ── Method 1: Cloudflare Worker (most reliable — server-side, no proxy) ──
+  // ── Method 1: Worker /api/site-check (AUTHORITATIVE) ──
+  // The worker runs server-side with a real browser UA, validates result URLs
+  // against the target domain, and has no CORS restrictions. Always use this
+  // when available — it is the only fully reliable method.
   if(workerUrl){
     try{
-      const r = await fetch(`${workerUrl}/api/site-check?url=${encodeURIComponent(targetUrl)}`,{signal:AbortSignal.timeout(8000)});
+      const r = await fetch(`${workerUrl}/api/site-check?url=${encodeURIComponent(targetUrl)}`,
+        {signal:AbortSignal.timeout(15000)});
       if(r.ok){
         const d = await r.json();
-        if(d && typeof d.indexed !== 'undefined') return {indexed:d.indexed, count:d.count||0, source:'worker', error:null};
+        // Worker returns {indexed, count, source, error}
+        if(d && typeof d.indexed !== 'undefined'){
+          return {
+            indexed: d.indexed,
+            count:   d.count  ?? 0,
+            source:  d.source || 'worker',
+            error:   d.error  || null,
+          };
+        }
       }
     }catch(e){}
   }
 
-  const CORS_PROXIES = [
-    (u)=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-    (u)=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
-    (u)=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-  ];
-
-  // ── Method 2: Google site: search via CORS proxies ──
-  // STRICT detection only — no loose HTML signals that fire on "no results" pages.
-  // The root cause of false positives: Google's "no results" page still contains
-  // class="g", data-sokoban-container, and domain mentions in the query echo.
-  // We ONLY trust actual result card class names (yuRUbf, tF2Cxc, LC20lb, MjjYud).
-  const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(siteQuery)}&num=10&hl=en&gl=us`;
-
-  for(const proxyFn of CORS_PROXIES){
-    try{
-      const r = await fetch(proxyFn(googleSearchUrl),{signal:AbortSignal.timeout(12000)});
-      if(!r.ok) continue;
-      let html='';
-      try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
-      if(!html || html.length < 800) continue;
-
-      // ── Step 1: Definitive NOT-indexed signals — check these FIRST ──
-      // These strings only appear when Google has zero results.
-      const notIndexed =
-        /did not match any documents/i.test(html) ||
-        /your search.*did not match/i.test(html)  ||
-        /No results found for/i.test(html)         ||
-        /没有与.*相符的文档/i.test(html)            ||  // Chinese locale
-        /Aucun document.*ne correspond/i.test(html);    // French locale
-
-      if(notIndexed) return {indexed:false, count:0, source:'google', error:null};
-
-      // ── Step 2: STRICT result card detection ──
-      // Only these class names appear on actual result <div> cards.
-      // They do NOT appear in Google's no-results page chrome.
-      // yuRUbf = result link wrapper, tF2Cxc = result block, LC20lb = result title,
-      // MjjYud = result container (newer layout), VwiC3b = snippet text
-      const RESULT_CARD_RE = /class="(?:[^"]*\s)?(?:yuRUbf|tF2Cxc|LC20lb|MjjYud|VwiC3b)(?:\s[^"]*)?"/g;
-      const cardMatches = html.match(RESULT_CARD_RE)||[];
-
-      // Also check for result-stats div — only present when results exist
-      const statsMatch = html.match(/id=["']result-stats["'][^>]*>[\s\S]{0,80}?([\d,]+)\s+result/i)
-                      || html.match(/About\s+([\d,]+)\s+results?\s*\(/i);
-
-      // Must have BOTH: at least one result card AND result-stats (or multiple cards)
-      // This eliminates false positives where proxy returns partial/cached HTML
-      const hasRealResults = cardMatches.length >= 1 && (statsMatch || cardMatches.length >= 2);
-
-      if(hasRealResults){
-        let count = cardMatches.length;
-        if(statsMatch){
-          const parsed = parseInt(statsMatch[1].replace(/,/g,''),10)||1;
-          // Cap at cardMatches.length to prevent wildly inflated proxy counts
-          // For site:exact-url real count is almost always 1–5
-          count = cardMatches.length > 0 ? Math.min(parsed, Math.max(cardMatches.length, 1)) : Math.min(parsed, 50);
-        }
-        return {indexed:true, count, source:'google', error:null};
-      }
-
-      // ── Step 3: If we got a valid HTML page but no result cards → not indexed ──
-      // A real Google SERP with results will always have at least one yuRUbf/tF2Cxc card.
-      // If we have a big HTML doc with no cards, it's a no-results SERP.
-      if(html.length > 5000 && cardMatches.length === 0){
-        return {indexed:false, count:0, source:'google', error:null};
-      }
-    }catch(e){ continue; }
-  }
-
-  // ── Method 3: Bing RSS — cleaner, structured, no obfuscation ──
-  // Bing RSS wraps each result in <item> tags — much easier to parse accurately.
-  const bingUrl = `https://www.bing.com/search?q=${encodeURIComponent(siteQuery)}&format=rss`;
-  for(const proxyFn of CORS_PROXIES){
-    try{
-      const r = await fetch(proxyFn(bingUrl),{signal:AbortSignal.timeout(12000)});
-      if(!r.ok) continue;
-      let html='';
-      try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
-      if(!html || html.length < 200) continue;
-
-      const items = (html.match(/<item>/g)||[]).length;
-      if(items > 0){
-        const totalMatch = html.match(/totalResults[^>]*>(\d+)/i);
-        const total = totalMatch ? parseInt(totalMatch[1],10)||items : items;
-        return {indexed:true, count:Math.min(total, Math.max(items,1)), source:'bing', error:null};
-      }
-      // Bing RSS with channel but no <item> = no results
-      if(html.includes('<channel>') || /no results|0 results/i.test(html)){
-        return {indexed:false, count:0, source:'bing', error:null};
-      }
-    }catch(e){ continue; }
-  }
-
-  // ── Method 4: Bing plain HTML fallback ──
-  const bingHtmlUrl = `https://www.bing.com/search?q=${encodeURIComponent(siteQuery)}&count=10`;
-  for(const proxyFn of CORS_PROXIES){
-    try{
-      const r = await fetch(proxyFn(bingHtmlUrl),{signal:AbortSignal.timeout(12000)});
-      if(!r.ok) continue;
-      let html='';
-      try{ const d=await r.json(); html=d?.contents||d?.body||''; }catch(e){ html=await r.text(); }
-      if(!html || html.length < 500) continue;
-
-      // Bing "no results" signals
-      if(/No results found for/i.test(html) || /did not return any results/i.test(html)){
-        return {indexed:false, count:0, source:'bing-html', error:null};
-      }
-      // Bing result items use class="b_algo"
-      const bingCards = (html.match(/class="b_algo"/g)||[]).length;
-      if(bingCards > 0) return {indexed:true, count:bingCards, source:'bing-html', error:null};
-      if(html.length > 3000 && bingCards === 0) return {indexed:false, count:0, source:'bing-html', error:null};
-    }catch(e){ continue; }
-  }
-
-  return {indexed:null, count:null, source:'none', error:'All checks failed — click ↗ verify on Google'};
+  // ── No worker configured — tell the user clearly rather than guess ──
+  // CORS proxies cannot reliably parse Google/Bing HTML without a real browser UA.
+  // Every previous proxy approach produced false positives because:
+  //   • Google's no-results page contains the same CSS class names as result pages
+  //   • Bing RSS returns <item> tags in error/blocked responses
+  //   • Proxies often return cached/redirected pages that don't reflect live results
+  // The only trustworthy fallback is a direct ↗ verify link for the user.
+  return {
+    indexed: null,
+    count:   null,
+    source:  'none',
+    error:   'Configure Worker URL in Settings for automatic checks',
+  };
 }
 
 // ── Re-submit button inside crawl modal ──────────────────────────
