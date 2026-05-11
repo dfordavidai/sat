@@ -5751,68 +5751,43 @@ function buildDestSectionHtml(originalUrl, siteCheck, destGscRes){
   if(!originalUrl) return '';
   const verifyLink=`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+originalUrl)}" target="_blank" style="color:var(--blue);text-decoration:none;margin-left:6px;font-size:.5rem">↗ verify on Google</a>`;
 
-  // ── Primary: use destGscRes (authoritative GSC inspection of destination) ──
-  if(destGscRes){
-    const di           = destGscRes?.inspectionResult?.indexStatusResult||{};
-    const destVerdict  = di.verdict||'UNKNOWN';
-    const destFetch    = di.pageFetchState||'';
-    const destCoverage = di.coverageState||'';
-    const lastCrawl    = di.lastCrawlTime;
-    const crawledAs    = di.crawledAs||'';
-    const destScreenshot = destGscRes?.inspectionResult?.screenshotUrl||null;
+  // ── Primary: siteCheck = live site:URL query against Google/Bing ──
+  // This is the real-world answer: is the page actually in Google's index right now?
+  // destGscRes is not used for external destination URLs (different GSC property — unreliable).
+  let crawlLabel, crawlColor, crawlIcon, crawlNote;
 
-    // Definitive crawl state
-    let crawlLabel, crawlColor, crawlIcon;
-    if(destVerdict==='PASS'){
-      crawlLabel='Indexed (1 result)'; crawlColor='var(--accent)'; crawlIcon='✅';
-    } else if(lastCrawl && destVerdict==='NEUTRAL'){
-      crawlLabel='Crawled — not indexed'; crawlColor='var(--blue)'; crawlIcon='🔵';
-    } else if(destCoverage.toLowerCase().includes('discovered')||(!lastCrawl&&destVerdict==='NEUTRAL')){
-      crawlLabel='Discovered — not yet crawled'; crawlColor='var(--orange)'; crawlIcon='⏳';
-    } else if(destFetch==='REDIRECT_ERROR'||destCoverage.toLowerCase().includes('redirect')){
-      crawlLabel='Redirect detected'; crawlColor='var(--orange)'; crawlIcon='↪';
-    } else if(destFetch==='NOT_FOUND'){
-      crawlLabel='404 Not Found'; crawlColor='var(--red)'; crawlIcon='❌';
-    } else if(destFetch==='ACCESS_DENIED'||destFetch==='SERVER_ERROR'){
-      crawlLabel=`Fetch failed — ${humanPageFetch(destFetch)}`; crawlColor='var(--red)'; crawlIcon='❌';
-    } else if(!lastCrawl){
-      crawlLabel='Never crawled'; crawlColor='var(--muted2)'; crawlIcon='🕷';
+  if(siteCheck){
+    if(siteCheck.indexed === true){
+      crawlLabel = `Indexed${siteCheck.count > 0 ? ' ('+siteCheck.count+' result'+(siteCheck.count!==1?'s':'')+')' : ''}`;
+      crawlColor = 'var(--accent)'; crawlIcon = '✅';
+      const src = siteCheck.source==='bing' ? 'Bing' : siteCheck.source==='worker' ? 'Worker' : 'Google';
+      crawlNote  = `Source: live site: search (${src})`;
+    } else if(siteCheck.indexed === false){
+      crawlLabel = 'Not Indexed — 0 results';
+      crawlColor = 'var(--red)'; crawlIcon = '❌';
+      crawlNote  = `Source: live site: search (${siteCheck.source||'Google'}). Page not in index.`;
     } else {
-      crawlLabel=humanCoverageState(destCoverage)||humanVerdict(destVerdict); crawlColor='var(--muted)'; crawlIcon='ℹ';
+      // null = inconclusive
+      crawlLabel = 'Could not confirm';
+      crawlColor = 'var(--muted)'; crawlIcon = '⚠';
+      crawlNote  = siteCheck.error||'site: check inconclusive — verify manually';
     }
-
-    const coverageLabel = humanCoverageState(destCoverage);
-
-    return `<div class="crawl-section">
-      <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">via GSC inspection</span></div>
-      <div class="crawl-section-body">
-        <div class="crawl-kv">
-          <div class="ck">Google Index</div>
-          <div class="cv" style="color:${crawlColor};font-weight:700;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            ${crawlIcon} ${he(crawlLabel)}${verifyLink}
-          </div>
-        </div>
-        ${coverageLabel?`<div class="crawl-kv"><div class="ck">Coverage</div><div class="cv">${he(coverageLabel)}</div></div>`:''}
-        <div class="crawl-kv">
-          <div class="ck">Last Crawled</div>
-          <div class="cv ${lastCrawl?'good':'warn'}">${lastCrawl?fmtDate(lastCrawl):'Never'}</div>
-        </div>
-        ${crawledAs?`<div class="crawl-kv"><div class="ck">Crawled As</div><div class="cv blue">${he(crawledAs)}</div></div>`:''}
-        ${kv('Page Fetch',humanPageFetch(destFetch||'—'),fetchColor(destFetch))}
-        ${di.robotsTxtState?kv('Robots.txt',humanRobotsTxt(di.robotsTxtState),robotsColor(di.robotsTxtState)):''}
-        ${di.indexingState?kv('Indexing',humanIndexingState(di.indexingState),indexingColor(di.indexingState)):''}
-      </div>
-    </div>`;
+  } else {
+    crawlLabel = '⟳ Running site: check…';
+    crawlColor = 'var(--muted2)'; crawlIcon = '';
+    crawlNote  = null;
   }
 
-  // ── Fallback: still loading or destGscRes not available ──
   return `<div class="crawl-section">
-    <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page Index Status</span></div>
+    <div class="crawl-section-hdr" style="background:rgba(168,85,247,0.06)"><span class="cs-icon">🎯</span><span style="color:var(--purple)">Destination Page — Real Google Index Status</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">via live site: search</span></div>
     <div class="crawl-section-body single">
       <div class="crawl-kv">
         <div class="ck">Google Index</div>
-        <div class="cv" style="color:var(--muted2)">⟳ Querying GSC for destination…${verifyLink}</div>
+        <div class="cv" style="color:${crawlColor};font-weight:700;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          ${crawlIcon ? crawlIcon+' ' : ''}${he(crawlLabel)}${verifyLink}
+        </div>
       </div>
+      ${crawlNote ? `<div class="crawl-kv"><div class="ck">Check Method</div><div class="cv" style="color:var(--muted)">${he(crawlNote)}</div></div>` : ''}
     </div>
   </div>`;
 }
@@ -5826,52 +5801,32 @@ function renderCrawlDetails(container, res, shortUrl, originalUrl, destRes, site
   // ── Short-link GSC data (always redirect — informational only) ──
   const shortVerdict  = idx.verdict||'UNKNOWN';
 
-  // ── Destination GSC data — this is the truth we show at the top ──
-  const dIdx       = destGscRes?.inspectionResult?.indexStatusResult||null;
-  const destVerdict= dIdx?.verdict||'UNKNOWN';
-  const destCoverage=dIdx?.coverageState||'';
-  const destFetch  = dIdx?.pageFetchState||'';
-  const destLastCrawl=dIdx?.lastCrawlTime||null;
-
-  // Build top-banner from DESTINATION verdict (what matters)
+  // ── Top banner: driven by siteCheck — the REAL Google result for the destination URL ──
+  // siteCheck = { indexed: bool|null, count: number|null, source: string, error: string|null }
+  // This is a live site:URL query against Google/Bing — this is what actually shows in search.
   let vClass, vIcon, vLabel, vSub;
-  if(dIdx){
-    if(destVerdict==='PASS'){
-      vClass='pass'; vIcon='✅'; vLabel='Indexed on Google';
-      vSub='Destination page is live in Google search results.';
-    } else if(destVerdict==='NEUTRAL' && destLastCrawl){
-      vClass='neutral'; vIcon='🔵'; vLabel='Crawled / Not Indexed';
-      vSub=humanCoverageState(destCoverage)||'Google crawled the destination but chose not to index it.';
-    } else if(destVerdict==='NEUTRAL'){
-      vClass='pending'; vIcon='⏳'; vLabel='Discovered / Not Yet Crawled';
-      vSub='Google found the destination but has not crawled it yet.';
-    } else if(destVerdict==='FAIL'){
-      vClass='fail'; vIcon='❌'; vLabel='Not Indexed (Error)';
-      vSub=humanCoverageState(destCoverage)||humanPageFetch(destFetch)||'Destination page has a crawl error.';
-    } else {
-      // destGscRes came back but verdict unknown — fall back to short-link verdict contextually
-      vClass='pending'; vIcon='⏳'; vLabel='Status Unknown';
-      vSub='Could not determine destination page status from GSC.';
-    }
+  if(siteCheck && siteCheck.indexed === true){
+    vClass='pass'; vIcon='✅'; vLabel='Indexed on Google';
+    const src = siteCheck.source==='bing' ? 'Bing' : 'Google';
+    vSub=`Destination page found in ${src} search index${siteCheck.count>0?' ('+siteCheck.count+' result'+(siteCheck.count!==1?'s':'')+')':''}.`;
+  } else if(siteCheck && siteCheck.indexed === false){
+    vClass='fail'; vIcon='❌'; vLabel='Not Indexed';
+    vSub='Destination page returned no results in Google search (site: check). Not currently indexed.';
+  } else if(siteCheck && siteCheck.indexed === null){
+    // Check ran but inconclusive — show with note
+    vClass='pending'; vIcon='⏳'; vLabel='Index Status Unknown';
+    vSub=siteCheck.error||'Could not confirm index status — click ↗ verify to check manually on Google.';
   } else {
-    // No destGscRes yet — show short link result with context note
-    if(shortVerdict==='PASS'){
-      vClass='pass'; vIcon='✅'; vLabel='Indexed on Google'; vSub='';
-    } else if(shortVerdict==='NEUTRAL'){
-      vClass='neutral'; vIcon='🔵'; vLabel='Crawled / Not Indexed';
-      vSub=humanCoverageState(idx.coverageState||'');
-    } else if(shortVerdict==='FAIL'){
-      vClass='fail'; vIcon='❌'; vLabel='Not Indexed (Error)'; vSub='';
-    } else {
-      vClass='pending'; vIcon='⏳'; vLabel='Unknown / Pending'; vSub='';
-    }
+    // siteCheck still pending or no originalUrl
+    vClass='pending'; vIcon='⏳'; vLabel='Checking Google…';
+    vSub='Running live site: check against Google search…';
   }
 
   let html=`<div class="crawl-verdict-banner ${vClass}">
     <span class="cvb-icon">${vIcon}</span>
     <div><div class="cvb-label ${vClass}">${vLabel}</div>${vSub?`<div class="cvb-sub">${he(vSub)}</div>`:''}</div>
   </div>
-  ${buildDiagnosisPanel(destVerdict!=='UNKNOWN'?destVerdict:shortVerdict, dIdx||idx, shortUrl)}
+  ${buildDiagnosisPanel(shortVerdict, idx, shortUrl)}
   ${buildDestSectionHtml(originalUrl, siteCheck, destGscRes)}
   <div class="crawl-section">
     <div class="crawl-section-hdr" style="background:rgba(100,100,100,0.04)"><span class="cs-icon">🔗</span><span style="color:var(--muted)">Short Link GSC Data</span><span style="font-size:.44rem;color:var(--muted2);margin-left:6px">(redirect — informational)</span></div>
@@ -6546,12 +6501,16 @@ async function openCrawlDetails(shortUrl, originalUrl){
   try{
     const token = await getToken(sa.json,'https://www.googleapis.com/auth/webmasters');
 
-    // Run GSC inspection on short URL + destination GSC inspection + site: check — all in parallel
-    const [r, destGscRes, siteCheck] = await Promise.all([
+    // Run GSC inspection on short URL + real Google site: check for destination — in parallel
+    // NOTE: destGscRes via GSC API is intentionally removed — GSC URL Inspection requires the
+    // inspectionUrl to belong to the verified siteUrl property. External destination URLs
+    // (e.g. kikyus.net) don't belong to our GSC property, so GSC would return garbage/error.
+    // The authoritative real-Google check for the destination is checkIndexedViaSite().
+    const [r, siteCheck] = await Promise.all([
       fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:shortUrl,siteUrl:site})}),
-      originalUrl ? fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({inspectionUrl:originalUrl,siteUrl:site})}).then(r=>r.ok?r.json():null).catch(()=>null) : Promise.resolve(null),
       originalUrl ? checkIndexedViaSite(originalUrl) : Promise.resolve(null)
     ]);
+    const destGscRes = null; // destination is an external URL — not in our GSC property
 
     if(!r.ok){ const t=await r.text(); sections.innerHTML=`<div class="crawl-error">❌ GSC API ${r.status}: ${he(t.slice(0,200))}</div>`; return; }
     const data = await r.json();
