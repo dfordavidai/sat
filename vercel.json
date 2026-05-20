@@ -1,71 +1,9 @@
 {
-  "routes": [
+  "redirects": [
     {
-      "src": "/sitemap.xml",
-      "dest": "/api/sitemap"
-    },
-    {
-      "src": "/sitemap-index.xml",
-      "dest": "/api/sitemap-index"
-    },
-    {
-      "src": "/sitemap_index.xml",
-      "dest": "/api/sitemap-index"
-    },
-    {
-      "src": "/sitemap-links.xml",
-      "dest": "/api/sitemap-links"
-    },
-    {
-      "src": "/feed.xml",
-      "dest": "/api/feed"
-    },
-    {
-      "src": "/link-hub",
-      "dest": "/api/link-hub"
-    },
-    {
-      "src": "/crawl-hub",
-      "dest": "/api/link-hub"
-    },
-    {
-      "src": "/api/crawl-ping",
-      "dest": "/api/crawl-ping"
-    },
-    {
-      "src": "/link/(?<code>[^/]+)",
-      "dest": "/api/redirect?code=$code"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/link/(.*)",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "index, follow" },
-        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=300" },
-        { "key": "X-DNS-Prefetch-Control", "value": "on" }
-      ]
-    },
-    {
-      "source": "/(link-hub|crawl-hub|sitemap.xml|sitemap-links.xml|sitemap-index.xml)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Vary", "value": "Accept, Accept-Encoding" },
-        { "key": "X-Allow-SXG", "value": "1" }
-      ]
-    },
-    {
-      "source": "/(sitemap.xml|sitemap-links.xml|sitemap-index.xml|feed.xml)",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex" }
-      ]
-    },
-    {
-      "source": "/link-hub",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "index, follow" },
-        { "key": "Vary", "value": "Accept-Encoding" }
-      ]
+      "source": "/(.*)",
+      "destination": "https://flexygist.com.ng/tube/",
+      "permanent": true
     }
   ]
 }
